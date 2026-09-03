@@ -1,46 +1,38 @@
 <?php
-
 namespace App\Imports\RtcConsumption;
 
-use App\Models\User;
-use App\Models\Submission;
 use App\Models\JobProgress;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use App\Models\SchoolRtcConsumption;
-use Illuminate\Support\Facades\Cache;
-use App\Notifications\JobNotification;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Exceptions\ExcelValidationException;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use App\Models\RtcConsumption;
+use App\Models\Submission;
+use App\Models\User;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use App\Exports\RtcConsumption\RtcConsumptionExport;
-use App\Models\RtcConsumption;
 use App\Traits\ChecksBlankSheets;
 use App\Traits\FormEssentials;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\ImportFailed;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use FormEssentials, ChecksBlankSheets;
     protected $expectedSheetNames = ['Rtc Consumption'];
-    protected $expectedHeaders = [];
+    protected $expectedHeaders    = [];
     protected $cacheKey;
     protected $filePath;
     protected $submissionDetails = [];
-    protected $totalRows = 0;
+    protected $totalRows         = 0;
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
-        $this->cacheKey = $cacheKey;
-        $this->filePath = $filePath;
+        $this->cacheKey          = $cacheKey;
+        $this->filePath          = $filePath;
         $this->submissionDetails = $submissionDetails;
         foreach ($this->expectedSheetNames as $sheetName) {
             $this->expectedHeaders[$sheetName] = array_keys($this->forms['Rtc Consumption Form'][$sheetName]);
@@ -56,7 +48,7 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
     private function getSheetHeaders(Worksheet $sheet): array
     {
         $highestColumn = $sheet->getHighestColumn();
-        $headerCells = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
+        $headerCells   = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
         return $headerCells[0] ?? [];
     }
 
@@ -78,7 +70,7 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'Rtc Consumption' => 2,
                     ],
                     optional: [],
-
+                    expectedHeaders: $this->expectedHeaders
                 );
 
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
@@ -88,32 +80,32 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'total_rows' => $this->totalRows,
+                        'total_rows'     => $this->totalRows,
                         'processed_rows' => 0,
-                        'progress' => 0,
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'form_name' => 'RTC Consumption Import',
+                        'progress'       => 0,
+                        'user_id'        => $this->submissionDetails['user_id'],
+                        'form_name'      => 'RTC Consumption Import',
                     ]
                 );
 
                 Cache::put("{$this->cacheKey}_import_progress", 0, now()->addMinutes(30));
             },
 
-            AfterImport::class => function (AfterImport $event) {
+            AfterImport::class  => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
                 // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'batch_type' => 'batch',
+                        'batch_no'    => $this->cacheKey,
+                        'form_id'     => $this->submissionDetails['form_id'],
+                        'period_id'   => $this->submissionDetails['submission_period_id'],
+                        'user_id'     => $this->submissionDetails['user_id'],
+                        'status'      => 'approved',
+                        'batch_type'  => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_consumptions',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'table_name'  => 'rtc_consumptions',
+                        'file_link'   => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -125,18 +117,18 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
 
                         )
                     );
-                } else   if ($user->hasAnyRole('staff')) {
+                } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'batch_type' => 'batch',
+                        'batch_no'    => $this->cacheKey,
+                        'form_id'     => $this->submissionDetails['form_id'],
+                        'period_id'   => $this->submissionDetails['submission_period_id'],
+                        'user_id'     => $this->submissionDetails['user_id'],
+                        'status'      => 'pending',
+                        'batch_type'  => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_consumptions',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'table_name'  => 'rtc_consumptions',
+                        'file_link'   => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description'],
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,
@@ -147,16 +139,16 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                     ));
                 } else {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'batch_type' => 'batch',
+                        'batch_no'    => $this->cacheKey,
+                        'form_id'     => $this->submissionDetails['form_id'],
+                        'period_id'   => $this->submissionDetails['submission_period_id'],
+                        'user_id'     => $this->submissionDetails['user_id'],
+                        'status'      => 'pending',
+                        'batch_type'  => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_consumptions',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'table_name'  => 'rtc_consumptions',
+                        'file_link'   => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -165,21 +157,19 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                             'batch' => $this->cacheKey,
                         ], true) . '#batch-submission'
 
-
                     ));
                 }
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'status' => 'completed',
-                        'progress' => 100
+                        'status'   => 'completed',
+                        'progress' => 100,
                     ]
                 );
             },
 
             ImportFailed::class => function (ImportFailed $event) {
-
 
                 $exception = $event->getException();
 
@@ -202,7 +192,7 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                     [
                         'status' => 'failed',
 
-                        'error' => $errorMessage,
+                        'error'  => $errorMessage,
                     ]
                 );
                 RtcConsumption::where('uuid', $this->cacheKey)->delete();

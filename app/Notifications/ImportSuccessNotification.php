@@ -34,7 +34,7 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
-
+        $this->notifyAdminsAndManagers();
         return (new MailMessage)
             ->subject('Import Successful')
             ->greeting('Hello ' . $notifiable->name . ',')

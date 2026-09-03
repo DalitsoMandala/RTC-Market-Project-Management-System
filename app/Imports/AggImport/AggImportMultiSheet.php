@@ -89,7 +89,8 @@ class AggImportMultiSheet implements WithMultipleSheets, WithChunkReading, WithE
                         required: [
                             'Aggregated Report' => 1,
                         ],
-                        optional: []
+                        optional: [],
+                        expectedHeaders: $this->expectedHeaders
                     );
 
                     $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {

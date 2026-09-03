@@ -82,7 +82,7 @@ class MarketingLogImportMultiSheet implements WithMultipleSheets, WithChunkReadi
                     optional: [
 
                     ],
-
+                    expectedHeaders: $this->expectedHeaders
                 );
 
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {

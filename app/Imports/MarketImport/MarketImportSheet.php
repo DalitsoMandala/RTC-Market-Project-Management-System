@@ -1,34 +1,26 @@
 <?php
-
 namespace App\Imports\MarketImport;
 
-use App\Models\User;
-use App\Models\Submission;
-use App\Models\JobProgress;
-use App\Traits\FormEssentials;
-use App\Models\AttendanceRegister;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use App\Notifications\JobNotification;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Exceptions\ExcelValidationException;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use App\Imports\MarketImport\MarketDataImport;
+use App\Models\JobProgress;
 use App\Models\MarketData;
 use App\Models\MarketDataSubmission;
+use App\Models\User;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
 use App\Traits\ChecksBlankSheets;
+use App\Traits\FormEssentials;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\ImportFailed;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue, WithBatchInserts
 {
@@ -44,11 +36,10 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
     protected $submissionDetails;
     protected $totalRows = 0;
 
-
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
-        $this->cacheKey = $cacheKey;
-        $this->filePath = $filePath;
+        $this->cacheKey          = $cacheKey;
+        $this->filePath          = $filePath;
         $this->submissionDetails = $submissionDetails;
         foreach ($this->expectedSheetNames as $sheetName) {
             $this->expectedHeaders[$sheetName] = array_keys($this->forms['Marketing Form'][$sheetName]);
@@ -66,7 +57,7 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
     private function getSheetHeaders(Worksheet $sheet): array
     {
         $highestColumn = $sheet->getHighestColumn();
-        $headerCells = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
+        $headerCells   = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
         return $headerCells[0] ?? [];
     }
 
@@ -74,7 +65,6 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
     {
         return array_values(array_map('trim', $actualHeaders)) === array_values(array_map('trim', $expectedHeaders));
     }
-
 
     public function registerEvents(): array
     {
@@ -88,9 +78,8 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                         'Marketing Monthly Report' => 2,
                     ],
                     optional: [],
-
+                    expectedHeaders: $this->expectedHeaders
                 );
-
 
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 2) ?? 0); // excluding headers
@@ -99,32 +88,30 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'total_rows' => $this->totalRows,
+                        'total_rows'     => $this->totalRows,
                         'processed_rows' => 0,
-                        'progress' => 0,
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'form_name' => 'Marketing Monthly Report',
+                        'progress'       => 0,
+                        'user_id'        => $this->submissionDetails['user_id'],
+                        'form_name'      => 'Marketing Monthly Report',
                     ]
                 );
 
                 Cache::put("{$this->cacheKey}_import_progress", 0, now()->addMinutes(30));
             },
 
-
-
-            AfterImport::class => function (AfterImport $event) {
+            AfterImport::class  => function (AfterImport $event) {
                 // Finalize Submission record after import completes
 
                 $user = User::find($this->submissionDetails['user_id']);
                 //    $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager')) {
                     MarketDataSubmission::create([
-                        'batch_no' => $this->submissionDetails['batch_no'],
+                        'batch_no'          => $this->submissionDetails['batch_no'],
                         'submitted_user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'status'            => 'approved',
+                        'table_name'        => 'marketing_data',
+                        'file_link'         => $this->submissionDetails['file_link'],
+                        'description'       => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -138,12 +125,12 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                     );
                 } else if ($user->hasAnyRole('admin')) {
                     MarketDataSubmission::create([
-                        'batch_no' => $this->submissionDetails['batch_no'],
+                        'batch_no'          => $this->submissionDetails['batch_no'],
                         'submitted_user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'status'            => 'approved',
+                        'table_name'        => 'marketing_data',
+                        'file_link'         => $this->submissionDetails['file_link'],
+                        'description'       => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -157,12 +144,12 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                     );
                 } else if ($user->hasAnyRole('staff')) {
                     MarketDataSubmission::create([
-                        'batch_no' => $this->submissionDetails['batch_no'],
+                        'batch_no'          => $this->submissionDetails['batch_no'],
                         'submitted_user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'status'            => 'pending',
+                        'table_name'        => 'marketing_data',
+                        'file_link'         => $this->submissionDetails['file_link'],
+                        'description'       => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -174,12 +161,12 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                     ));
                 } else { // no external
                     MarketDataSubmission::create([
-                        'batch_no' => $this->submissionDetails['batch_no'],
+                        'batch_no'          => $this->submissionDetails['batch_no'],
                         'submitted_user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'status'            => 'pending',
+                        'table_name'        => 'marketing_data',
+                        'file_link'         => $this->submissionDetails['file_link'],
+                        'description'       => $this->submissionDetails['description'],
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,
@@ -187,16 +174,13 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                             'batch' => $this->cacheKey,
                         ], true) . '#market-submission'
 
-
                     ));
                 }
-
-
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'status' => 'completed',
+                        'status'   => 'completed',
                         'progress' => 100,
                     ]
                 );
@@ -222,10 +206,9 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-                        'error' => $errorMessage,
+                        'error'  => $errorMessage,
                     ]
                 );
-
 
                 MarketData::where('uuid', $this->cacheKey)->delete();
                 MarketDataSubmission::where('batch_no', $this->cacheKey)->delete();

@@ -10,7 +10,7 @@ class indicator_3_4_1 extends base
 {
     public function builder(): Builder
     {
-        return $this->applyFilters(
+        return $this->applyHouseHoldFilters(
             RtcConsumption::query()->where('status', 'approved')
         );
     }

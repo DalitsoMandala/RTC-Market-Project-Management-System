@@ -79,6 +79,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'Attendance Register' => 2, // 2 header rows
                     ],
                     optional: [],
+                    expectedHeaders: $this->expectedHeaders
 
                 );
 

@@ -16,7 +16,6 @@ trait FormEssentials
                 'Section'                         => 'Required, Text',
                 'District'                        => 'Required, Text',
                 'Enterprise'                      => 'Required, Text',
-
                 'Date of Recruitment'             => 'Date (dd-mm-yyyy)',
                 'Name of Actor'                   => 'Text',
                 'Name of Representative'          => 'Text',

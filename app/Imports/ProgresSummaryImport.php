@@ -1,33 +1,19 @@
 <?php
-
 namespace App\Imports;
 
-use App\Models\Submission;
-use App\Models\JobProgress;
-use App\Traits\FormEssentials;
-use App\Helpers\ExcelValidator;
-use App\Models\AdditionalReport;
-use App\Traits\ChecksBlankSheets;
-use App\Models\ProgressSubmission;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use Illuminate\Support\Facades\Cache;
-use App\Notifications\JobNotification;
-use Illuminate\Support\Facades\Artisan;
-use Maatwebsite\Excel\Events\AfterImport;
 use App\Imports\ProgresSummaryImportSheet;
+use App\Models\AdditionalReport;
+use App\Models\ProgressSubmission;
+use App\Traits\ChecksBlankSheets;
+use App\Traits\FormEssentials;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Exceptions\ExcelValidationException;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use App\Notifications\ImportFailureNotification;
-use App\Notifications\ImportSuccessNotification;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
@@ -39,7 +25,7 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
         'Progress summary',
     ];
 
-    protected $totalRows = 0;
+    protected $totalRows       = 0;
     protected $expectedHeaders = [];
 
     public $organisation_id;
@@ -54,12 +40,12 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
     {
         $this->filePath = $filePath;
 
-        $this->user_id = $submmited_user_id;
+        $this->user_id         = $submmited_user_id;
         $this->organisation_id = $report_organisation_id;
-        $this->uuid = $uuid;
-        $this->file_link = $file_link;
-        $this->table_name = $table_name;
-        $this->description = $description;
+        $this->uuid            = $uuid;
+        $this->file_link       = $file_link;
+        $this->table_name      = $table_name;
+        $this->description     = $description;
 
         foreach ($this->expectedSheetNames as $sheetName) {
             $this->expectedHeaders[$sheetName] = array_values($this->forms['Progress summary Form'][$sheetName]);
@@ -73,11 +59,9 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
                 $this->user_id,
                 $this->organisation_id,
                 $this->uuid
-            )
+            ),
         ];
     }
-
-
 
     public function registerEvents(): array
     {
@@ -92,7 +76,7 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
                     optional: [
 
                     ],
-
+                    expectedHeaders: $this->expectedHeaders
                 );
 
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
@@ -100,15 +84,15 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
                 }, 0);
             },
 
-            AfterImport::class => function (AfterImport $event) {
+            AfterImport::class  => function (AfterImport $event) {
                 ProgressSubmission::create([
-                    'submitted_user_id' => $this->user_id,
+                    'submitted_user_id'      => $this->user_id,
                     'report_organisation_id' => $this->organisation_id,
-                    'batch_no' => $this->uuid,
-                    'file_link' => $this->file_link,
-                    'table_name' => $this->table_name,
-                    'description' => $this->description,
-                    'status' => 'active',
+                    'batch_no'               => $this->uuid,
+                    'file_link'              => $this->file_link,
+                    'table_name'             => $this->table_name,
+                    'description'            => $this->description,
+                    'status'                 => 'active',
 
                 ]);
 

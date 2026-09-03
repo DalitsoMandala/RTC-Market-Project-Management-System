@@ -1,10 +1,6 @@
 <?php
-
 namespace App\Imports;
 
-use App\Exceptions\ExcelValidationException;
-use App\Helpers\ExcelValidator;
-use App\Helpers\SheetNamesValidator;
 use App\Imports\CropSheetImport;
 use App\Models\JobProgress;
 use App\Models\SeedBeneficiary;
@@ -24,14 +20,13 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
-use Maatwebsite\Excel\Validators\ValidationException;
 
 class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     protected $expectedSheetNames = [
         'Potato',
         'Sweet potato',
-        'Cassava'
+        'Cassava',
     ];
 
     use FormEssentials, ChecksBlankSheets;
@@ -49,8 +44,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
 
-        $this->cacheKey = $cacheKey;
-        $this->filePath = $filePath;
+        $this->cacheKey          = $cacheKey;
+        $this->filePath          = $filePath;
         $this->submissionDetails = $submissionDetails;
         foreach ($this->expectedSheetNames as $sheetName) {
             $this->expectedHeaders[$sheetName] = array_keys($this->forms['Seed Beneficiaries Form'][$sheetName]);
@@ -60,9 +55,9 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
     public function sheets(): array
     {
         return [
-            'Potato' => new CropSheetImport('Potato', $this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Potato'       => new CropSheetImport('Potato', $this->submissionDetails, $this->cacheKey, $this->totalRows),
             'Sweet potato' => new CropSheetImportOFSP('Sweet potato', $this->submissionDetails, $this->cacheKey, $this->totalRows),
-            'Cassava' => new CropSheetImportCassava('Cassava', $this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Cassava'      => new CropSheetImportCassava('Cassava', $this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
     }
 
@@ -78,44 +73,44 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
 
                     ],
                     optional: [
-                        'Potato' => 2, // 2 header rows,
+                        'Potato'       => 2, // 2 header rows,
                         'Sweet potato' => 2,
-                        'Cassava' => 2
+                        'Cassava'      => 2,
                     ],
-
+                    expectedHeaders: $this->expectedHeaders
                 );
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
-                    return $sum + (($rowCounts[$sheetName] - 2) ?? 0);  // excluding headers
+                    return $sum + (($rowCounts[$sheetName] - 2) ?? 0); // excluding headers
                 }, 0);
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'total_rows' => $this->totalRows,
+                        'total_rows'     => $this->totalRows,
                         'processed_rows' => 0,
-                        'progress' => 0,
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'form_name' => 'Seed Beneficiaries Import',
+                        'progress'       => 0,
+                        'user_id'        => $this->submissionDetails['user_id'],
+                        'form_name'      => 'Seed Beneficiaries Import',
                     ]
                 );
 
                 Cache::put("{$this->cacheKey}_import_progress", 0, now()->addMinutes(30));
             },
-            AfterImport::class => function (AfterImport $event) {
+            AfterImport::class  => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
                 $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'batch_type' => 'batch',
+                        'batch_no'    => $this->cacheKey,
+                        'form_id'     => $this->submissionDetails['form_id'],
+                        'period_id'   => $this->submissionDetails['submission_period_id'],
+                        'user_id'     => $this->submissionDetails['user_id'],
+                        'status'      => 'approved',
+                        'batch_type'  => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'seed_beneficiaries',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'table_name'  => 'seed_beneficiaries',
+                        'file_link'   => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -128,16 +123,16 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     );
                 } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'batch_type' => 'batch',
+                        'batch_no'    => $this->cacheKey,
+                        'form_id'     => $this->submissionDetails['form_id'],
+                        'period_id'   => $this->submissionDetails['submission_period_id'],
+                        'user_id'     => $this->submissionDetails['user_id'],
+                        'status'      => 'pending',
+                        'batch_type'  => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'seed_beneficiaries',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'table_name'  => 'seed_beneficiaries',
+                        'file_link'   => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -148,16 +143,16 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     ));
                 } else {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'batch_type' => 'batch',
+                        'batch_no'    => $this->cacheKey,
+                        'form_id'     => $this->submissionDetails['form_id'],
+                        'period_id'   => $this->submissionDetails['submission_period_id'],
+                        'user_id'     => $this->submissionDetails['user_id'],
+                        'status'      => 'pending',
+                        'batch_type'  => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'seed_beneficiaries',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'table_name'  => 'seed_beneficiaries',
+                        'file_link'   => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -171,8 +166,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'status' => 'completed',
-                        'progress' => 100
+                        'status'   => 'completed',
+                        'progress' => 100,
                     ]
                 );
             },
@@ -196,7 +191,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-                        'error' => $errorMessage,
+                        'error'  => $errorMessage,
                     ]
                 );
 

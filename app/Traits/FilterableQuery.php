@@ -55,6 +55,23 @@ trait FilterableQuery
         return $query;
     }
 
+    public function applyConsumptionFilters(Builder $query, $is_report = false): Builder
+    {
+        $query = $query
+            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
+            ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
+            ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
+
+        if (! $is_report && $this->enterprise) {
+            $query->where('crop', $this->enterprise);
+        }
+        if ($is_report) {
+            $query->where('status', 'approved');
+        }
+
+        return $query;
+    }
+
     public function applySeedFilters(Builder $query, $is_report = false): Builder
     {
         $query = $query
@@ -67,6 +84,10 @@ trait FilterableQuery
 
         if (! $is_report && $this->enterprise) {
             $query->where('crop', $enterprise);
+        }
+
+        if ($is_report) {
+            $query->where('status', 'approved');
         }
 
         return $query;
