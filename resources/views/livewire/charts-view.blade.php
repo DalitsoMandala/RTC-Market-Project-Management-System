@@ -159,8 +159,21 @@
             </div>
         </div>
         <div class="row gx-2 gy-2 dash-card" data-aos="fade-up">
+
             <!-- Profession Distribution -->
-            <div class="col-12 col-xl-12">
+            <div class="col-12 col-xl-4">
+                <div class="shadow-sm card h-100">
+                    <div class="border-0 card-header ">
+                        <h5 class="card-title">Project Progress</h5>
+                    </div>
+                    <div class="card-body">
+
+
+                    </div>
+                </div>
+            </div>
+            <!-- Profession Distribution -->
+            <div class="col-12 col-xl-8">
                 <div class="shadow-sm card h-100">
                     <div class="border-0 card-header ">
                         <h5 class="card-title">Actor Distribution</h5>
@@ -172,6 +185,8 @@
                     </div>
                 </div>
             </div>
+
+
 
             <!-- Crop Distribution -->
             <div class="col-12 col-xl-6">

@@ -5,7 +5,7 @@
 
     <div class="my-4 ">
         <div class="my-2 row align-items-center" x-data="{
-
+        
             showContent: $wire.entangle('showContent'),
         }" x-show="showContent">
             <div class="col-12 col-lg-6">
@@ -18,22 +18,22 @@
                     visible: true,
                     selectedReportYear: $wire.entangle('selectedReportYear'),
                     financialYears: $wire.entangle('financialYears'),
-
+                
                     changeYear(data) {
                         this.visible = false;
                         $wire.dispatch('updateReportYear', {
                             id: data.id,
                         });
-
-
-
-
-
+                
+                
+                
+                
+                
                         setTimeout(() => {
                             this.visible = true
                         }, 1000)
                     },
-
+                
                 }">
 
                     <div class="dropdown card-header-dropdown" :class="{ 'opacity-25 pe-none': visible === false }">
@@ -71,7 +71,7 @@
         @if (!$showContent)
             <div x-data x-init="() => {
                 setTimeout(() => {
-
+            
                     $wire.dispatch('showCharts');
                 }, 1000)
             }">
@@ -94,29 +94,29 @@
                                         let chartData = @js($submissions); // Data from backend
                                         let categories = []; // Will hold month-year labels
                                         let serieArray = {}; // { batch: [], manual: [], aggregate: [] }
-
+                                
                                         // Sort data by year & month to keep chart in order
                                         chartData.sort((a, b) => (a.year - b.year) || (a.month - b.month));
-
+                                
                                         // Create unique month-year keys
                                         chartData.forEach((item) => {
                                             const monthName = new Date(item.year, item.month - 1).toLocaleString('default', { month: 'long' });
                                             const monthYear = `${monthName} ${item.year}`;
-
+                                
                                             // Add category if not already in list
                                             if (!categories.includes(monthYear)) {
                                                 categories.push(monthYear);
                                             }
                                         });
-
-
-
+                                
+                                
+                                
                                         // Initialize serieArray for each type
                                         const types = [...new Set(chartData.map(i => i.type))];
                                         types.forEach(type => {
                                             serieArray[type] = Array(categories.length).fill(0);
                                         });
-
+                                
                                         // Fill serieArray with totals
                                         chartData.forEach((item) => {
                                             const monthName = new Date(item.year, item.month - 1).toLocaleString('default', { month: 'long' });
@@ -124,16 +124,16 @@
                                             const index = categories.indexOf(monthYear);
                                             serieArray[item.type][index] += item.total;
                                         });
-
+                                
                                         // Extract data
                                         const { batch = [], manual = [], aggregate = [] } = serieArray;
-
+                                
                                         // ApexCharts options
                                         let options = {
                                             chart: {
                                                 type: 'line',
                                                 height: '400px',
-
+                                
                                             },
                                             series: [
                                                 { name: 'Batch Submission', data: batch },
@@ -144,10 +144,10 @@
                                             stroke: { curve: 'smooth', width: 1.5 },
                                             xaxis: { categories: categories },
                                             colors: SystemColors,
-
-
+                                
+                                
                                         };
-
+                                
                                         let chart = new ApexCharts($refs.chart, options);
                                         chart.render();
                                     }

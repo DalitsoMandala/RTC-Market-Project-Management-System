@@ -51,7 +51,7 @@ trait AggregatedReportsTrait
 
         $reportingPeriods = $this->reporting_period_id
             ? [$this->reporting_period_id]
-            : ReportingPeriodMonth::pluck('id')->toArray();
+            : ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->pluck('id')->toArray();
 
         $organisations = $this->organisation_id
             ? [$this->organisation_id]
