@@ -73,7 +73,7 @@ trait SystemReportsTrait
 
         $this->current    = 0;
         $this->errorCount = 0;
-        $indicators       = Indicator::get()->keyBy('id');
+        $indicators       = Indicator::where('is_active', true)->get()->keyBy('id');
 
         foreach ($indicatorClasses as $indicatorClass) {
             $indicator = $indicators[$indicatorClass->indicator_id] ?? null;

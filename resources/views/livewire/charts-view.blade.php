@@ -168,6 +168,16 @@
                     </div>
                     <div class="card-body">
 
+                        <div id="progressChart"></div>
+
+                        <div class="mt-1 text-center">
+                            <p class="mb-0 text-warning fw-bold">Actors Reached</p>
+                            <p class="mb-0 text-muted small"><span class="fw-semibold"
+                                    style="color: var(--brown);">{{ $projectData['actual'] }}</span> /
+                                {{ $projectData['lop'] }} target</p>
+
+
+                        </div>
 
                     </div>
                 </div>
@@ -244,7 +254,9 @@
             professionChartInstance: null,
             cropChartInstance: null,
             establishmentChartInstance: null,
-
+            progressChartInstance: null,
+            progressChart: [],
+            projectData: $wire.entangle('projectData'),
 
             hasZeroValues(array) {
                 if (!array.every(item => typeof item === 'number')) {
@@ -256,9 +268,8 @@
 
 
 
-
                 this.professionChart = [data.Farmers, data.Processors, data.Traders, data.Aggregators, data
-                    .Transporters, data['Employees on RTC establishment']
+                    .Transporters
                 ];
                 this.cropChart = [data.Cassava, data.Potato, data['Sweet potato']];
                 this.establishmentChart = [
@@ -274,7 +285,55 @@
             init() {
 
                 let data = this.data;
+                let projectData = this.projectData;
+                let projectCalc = projectData.lop === 0 ? 0 : Math.round((projectData.actual / projectData
+                    .lop) * 100);
+
                 this.setData(data);
+
+                this.progressChartInstance = new ApexCharts(document.querySelector('#progressChart'), {
+                    chart: {
+                        type: 'radialBar',
+                        height: 300
+                    },
+                    colors: [SystemColors[0]],
+                    series: [projectCalc], // Your progress percentage value (0 - 100)
+                    labels: ['LOP Progress'],
+                    stroke: {
+                        lineCap: 'round' // Rounds the ends of the progress stroke
+                    },
+                    plotOptions: {
+                        radialBar: {
+                            hollow: {
+                                size: '65%'
+                            },
+                            track: {
+                                background: '#f2f2f2'
+                            },
+                            dataLabels: {
+                                show: true,
+                                name: {
+                                    offsetY: -10,
+                                    fontSize: '14px',
+                                    color: '#666'
+                                },
+                                value: {
+                                    fontSize: '28px',
+                                    fontWeight: 'bold',
+                                    formatter: function(val) {
+                                        return val + '%';
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        fontSize: '12px'
+                    }
+                });
+
+                this.progressChartInstance.render();
 
                 // Initialize charts and store instances
                 this.genderChartInstance = new ApexCharts(document.querySelector('#genderChart'), {
@@ -357,7 +416,7 @@
                     },
                     xaxis: {
                         categories: ['Farmers', 'Processors', 'Traders', 'Aggregators', 'Transporters',
-                            'Employees'
+
                         ],
 
                     },
@@ -479,6 +538,13 @@
 
             getRandomNumber() {
                 return Math.floor(Math.random() * 10);
+            },
+
+            getPercentage(actual, target) {
+                if (target === 0) {
+                    return 0; // Avoid division by zero
+                }
+                return Math.round((actual / target) * 100);
             },
 
 

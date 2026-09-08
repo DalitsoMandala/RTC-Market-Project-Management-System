@@ -223,7 +223,7 @@ trait AggregatedReportsTrait
 
         $reportingPeriods = $this->reporting_period_id
             ? [$this->reporting_period_id]
-            : ReportingPeriodMonth::pluck('id')->toArray();
+            : ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->pluck('id')->toArray();
 
         $organisations = $this->organisation_id
             ? [$this->organisation_id]
@@ -247,7 +247,7 @@ trait AggregatedReportsTrait
         $this->current    = 0;
         $this->errorCount = 0;
 
-        $indicators = Indicator::get()->keyBy('id');
+        $indicators = Indicator::where('is_active', true)->get()->keyBy('id');
 
         foreach ($indicatorClasses as $indicatorClass) {
 
@@ -325,6 +325,8 @@ trait AggregatedReportsTrait
 
                                                     $existingNames = $systemReport
                                                         ->data()
+                                                        ->whereNotNull('name')
+                                                        ->where('name', '!=', '')
                                                         ->pluck('name')
                                                         ->toArray();
 
@@ -337,8 +339,14 @@ trait AggregatedReportsTrait
 
                                                     } else {
 
+                                                        // Pull string names directly without array_keys()
+                                                        $disaggregationNames = $indicator->disaggregations
+                                                            ->pluck('name')
+                                                            ->filter(fn($name) => ! empty(trim($name)))
+                                                            ->toArray();
+
                                                         $disaggregations = array_fill_keys(
-                                                            array_keys($indicator->disaggregations->pluck('name')->toArray()),
+                                                            $disaggregationNames,
                                                             0
                                                         );
                                                     }

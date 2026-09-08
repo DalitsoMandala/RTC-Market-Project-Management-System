@@ -22,7 +22,8 @@ class ChartsView extends Component
 
     public function mount()
     {
-        //  dd($this->getCurrentData());
+        $this->getCurrentData();
+
     }
 
     #[On('updateChartData')]
@@ -34,73 +35,78 @@ class ChartsView extends Component
 
     private function getCurrentData()
     {
-        // Retrieve required foreign keys upfront to prevent query chaining issues
+        // 1. Retrieve required foreign keys upfront
         $indicatorId         = Indicator::where('indicator_no', 'A1')->value('id');
         $projectId           = Project::where('name', 'RTC MARKET')->value('id');
         $unspecifiedPeriodId = ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->value('id');
 
-        // Handle missing relational records early
         if (! $indicatorId || ! $projectId || ! $unspecifiedPeriodId) {
-            return [];
+            return;
         }
 
-        $systemReport = SystemReportData::whereHas('systemReport', function ($query) use ($indicatorId, $projectId, $unspecifiedPeriodId) {
+        // 2. Query total aggregated value for 'Total' name
+        $totalValue = SystemReportData::whereHas('systemReport', function ($query) use ($indicatorId, $projectId, $unspecifiedPeriodId) {
             $query->whereNull('crop')
                 ->where('indicator_id', $indicatorId)
                 ->where('project_id', $projectId)
                 ->where('reporting_period_id', '!=', $unspecifiedPeriodId);
-
         })
-            ->join('system_reports', 'system_report_data.system_report_id', '=', 'system_reports.id')
-            ->selectRaw('system_report_data.name as report_name, SUM(system_report_data.value) as total_value')
-            ->groupBy('system_report_data.name')
-            ->pluck('total_value', 'report_name')
-            ->toArray();
-        dd($systemReport);
+            ->where('name', 'Total') // Query only 'Total' directly instead of pulling & filtering all names
+            ->sum('value');
+
+        // 3. Fetch LOP Target specifically for indicator A1 and 'Total' disaggregation
+        $lopTargets = $this->getLopTargets();
+        $lopTarget  = $lopTargets[$indicatorId]['Total'] ?? 0;
+
+        // 4. Assign project data state
+        $this->projectData = [
+            'actual' => (float) $totalValue ?? 0,
+            'lop'    => (float) $lopTarget ?? 0,
+        ];
     }
 
     private function getLopTargets(): array
     {
         try {
-            $indicators        = Indicator::where('is_active', true)->where('indicator_no', 'A1')->with('disaggregations')->get()->keyBy('id');
-            $submissionTargets = SubmissionTarget::select([
-                'indicator_id',
-                'target_name',
-                'target_value',
-                'financial_year_id',
-            ])->get();
+            // Retrieve A1 indicator with its disaggregations key-mapped
+            $indicators = Indicator::where('is_active', true)
+                ->where('indicator_no', 'A1')
+                ->with('disaggregations')
+                ->get()
+                ->keyBy('id');
+
+            if ($indicators->isEmpty()) {
+                return [];
+            }
+
+            // Fetch targets only belonging to active A1 indicators
+            $submissionTargets = SubmissionTarget::whereIn('indicator_id', $indicators->keys())
+                ->select(['indicator_id', 'target_name', 'target_value'])
+                ->get();
 
             $collection = [];
 
             foreach ($submissionTargets as $target) {
-                $indicator = $indicators[$target->indicator_id] ?? null;
-                if (! $indicator) {
-                    continue;
+                $indicatorId = $target->indicator_id;
+                $targetName  = $target->target_name;
+
+                if (! isset($collection[$indicatorId])) {
+                    $collection[$indicatorId] = [];
                 }
 
-                if (! isset($collection[$indicator->id])) {
-                    $collection[$indicator->id] = [];
+                if (! isset($collection[$indicatorId][$targetName])) {
+                    $collection[$indicatorId][$targetName] = 0;
                 }
 
-                foreach ($indicator->disaggregations as $disaggregation) {
-                    $name = $disaggregation->name;
-
-                    if (! isset($collection[$indicator->id][$name])) {
-                        $collection[$indicator->id][$name] = 0;
-                    }
-
-                    if ($target->target_name === $name) {
-                        $collection[$indicator->id][$name] += (float) $target->target_value;
-                    }
-                }
+                $collection[$indicatorId][$targetName] += (float) $target->target_value;
             }
 
             return $collection;
         } catch (\Exception $e) {
             Log::error('Failed to get LOP targets', [
                 'error' => $e->getMessage(),
-
             ]);
+
             return [];
         }
     }

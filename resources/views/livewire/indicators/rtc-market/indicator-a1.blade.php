@@ -136,7 +136,9 @@
 
                 this.genderChart = [data.Female, data.Male];
 
-                this.professionChart = [data.Farmers, data.Processors, data.Traders,data.Aggregators,data.Transporters,data['Employees on RTC establishment']];
+                this.professionChart = [data.Farmers, data.Processors, data.Traders, data.Aggregators, data
+                    .Transporters
+                ];
                 this.cropChart = [data.Cassava, data.Potato, data['Sweet potato']];
                 this.establishmentChart = [
 
@@ -159,7 +161,8 @@
                         type: 'pie',
                         height: 300
                     },
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+
+                    colors: SystemColors,
                     legend: {
                         position: 'bottom'
                     },
@@ -173,30 +176,59 @@
                     chart: {
                         type: 'bar',
                         height: 300,
-                        toolbar: {
-                            show: false, // Disables the entire toolbar including the download button
-                        },
+
                     },
                     plotOptions: {
                         bar: {
                             distributed: true,
-                            endingShape: 'rounded', // Rounded bar ends
-                            borderRadius: 4,
-                            borderRadiusApplication: 'end',
+
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+
+                        style: {
+                            colors: [SystemColors[3]],
+
+                        },
+
+                        background: {
+                            enabled: true,
+
+
+                        },
+
+                        offsetX: 0,
+                        dropShadow: {
+                            enabled: false
                         }
                     },
                     series: [{
                         name: 'Value',
                         data: this.professionChart
                     }],
+                    // BAR = white, LINE = red
+                    colors: ['#FFEAD8', '#A85A1F'],
 
+                    // Stroke: outline for bars + line color
+                    stroke: {
+                        width: [1, 1], // bar border, line width
+                        colors: ['#F97316', '#A85A1F'] // orange border, red line
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            columnWidth: '35%',
+
+                        }
+                    },
                     xaxis: {
-                        categories: ['Farmers', 'Processors', 'Traders','Aggregators','Transporters','Employees'],
+                        categories: ['Farmers', 'Processors', 'Traders', 'Aggregators', 'Transporters',
+
+                        ],
 
                     },
 
-
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
                 });
                 professionChartInstance.render();
                 const cropChartInstance = new ApexCharts(document.querySelector("#cropChart"), {
@@ -204,7 +236,8 @@
                         type: 'pie',
                         height: 300
                     },
-                    colors: ['#DE8F5F', '#FC931D', '#FA7070'],
+
+                    colors: SystemColors,
                     legend: {
                         position: 'bottom'
                     },
@@ -230,13 +263,14 @@
                             borderRadiusApplication: 'end',
                         }
                     },
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+
+                    colors: SystemColors,
                     series: [{
                         name: 'Value',
                         data: this.establishmentChart,
                     }],
                     xaxis: {
-                        categories: [ 'New Establishment', 'Old Establishment'],
+                        categories: ['New Establishment', 'Old Establishment'],
 
                     },
 
