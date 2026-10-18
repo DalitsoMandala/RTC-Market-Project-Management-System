@@ -80,6 +80,20 @@ SQL);
      AND (n.financial_year_id     <=> o.financial_year_id)
      AND (n.month_range_period_id <=> o.month_range_period_id)
 SQL);
+
+        Schema::table('submissions', function (Blueprint $table) {
+            $table->renameColumn('month_range_period_id', 'reporting_period_month_id');
+
+        });
+
+        Schema::table('submission_reports', function (Blueprint $table) {
+            $table->renameColumn('month_range_period_id', 'reporting_period_month_id');
+
+        });
+        Schema::table('submission_periods_new', function (Blueprint $table) {
+            $table->renameColumn('month_range_period_id', 'reporting_period_month_id');
+
+        });
     }
 
     /**
