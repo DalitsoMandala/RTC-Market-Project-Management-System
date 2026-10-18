@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +11,7 @@ class SubmissionPeriod extends Model
 
     public function submissions()
     {
-        return $this->hasMany(Submission::class, 'period_id');
+        return $this->hasMany(Submission::class, 'submission_period_new_id');
     }
 
     public function form()
@@ -35,14 +34,4 @@ class SubmissionPeriod extends Model
         return $this->belongsTo(Indicator::class, 'indicator_id');
     }
 
-
-    public function submissionTargets()
-    {
-        return $this->hasMany(SubmissionTarget::class, 'submission_period_id');
-    }
-
-    public function mailingList()
-    {
-        return $this->hasMany(MailingList::class, 'submission_period_id');
-    }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +10,7 @@ class SubmissionReport extends Model
     protected $guarded = [];
     public function files()
     {
-        return $this->hasMany(ReportFile::class, 'submission_report_id');
+        return $this->hasMany(ReportFile::class, 'submission_period_new_id');
     }
 
     public function indicator()
@@ -29,7 +28,7 @@ class SubmissionReport extends Model
     }
     public function submissionPeriod()
     {
-        return $this->belongsTo(SubmissionPeriod::class, 'submission_period_id');
+        return $this->belongsTo(SubmissionPeriod::class, 'submission_period_new_id');
     }
 
     public function periodMonth()
