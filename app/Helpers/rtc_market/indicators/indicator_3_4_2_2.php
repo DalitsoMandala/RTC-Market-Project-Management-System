@@ -37,7 +37,7 @@ class indicator_3_4_2_2
     //     if ($this->reporting_period || $this->financial_year) {
     //         // Apply filter for reporting period if it's set
     //         if ($this->reporting_period) {
-    //             $query->where('period_month_id', $this->reporting_period);
+    //             $query->where('reporting_period_month_id', $this->reporting_period);
     //         }
 
     //         // Apply filter for financial year if it's set

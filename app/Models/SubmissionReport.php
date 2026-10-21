@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SubmissionReport extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
     public function files()
     {

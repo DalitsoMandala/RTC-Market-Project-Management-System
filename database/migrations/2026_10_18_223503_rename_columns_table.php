@@ -31,6 +31,11 @@ return new class extends Migration
             $table->renameColumn('reporting_period_id', 'reporting_period_month_id');
         });
 
+        Schema::table('submission_periods_new', function (Blueprint $table) {
+            $table->renameColumn('month_range_period_id', 'reporting_period_month_id');
+
+        });
+
         //map submission periods
 
         $tables = [

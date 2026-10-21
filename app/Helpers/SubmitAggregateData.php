@@ -1,21 +1,17 @@
 <?php
-
 namespace App\Helpers;
 
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
+use App\Exceptions\UserErrorException;
 use App\Models\Submission;
-use App\Exports\JsonExport;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exceptions\UserErrorException;
-use Illuminate\Support\Facades\Storage;
-use Spatie\SimpleExcel\SimpleExcelWriter;
+use App\Models\User;
 use App\Notifications\ImportSuccessNotification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class SubmitAggregateData
 {
@@ -24,7 +20,7 @@ class SubmitAggregateData
         $fileName = 'exported_data_' . time() . '.xlsx';
 
         $directory = 'public/exports';
-        if (!Storage::exists($directory)) {
+        if (! Storage::exists($directory)) {
             Storage::makeDirectory($directory);
         }
 
@@ -39,31 +35,31 @@ class SubmitAggregateData
         foreach ($data as $key => $value) {
             $writer->addRow([$key, (float) $value]);
         }
-        $writer->close();  // Finalize the file
+        $writer->close(); // Finalize the file
         return $fileName;
     }
 
-    function submit_aggregate_data($data, $user, $submissionPeriodId, $selectedForm, $selectedIndicator, $selectedFinancialYear, $redirectRoute, $roleType)
+    public function submit_aggregate_data($data, $user, $submissionPeriodId, $selectedForm, $selectedIndicator, $selectedFinancialYear, $redirectRoute, $roleType)
     {
         try {
             $uuid = Uuid::uuid4()->toString();
 
-            $currentUser = Auth::user();
+            $currentUser    = Auth::user();
             $organisationId = User::find(auth()->user()->id)->organisation->id;
-            $file = $this->storeData($data);
-            $monthId = SubmissionPeriod::find($submissionPeriodId);
+            $file           = $this->storeData($data);
+            $monthId        = SubmissionPeriod::find($submissionPeriodId);
             // Check if a submission already exists
             $checkSubmission = SubmissionReport::where('financial_year_id', $selectedFinancialYear)
-                ->where('period_month_id', $monthId->month_range_period_id)
+                ->where('reporting_period_month_id', $monthId->reporting_period_month_id)
                 ->where('indicator_id', $selectedIndicator)
                 ->where('organisation_id', $organisationId)
                 ->where('user_id', auth()->user()->id)
-                ->where('status','approved')
+                ->where('status', 'approved')
                 ->first();
 
             if ($checkSubmission) {
                 session()->flash('error', 'You have already submitted your data for this period and indicator!');
-                Log::info('error',[
+                Log::info('error', [
 
                 ]);
                 return false;
@@ -71,32 +67,32 @@ class SubmitAggregateData
 
             // Create the submission
             $submission = Submission::create([
-                'batch_no' => $uuid,
-                'form_id' => $selectedForm,
-                'user_id' => $currentUser->id,
-                'status' => $roleType === 'manager' ? 'approved' : 'pending',  // Status based on role
-                'batch_type' => 'aggregate',
-                'is_complete' => 1,
-                'period_id' => $submissionPeriodId,
-                'table_name' => 'submission_reports',
-                'file_link' => $file,
+                'batch_no'                 => $uuid,
+                'form_id'                  => $selectedForm,
+                'user_id'                  => $currentUser->id,
+                'status'                   => $roleType === 'manager' ? 'approved' : 'pending', // Status based on role
+                'batch_type'               => 'aggregate',
+                'is_complete'              => 1,
+                'submission_period_new_id' => $submissionPeriodId,
+                'table_name'               => 'submission_reports',
+                'file_link'                => $file,
             ]);
 
-            $period = SubmissionPeriod::find($submission->period_id);
+            $period = SubmissionPeriod::find($submission->submission_period_new_id);
 
             // Create the submission report
             SubmissionReport::create([
-                'indicator_id' => $selectedIndicator,
+                'indicator_id'              => $selectedIndicator,
                 // 'submission_id' => $submission->id,
-                'financial_year_id' => $selectedFinancialYear,
-                'submission_period_id' => $submissionPeriodId,
-                'period_month_id' => $period->month_range_period_id,
-                'organisation_id' => $user->organisation->id,
-                'user_id' => $user->id,
-                'status' => $roleType === 'manager' ? 'approved' : 'pending',  // Status based on role
-                'data' => json_encode($data),
-                'uuid' => $uuid,
-                'file_name' => null
+                'financial_year_id'         => $selectedFinancialYear,
+                'submission_period_id'      => $submissionPeriodId,
+                'reporting_period_month_id' => $period->reporting_period_month_id,
+                'organisation_id'           => $user->organisation->id,
+                'user_id'                   => $user->id,
+                'status'                    => $roleType === 'manager' ? 'approved' : 'pending', // Status based on role
+                'data'                      => json_encode($data),
+                'uuid'                      => $uuid,
+                'file_name'                 => null,
             ]);
 
             $user = User::find($user->id);
