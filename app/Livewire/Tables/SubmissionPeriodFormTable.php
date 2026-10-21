@@ -44,7 +44,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             ->where('is_expired', $data['is_expired'])
             ->where('is_open', $data['is_open'])
             ->where('financial_year_id', $data['financial_year_id'])
-            ->where('month_range_period_id', $data['month_range_period_id'])
+            ->where('reporting_period_month_id', $data['reporting_period_month_id'])
             ->join('forms', 'submission_periods.form_id', '=', 'forms.id')
             ->where('forms.is_active', true)
 
@@ -103,7 +103,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                         ->where('is_expired', $data['is_expired'])
                         ->where('is_open', $data['is_open'])
                         ->where('financial_year_id', $data['financial_year_id'])
-                        ->where('month_range_period_id', $data['month_range_period_id']);
+                        ->where('reporting_period_month_id', $data['reporting_period_month_id']);
                 })
                     ->whereHas('user.organisation', function ($query) use ($organisation_id) {
                         $query->where('id', $organisation_id);
@@ -144,7 +144,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                             ->where('is_expired', $data['is_expired'])
                             ->where('is_open', $data['is_open'])
                             ->where('financial_year_id', $data['financial_year_id'])
-                            ->where('month_range_period_id', $data['month_range_period_id']);
+                            ->where('reporting_period_month_id', $data['reporting_period_month_id']);
                     })
                     ->exists();
 
@@ -236,20 +236,20 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     private function getSubmissionPeriodId(array $data, int $formId): ?int
     {
         return SubmissionPeriod::where([
-            'date_established'      => $data['date_established'],
-            'date_ending'           => $data['date_ending'],
-            'is_expired'            => $data['is_expired'],
-            'is_open'               => $data['is_open'],
-            'financial_year_id'     => $data['financial_year_id'],
-            'month_range_period_id' => $data['month_range_period_id'],
-            'form_id'               => $formId,
+            'date_established'          => $data['date_established'],
+            'date_ending'               => $data['date_ending'],
+            'is_expired'                => $data['is_expired'],
+            'is_open'                   => $data['is_open'],
+            'financial_year_id'         => $data['financial_year_id'],
+            'reporting_period_month_id' => $data['reporting_period_month_id'],
+            'form_id'                   => $formId,
         ])->inRandomOrder()->value('id');
     }
 
     private function buildRoute($form, int $modelId, array $data, $submissionPeriodId, bool $upload): string
     {
         $financialYearId    = $data['financial_year_id'];
-        $monthRangePeriodId = $data['month_range_period_id'];
+        $monthRangePeriodId = $data['reporting_period_month_id'];
         $routePrefix        = $data['routePrefix'];
 
         $formName = $this->slug($form->name);
@@ -281,7 +281,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
         $form_name   = str_replace(' ', '-', strtolower($form->name));
         $project     = str_replace(' ', '-', strtolower($form->project->name));
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
 
         $this->redirect($route);
     }

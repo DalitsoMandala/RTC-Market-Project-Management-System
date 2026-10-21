@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Livewire\tables;
 
 use App\Helpers\TruncateText;
@@ -43,7 +42,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public string $sortField     = 'submission_id';
     public string $sortDirection = 'desc';
     public string $primaryKey    = 'submission_id';
-    public string $tableName = 'AggregateSubmissionTable';
+    public string $tableName     = 'AggregateSubmissionTable';
     public $routePrefix;
     public function updatedCheckboxValues($values)
     {
@@ -74,11 +73,10 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-
         $query = Submission::query()
 
             ->join('forms', 'forms.id', '=', 'submissions.form_id')
-            ->join('submission_periods', 'submissions.period_id', '=', 'submission_periods.id')
+            ->join('submission_periods_new', 'submissions.submission_period_new_id', '=', 'submission_periods_new.id')
             ->leftJoin('users', 'users.id', '=', 'submissions.user_id')
             ->join('submission_reports', 'submissions.batch_no', '=', 'submission_reports.uuid')
             ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
@@ -89,21 +87,21 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 'user.organisation',
                 'period.reportingMonths',
                 'form',
-                'period.financialYears'
+                'period.financialYears',
             ])
             ->where('batch_type', 'aggregate')->select([
-                'submissions.*',
-                'submissions.id as submission_id',
-                'submission_reports.indicator_id as indicator_id',
-                'users.name as username',
-                'forms.name as form_name',
-                'organisations.name as organisation_name',
-                'organisations.id as organisation_id',
-                'submission_periods.id as period_id',
-                'submission_periods.month_range_period_id as month_range_period_id',
+            'submissions.*',
+            'submissions.id as submission_id',
+            'submission_reports.indicator_id as indicator_id',
+            'users.name as username',
+            'forms.name as form_name',
+            'organisations.name as organisation_name',
+            'organisations.id as organisation_id',
+            'submission_periods_new.id as submission_period_new_id',
+            'submission_periods_new.reporting_period_month_id as reporting_period_month_id',
 
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn'),
-            ]);
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn'),
+        ]);
 
         $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
@@ -145,12 +143,12 @@ final class AggregateSubmissionTable extends PowerGridComponent
     {
         return [
 
-              Filter::select('indicator')
+            Filter::select('indicator')
                 ->dataSource(Indicator::get()->map(function ($indicator) {
                     return [
-                        'indicator' => $indicator->indicator_no . ' - ' . $indicator->indicator_name,
-                        'id'            => $indicator->id,
-                        'indicator_no' => $indicator->indicator_no,
+                        'indicator'      => $indicator->indicator_no . ' - ' . $indicator->indicator_name,
+                        'id'             => $indicator->id,
+                        'indicator_no'   => $indicator->indicator_no,
                         'indicator_name' => $indicator->indicator_name,
                     ];
                 }))
@@ -169,7 +167,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
                         return [
                             'status' => $submission->status === 'denied' ? 'disapproved' : $submission->status,
-                            'value' => $submission->status
+                            'value'  => $submission->status,
                         ];
                     });
                 })
@@ -193,7 +191,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('month_range', 'submission_periods.month_range_period_id')
+            Filter::select('reporting_period', 'submission_periods_new.reporting_period_month_id')
                 ->dataSource(function () {
                     $submission = ReportingPeriodMonth::select(['start_month', 'end_month', 'id'])->distinct();
 
@@ -232,7 +230,6 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('id', fn($model) => $this->row++)
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
-
 
                 $text = $model->batch_no;
 
@@ -291,9 +288,9 @@ final class AggregateSubmissionTable extends PowerGridComponent
                     return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
                 }
             })
-            ->add('period_id')
+            ->add('submission_period_new_id')
             ->add('reporting_period', function ($model) {
-                $period = SubmissionPeriod::find($model->period_id);
+                $period = SubmissionPeriod::find($model->reporting_period_month_id);
                 if ($period) {
                     return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
                 } else {
@@ -303,12 +300,11 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('comments')
             ->add('comments_truncated', function ($model) {
 
-
-                $text = $model->comments;
-                $trunc = new TruncateText($text, 30);
-                $html = '';
-                $disabled = !$model->comments ? 'pe-none opacity-25' : '';
-                $html .= '
+                $text      = $model->comments;
+                $trunc     = new TruncateText($text, 30);
+                $html      = '';
+                $disabled  = ! $model->comments ? 'pe-none opacity-25' : '';
+                $html     .= '
 
 <div class="' . $disabled . '">
 <div class="accordion accordion-flush" id="default-accordion-example-' . $model->id . '">
@@ -331,10 +327,10 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 return $html;
             })
             ->add('financial_year', function ($model) {
-                $model = SubmissionPeriod::find($model->period_id);
+                $model = SubmissionPeriod::find($model->reporting_period_month_id);
 
                 return $model->financialYears->number;
-                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+                //   ReportingPeriodMonth::find($model->reporting_period_month_id)->;
             })
             ->add('indicator_id')
             ->add('indicator', function ($model) {
@@ -343,7 +339,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 return $period?->indicator?->indicator_no . ' - ' . $period?->indicator?->indicator_name;
             })
             ->add('month_range', function ($model) {
-                $model = SubmissionPeriod::find($model->period_id);
+                $model = SubmissionPeriod::find($model->reporting_period_month_id);
 
                 return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
                 //
@@ -387,7 +383,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->searchable(),
 
             //  Column::make('Form name', 'form_name')->searchable(),
-            Column::make('Indicator', 'indicator','submission_reports.indicator_name')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
+            Column::make('Indicator', 'indicator', 'submission_reports.indicator_name')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap"),
 
             Column::make('SUBMITTED BY', 'username')->searchable(),

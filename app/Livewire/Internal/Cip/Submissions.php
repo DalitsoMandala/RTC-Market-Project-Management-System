@@ -1,35 +1,24 @@
 <?php
-
 namespace App\Livewire\Internal\Cip;
 
-use App\Models\User;
-use Livewire\Component;
-use App\Models\MarketData;
-use App\Models\Submission;
-use App\Models\JobProgress;
-use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use App\Models\JobProgress;
+use App\Models\MarketData;
+use App\Models\MarketDataSubmission;
+use App\Models\ProgressSubmission;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use App\Models\RpmFarmerFollowUp;
-use Livewire\Attributes\Validate;
-use App\Models\ProgressSubmission;
-use App\Models\RpmFarmerDomMarket;
-use Illuminate\Support\Facades\DB;
-use App\Models\RtcProductionFarmer;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
-use App\Models\MarketDataSubmission;
-use App\Models\RpmFarmerInterMarket;
-use App\Models\RpmProcessorFollowUp;
-use App\Models\RpmProcessorDomMarket;
-use Illuminate\Support\Facades\Route;
-use App\Models\RpmFarmerConcAgreement;
-use App\Models\RtcProductionProcessor;
-use App\Models\RpmProcessorInterMarket;
-use App\Models\RpmProcessorConcAgreement;
+use App\Models\User;
 use App\Notifications\SubmissionNotification;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
 
 class Submissions extends Component
 {
@@ -55,40 +44,40 @@ class Submissions extends Component
         ];
     }
 
-    public function mount() {}
+    public function mount()
+    {}
     #[On('set')]
     public function setData($id)
     {
         $this->resetErrorBag();
-        $submission = Submission::find($id);
-        $this->rowId = $id;
-        $this->status = $submission->status === 'pending' ? null : $submission->status;
-        $this->comment = $submission->comments;
+        $submission      = Submission::find($id);
+        $this->rowId     = $id;
+        $this->status    = $submission->status === 'pending' ? null : $submission->status;
+        $this->comment   = $submission->comments;
         $this->statusSet = $submission->status === 'pending' ? false : true;
         if ($submission->table_name == 'reports' || $submission->table_name == 'submission_reports') {
-            $uuid = $submission->batch_no;
-            $reports = SubmissionReport::where('uuid', $uuid)->first();
-            $json_data = json_decode($reports->data, true);
+            $uuid         = $submission->batch_no;
+            $reports      = SubmissionReport::where('uuid', $uuid)->first();
+            $json_data    = json_decode($reports->data, true);
             $this->inputs = $json_data;
         }
         $this->tableName = $submission->table_name;
-        $userId = $submission->user_id;
-        $user = User::withTrashed()->find($userId);
+        $userId          = $submission->user_id;
+        $user            = User::withTrashed()->find($userId);
         $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
-
 
     #[On('setMarket')]
     public function setDataMarket($id)
     {
         $this->resetErrorBag();
-        $submission = MarketDataSubmission::find($id);
-        $this->rowId = $id;
-        $this->status = $submission->status === 'pending' ? null : $submission->status;
+        $submission      = MarketDataSubmission::find($id);
+        $this->rowId     = $id;
+        $this->status    = $submission->status === 'pending' ? null : $submission->status;
         $this->statusSet = $submission->status === 'pending' ? false : true;
         $this->tableName = $submission->table_name;
-        $userId = $submission->submitted_user_id;
-        $user = User::withTrashed()->find($userId);
+        $userId          = $submission->submitted_user_id;
+        $user            = User::withTrashed()->find($userId);
         $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
 
@@ -104,30 +93,28 @@ class Submissions extends Component
 
         $link = '';
 
-
         if (User::withTrashed()->find($user_id)->hasAnyRole('manager')) {
             $link = route('cip-submissions', [
-                'batch' => $submission->batch_no
+                'batch' => $submission->batch_no,
             ]) . $type;
         } else if (User::withTrashed()->find($user_id)->hasAnyRole('staff')) {
             $link = route('cip-staff-submissions', [
-                'batch' => $submission->batch_no
+                'batch' => $submission->batch_no,
             ]) . $type;
         } else if (User::withTrashed()->find($user_id)->hasAnyrole('admin')) {
             $link = route('admin-submissions', [
-                'batch' => $submission->batch_no
+                'batch' => $submission->batch_no,
             ]) . $type;
         } elseif (User::withTrashed()->find($user_id)->hasAnyrole('enumerator')) {
             $link = route('enumerator-submissions', [
-                'batch' => $submission->batch_no
+                'batch' => $submission->batch_no,
             ]) . $type;
         } else {
 
             $link = route('external-submissions', [
-                'batch' => $submission->batch_no
+                'batch' => $submission->batch_no,
             ]) . $type;
         }
-
 
         return $link;
     }
@@ -142,8 +129,8 @@ class Submissions extends Component
 
         try {
             $submission = Submission::findOrFail($this->rowId);
-            $user = User::withTrashed()->find($submission->user_id);
-            $link = $this->getLink($submission, '#batch-submission');
+            $user       = User::withTrashed()->find($submission->user_id);
+            $link       = $this->getLink($submission, '#batch-submission');
             // Perform actions based on status
             if ($this->status === 'approved') {
 
@@ -162,11 +149,9 @@ class Submissions extends Component
                     ])->dispatch();
                 }
 
-
                 session()->flash('success', 'Successfully approved batch submission');
             } else {
                 $this->denySubmission($submission, [$this->tableName]);
-
 
                 if ($this->notify) {
                     Bus::chain([
@@ -180,13 +165,8 @@ class Submissions extends Component
                     ])->dispatch();
                 }
 
-
                 session()->flash('success', 'Successfully disapproved batch submission');
             }
-
-
-
-
 
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
@@ -214,8 +194,6 @@ class Submissions extends Component
     protected function approveSubmission($submission, $tables)
     {
 
-
-
         if ($submission->batch_type == 'batch') {
             foreach ($tables as $table) {
                 if ($this->checkbatch($table, $submission->batch_no)) {
@@ -227,8 +205,8 @@ class Submissions extends Component
         }
 
         $submission->update([
-            'status' => $this->status,
-            'comments' => $this->comment,
+            'status'      => $this->status,
+            'comments'    => $this->comment,
             'is_complete' => true,
         ]);
     }
@@ -246,8 +224,8 @@ class Submissions extends Component
         }
 
         $submission->update([
-            'status' => $this->status,
-            'comments' => $this->comment,
+            'status'      => $this->status,
+            'comments'    => $this->comment,
             'is_complete' => true,
         ]);
     }
@@ -287,27 +265,26 @@ class Submissions extends Component
 
     private function getFormName($tableName)
     {
-        return  match ($tableName) {
+        return match ($tableName) {
             'rtc_production_processors' => "RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS FORM",
-            'rtc_production_farmers' => "RTC PRODUCTION AND MARKETING FORM FARMERS AND TRADERS FORM",
-            "attendance_registers" => "ATTENDANCE REGISTER",
-            "recruitments" => "RTC ACTOR RECRUITMENT FORM",
-            "seed_beneficiaries" => "SEED BENEFICIARIES FORM",
-            "rtc_consumptions" => "RTC CONSUMPTION FORM",
-            default => null
+            'rtc_production_farmers'    => "RTC PRODUCTION AND MARKETING FORM FARMERS AND TRADERS FORM",
+            "attendance_registers"      => "ATTENDANCE REGISTER",
+            "recruitments"              => "RTC ACTOR RECRUITMENT FORM",
+            "seed_beneficiaries"        => "SEED BENEFICIARIES FORM",
+            "rtc_consumptions"          => "RTC CONSUMPTION FORM",
+            default                     => null
         };
     }
     public function deleteProgress()
     {
 
-
         try {
 
             $this->validate([
-                'confirmDeleteProgress' => 'required|in:delete'
+                'confirmDeleteProgress' => 'required|in:delete',
             ], [
                 'confirmDeleteProgress.required' => 'Please confirm deletion',
-                'confirmDeleteProgress.in' => 'The value must be "delete"',
+                'confirmDeleteProgress.in'       => 'The value must be "delete"',
             ]);
         } catch (\Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
@@ -327,16 +304,12 @@ class Submissions extends Component
         }
     }
 
-
-
     public function setStatus($value)
     {
         $this->disable = true;
-        $this->status = $value;
+        $this->status  = $value;
         $this->save();
     }
-
-
 
     public function ApproveMarketSubmission()
     {
@@ -393,15 +366,14 @@ class Submissions extends Component
             $submission = MarketDataSubmission::findOrFail($this->rowId);
             $submission->update([
 
-                'status' => 'denied',
-                'comments' => $this->comment
+                'status'   => 'denied',
+                'comments' => $this->comment,
 
             ]);
 
             $uuid = $submission->batch_no;
             //delete all
             MarketData::where('uuid', $uuid)->delete();
-
 
             session()->flash('success', 'Successfully disapproved market data submission');
             $user = User::withTrashed()->find($submission->submitted_user_id);
@@ -435,12 +407,12 @@ class Submissions extends Component
             # code...
             $submission = Submission::findOrFail($this->rowId);
             $submission->update([
-                'comments' => '',
-                'status' => 'approved',
+                'comments'    => '',
+                'status'      => 'approved',
                 'is_complete' => true,
             ]);
 
-            $uuid = $submission->batch_no;
+            $uuid    = $submission->batch_no;
             $reports = SubmissionReport::where('uuid', $uuid)->first();
             $reports->update([
                 'status' => 'approved',
@@ -483,12 +455,12 @@ class Submissions extends Component
         try {
             $submission = Submission::findOrFail($this->rowId);
             $submission->update([
-                'comments' => $this->comment,
-                'status' => 'denied',
+                'comments'    => $this->comment,
+                'status'      => 'denied',
                 'is_complete' => true,
             ]);
 
-            $uuid = $submission->batch_no;
+            $uuid    = $submission->batch_no;
             $reports = SubmissionReport::where('uuid', $uuid)->first();
             $reports->update([
                 'status' => 'denied',
@@ -569,14 +541,9 @@ class Submissions extends Component
 
             if ($this->status === 'approved') {
 
-
-
-
-
-
                 Submission::find($this->rowId)->update([
-                    'status' => $this->status,
-                    'comments' => $this->comment,
+                    'status'      => $this->status,
+                    'comments'    => $this->comment,
                     'is_complete' => true,
                 ]);
             }
@@ -585,7 +552,7 @@ class Submissions extends Component
 
                 $submission->update([
                     'is_complete' => true,
-                    'status' => $this->status,
+                    'status'      => $this->status,
                 ]);
             }
             $this->dispatch('hideModal');
@@ -625,7 +592,7 @@ class Submissions extends Component
             ->where('status', 'pending');
 
         $manual = Submission::where('batch_type', 'manual')
-            ->whereIn('period_id', $subPeriods)
+            ->whereIn('reporting_period_month_id', $subPeriods)
             ->where('status', 'approved');
 
         $aggregate = Submission::where('batch_type', 'aggregate')
@@ -638,7 +605,7 @@ class Submissions extends Component
             ->count();
 
         // Role logic
-        if (!$user->hasAnyRole('external')) {
+        if (! $user->hasAnyRole('external')) {
             $manual->whereIn('user_id', $myOrgsUserIds);
         }
 
@@ -653,11 +620,11 @@ class Submissions extends Component
         }
 
         return view('livewire.internal.cip.submissions', [
-            'batch' => $batch->count(),
-            'manual' => $manual->count(),
-            'aggregate' => $aggregate->count(),
+            'batch'      => $batch->count(),
+            'manual'     => $manual->count(),
+            'aggregate'  => $aggregate->count(),
             'pendingJob' => $pendingJob,
-            'market' => $market->count(),
+            'market'     => $market->count(),
         ]);
     }
 }

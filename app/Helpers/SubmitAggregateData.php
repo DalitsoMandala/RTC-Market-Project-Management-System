@@ -85,7 +85,7 @@ class SubmitAggregateData
                 'indicator_id'              => $selectedIndicator,
                 // 'submission_id' => $submission->id,
                 'financial_year_id'         => $selectedFinancialYear,
-                'submission_period_id'      => $submissionPeriodId,
+                'submission_period_new_id'  => $submissionPeriodId,
                 'reporting_period_month_id' => $period->reporting_period_month_id,
                 'organisation_id'           => $user->organisation->id,
                 'user_id'                   => $user->id,

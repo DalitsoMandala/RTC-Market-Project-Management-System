@@ -1,20 +1,14 @@
 <?php
-
 namespace App\Livewire\admin;
 
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ReportingMonthsTable extends PowerGridComponent
@@ -45,7 +39,7 @@ final class ReportingMonthsTable extends PowerGridComponent
             ->add('id')
             ->add('start_month')
             ->add('end_month')
-            ->add('period_id')
+            ->add('reporting_period_month_id')
             ->add('period', fn($model) => $model->reportingPeriod->name)
             ->add('type')
             ->add('created_at')

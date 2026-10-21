@@ -72,7 +72,7 @@ final class SubmissionReportTable extends PowerGridComponent
             })
             ->add('user_id', fn($model) => $model->user->name)
             ->add('data')
-            ->add('submission_period_id', function ($model) {
+            ->add('submission_period_new_id', function ($model) {
                 $start = Carbon::parse($model->submissionPeriod->date_established)->format('d-m-Y H:i A');
                 $end   = Carbon::parse($model->submissionPeriod->date_ending)->format('d-m-Y H:i A');
                 return "{$start} - {$end}";

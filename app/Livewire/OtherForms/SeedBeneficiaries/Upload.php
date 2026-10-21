@@ -84,19 +84,19 @@ class Upload extends Component
 
                     Excel::import(new SeedBeneficiariesImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
-                        'submission_period_id' => $this->submissionPeriodId,
-                        'organisation_id'      => Auth::user()->organisation->id,
-                        'financial_year_id'    => $this->selectedFinancialYear,
-                        'period_month_id'      => $this->selectedMonth,
-                        'form_id'              => $this->selectedForm,
-                        'user_id'              => Auth::user()->id,
-                        'batch_type'           => 'batch',
-                        'table_name'           => 'household_rtc_consumption',
-                        'is_complete'          => 1,
-                        'file_link'            => $name,
-                        'batch_no'             => $this->importId,
-                        'route'                => $this->currentRoute,
-                        'description'          => null,
+                        'submission_period_new_id'  => $this->submissionPeriodId,
+                        'organisation_id'           => Auth::user()->organisation->id,
+                        'financial_year_id'         => $this->selectedFinancialYear,
+                        'reporting_period_month_id' => $this->selectedMonth,
+                        'form_id'                   => $this->selectedForm,
+                        'user_id'                   => Auth::user()->id,
+                        'batch_type'                => 'batch',
+                        'table_name'                => 'household_rtc_consumption',
+                        'is_complete'               => 1,
+                        'file_link'                 => $name,
+                        'batch_no'                  => $this->importId,
+                        'route'                     => $this->currentRoute,
+                        'description'               => null,
 
                     ]), $path);
                     $this->checkProgress();
@@ -122,13 +122,13 @@ class Upload extends Component
         return Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries_template.xlsx');
     }
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
         // Validate required IDs
-        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Find and validate related models
-        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Check if the submission period is open and targets are set
         $this->checkSubmissionPeriodAndTargets();

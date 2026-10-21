@@ -1,44 +1,42 @@
 <?php
-
 namespace App\Livewire\tables;
 
-use App\Models\User;
-use Livewire\Attributes\On;
 use App\Helpers\TruncateText;
+use App\Models\RootTuberSubmission;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Models\RootTuberSubmission;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RootTuberSubmissionTable extends PowerGridComponent
 {
-        use WithExport;
+    use WithExport;
     //Batch Submission Table
 
     public $filter;
     public $userId;
     public bool $showFilters = true;
     public $batch;
-    public $row = 1;
+    public $row              = 1;
     public string $sortField = 'id';
 
     public string $sortDirection = 'desc';
     public function setUp(): array
     {
         // $this->showCheckBox();
-        $route = Route::current();
+        $route      = Route::current();
         $parameters = $route->parameters();
         $collection = collect($parameters);
         if ($collection->has('batch')) {
@@ -59,20 +57,20 @@ final class RootTuberSubmissionTable extends PowerGridComponent
     {
         $query = RootTuberSubmission::query()->with(['user.organisation', 'user']);
 
-        $user = User::find(auth()->user()->id);
+        $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
 
             return $query->where('submitted_user_id', $user->id)->select([
                 '*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
             ]);
         }
 
         return $query->select([
             '*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
         ]);
     }
 
@@ -88,7 +86,6 @@ final class RootTuberSubmissionTable extends PowerGridComponent
                 ->optionLabel('status')
                 ->optionValue('status'),
 
-
             //     Filter::inputText('batch_no_formatted', 'batch_no'),
             //      Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
             //      Filter::inputText('organisation_formatted')->filterRelation('user.organisation', 'name'),
@@ -101,10 +98,9 @@ final class RootTuberSubmissionTable extends PowerGridComponent
             'user.organisation' => [
                 'name',
             ],
-            'user' => [
-                'name'
+            'user'              => [
+                'name',
             ],
-
 
         ];
     }
@@ -139,16 +135,15 @@ final class RootTuberSubmissionTable extends PowerGridComponent
                 }
             })
 
-            ->add('period_id')
             ->add('comments')
             ->add('comments_truncated', function ($model) {
-                if (!$model->comments) {
+                if (! $model->comments) {
                     return '<span class="badge bg-success-subtle text-success">No comment</span></span>';
                 }
-                $text = $model->comments;
-                $trunc = new TruncateText($text, 30);
-                $html = '';
-                $html .= '
+                $text   = $model->comments;
+                $trunc  = new TruncateText($text, 30);
+                $html   = '';
+                $html  .= '
 
 <!-- Base Example -->
 <div class="accordion" id="default-accordion-example">
@@ -200,7 +195,6 @@ final class RootTuberSubmissionTable extends PowerGridComponent
             ->add('updated_at');
     }
 
-
     public function columns(): array
     {
 
@@ -247,11 +241,10 @@ final class RootTuberSubmissionTable extends PowerGridComponent
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->tooltip('Submit Approval')
                 ->dispatch('showMarket', [
-                    'id' => $row->id,
+                    'id'   => $row->id,
                     'name' => 'view-market-modal',
 
                 ]),
-
 
             Button::add('delete')
                 ->slot('<i class="bx bx-trash-alt"></i>')
@@ -263,8 +256,8 @@ final class RootTuberSubmissionTable extends PowerGridComponent
                 )
                 ->tooltip('Delete Data')
                 ->dispatch('deleteMarketBatch', [
-                    'id' => $row->id,
-                    'name' => 'delete-market-modal'
+                    'id'   => $row->id,
+                    'name' => 'delete-market-modal',
                 ]),
         ];
     }
@@ -276,7 +269,7 @@ final class RootTuberSubmissionTable extends PowerGridComponent
      * @param array $row Current row of the table
      * @return array
      */
-/*******  232b982d-0659-4ca0-9c20-792900cf2acf  *******/    public function actionRules($row): array
+/*******  232b982d-0659-4ca0-9c20-792900cf2acf  *******/public function actionRules($row): array
     {
         $user = User::find(auth()->user()->id);
 
@@ -292,8 +285,8 @@ final class RootTuberSubmissionTable extends PowerGridComponent
                 ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => !$user->hasAnyRole('manager')
-                    || !$user->hasAnyRole('admin'))
+                ->when(fn($row) => ! $user->hasAnyRole('manager')
+                    || ! $user->hasAnyRole('admin'))
                 ->disable(),
 
             Rule::rows()

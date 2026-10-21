@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +10,7 @@ class MailingList extends Model
     protected $guarded = [];
     public function submissionPeriod()
     {
-        return $this->belongsTo(SubmissionPeriod::class, 'submission_period_id');
+        return $this->belongsTo(SubmissionPeriod::class, 'submission_period_new_id');
     }
 
     public function user()

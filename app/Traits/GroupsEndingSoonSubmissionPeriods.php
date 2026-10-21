@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Traits;
 
+use App\Models\SubmissionPeriod;
 use App\Models\User;
 use Illuminate\Support\Carbon;
-use App\Models\SubmissionPeriod;
 
 trait GroupsEndingSoonSubmissionPeriods
 {
@@ -22,7 +21,7 @@ trait GroupsEndingSoonSubmissionPeriods
         $query = SubmissionPeriod::with([
             'form',
             'mailingList.user',
-            'indicator.responsiblePeopleforIndicators'
+            'indicator.responsiblePeopleforIndicators',
         ])->where('is_open', true)
             ->where('is_expired', false);
 
@@ -42,7 +41,7 @@ trait GroupsEndingSoonSubmissionPeriods
         $collection = collect();
 
         foreach ($periods as $period) {
-            if (!$period->form || !$period->indicator) {
+            if (! $period->form || ! $period->indicator) {
                 continue;
             }
 
@@ -50,19 +49,21 @@ trait GroupsEndingSoonSubmissionPeriods
             if ($endDate->diffInDays($now, false) <= $days) {
                 foreach ($period->mailingList as $mailing) {
                     $user = $mailing->user;
-                    if (!$user) continue;
+                    if (! $user) {
+                        continue;
+                    }
 
                     $collection->push([
-                        'indicator_id' => $period->indicator_id,
-                        'indicator_name' => $period->indicator->indicator_name,
-                        'user_id' => $user->id,
-                        'user_name' => $user->name,
-                        'user_email' => $user->email,
-                        'form_id' => $period->form_id,
-                        'form_name' => $period->form->name,
-                        'period_id' => $period->id,
-                        'start' => $this->getFormattedDate($period->date_established),
-                        'end' => $this->getFormattedDate($period->date_ending),
+                        'indicator_id'              => $period->indicator_id,
+                        'indicator_name'            => $period->indicator->indicator_name,
+                        'user_id'                   => $user->id,
+                        'user_name'                 => $user->name,
+                        'user_email'                => $user->email,
+                        'form_id'                   => $period->form_id,
+                        'form_name'                 => $period->form->name,
+                        'reporting_period_month_id' => $period->id,
+                        'start'                     => $this->getFormattedDate($period->date_established),
+                        'end'                       => $this->getFormattedDate($period->date_ending),
                     ]);
                 }
             }
@@ -73,28 +74,28 @@ trait GroupsEndingSoonSubmissionPeriods
             ->groupBy('indicator_id')
             ->map(function ($group) {
                 return [
-                    'indicator_id' => $group->first()['indicator_id'],
+                    'indicator_id'   => $group->first()['indicator_id'],
                     'indicator_name' => $group->first()['indicator_name'],
-                    'users' => $group->groupBy('user_id')->map(function ($userGroup) {
+                    'users'          => $group->groupBy('user_id')->map(function ($userGroup) {
                         return [
                             'user_id' => $userGroup->first()['user_id'],
-                            'name' => $userGroup->first()['user_name'],
-                            'email' => $userGroup->first()['user_email'],
-                            'forms' => $userGroup->unique('form_id')->values()->map(function ($item) {
+                            'name'    => $userGroup->first()['user_name'],
+                            'email'   => $userGroup->first()['user_email'],
+                            'forms'   => $userGroup->unique('form_id')->values()->map(function ($item) {
                                 return [
-                                    'form_id' => $item['form_id'],
+                                    'form_id'   => $item['form_id'],
                                     'form_name' => $item['form_name'],
                                 ];
                             }),
                         ];
                     })->values(),
-                    'periods' => $group->unique(function ($item) {
+                    'periods'        => $group->unique(function ($item) {
                         return $item['start'] . '-' . $item['end'];
                     })->values()->map(function ($item) {
                         return [
-                            'start' => $item['start'],
-                            'end' => $item['end'],
-                            'period_id' => $item['period_id'],
+                            'start'                     => $item['start'],
+                            'end'                       => $item['end'],
+                            'reporting_period_month_id' => $item['reporting_period_month_id'],
                         ];
                     }),
                 ];
@@ -106,23 +107,25 @@ trait GroupsEndingSoonSubmissionPeriods
         $groupedPeriods = $this->getSubmissionPeriodsEndingSoonGroupedByIndicator($days, $checkExpired);
 
         $usersWithDeadlines = [];
-        $temp_periods = [];
+        $temp_periods       = [];
         foreach ($groupedPeriods as $indicatorData) {
             $indicatorName = $indicatorData['indicator_name'];
-            $periods = $indicatorData['periods'];
-            $temp_periods = array_merge($temp_periods, $periods->toArray());
+            $periods       = $indicatorData['periods'];
+            $temp_periods  = array_merge($temp_periods, $periods->toArray());
 
             foreach ($indicatorData['users'] as $userData) {
                 $user = User::find($userData['user_id']);
-                if (!$user) continue;
+                if (! $user) {
+                    continue;
+                }
 
                 $userId = $user->id;
 
-                if (!isset($usersWithDeadlines[$userId])) {
+                if (! isset($usersWithDeadlines[$userId])) {
                     $usersWithDeadlines[$userId] = [
-                        'user' => $user,
+                        'user'       => $user,
                         'indicators' => [],
-                        'periods' => $periods,
+                        'periods'    => $periods,
                     ];
                 }
 
@@ -130,12 +133,12 @@ trait GroupsEndingSoonSubmissionPeriods
             }
         }
         foreach ($temp_periods as $period) {
-            $submissionPeriod = SubmissionPeriod::find($period['period_id']);
+            $submissionPeriod = SubmissionPeriod::find($period['reporting_period_month_id']);
 
             if ($submissionPeriod) {
                 $submissionPeriod->update([
                     'is_expired' => true,
-                    'is_open' => false
+                    'is_open'    => false,
                 ]);
 
                 $submissionPeriod->mailingList()->delete();
@@ -145,8 +148,6 @@ trait GroupsEndingSoonSubmissionPeriods
         return $usersWithDeadlines;
     }
 
-
-
     // public function getSubmissionPeriodsEndingSoonGroupedByIndicator($days = 3, $checkExpired = false)
     // {
     //     $now = Carbon::now();
@@ -155,9 +156,6 @@ trait GroupsEndingSoonSubmissionPeriods
 
     //         ->where('is_open', true)
     //         ->where('is_expired', false);
-
-
-
 
     //     if ($checkExpired === false) {
     //         $periods = $periods->whereBetween(
@@ -197,7 +195,7 @@ trait GroupsEndingSoonSubmissionPeriods
     //                     'user_email' => $mailing->user->email,
     //                     'form_id' => $period->form_id,
     //                     'form_name' => $period->form->name,
-    //                     'period_id' => $period->id,
+    //                     'reporting_period_month_id' => $period->id,
     //                     'start' => $this->getFormattedDate($period->date_established),
     //                     'end' => $this->getFormattedDate($period->date_ending),
     //                 ]);
@@ -230,7 +228,7 @@ trait GroupsEndingSoonSubmissionPeriods
     //                     return [
     //                         'start' => $item['start'],
     //                         'end' => $item['end'],
-    //                         'period_id' => $item['period_id'],
+    //                         'reporting_period_month_id' => $item['reporting_period_month_id'],
     //                     ];
     //                 })->unique(function ($item) {
     //                     return $item['start'] . '-' . $item['end'];
@@ -267,7 +265,6 @@ trait GroupsEndingSoonSubmissionPeriods
 
     //     return $usersDeadlines;
     // }
-
 
     private function getFormattedDate($date): string
     {

@@ -1,34 +1,30 @@
 <?php
-
 namespace App\Livewire\external\Tables;
 
-use id;
-use Carbon\Carbon;
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use App\Models\Source;
-use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
 use App\Models\FinancialYear;
-use App\Models\SubmissionPeriod;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\DB;
+use App\Models\Form;
+use App\Models\Indicator;
 use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ResponsiblePerson;
+use App\Models\SubmissionPeriod;
+use App\Models\User;
+use Carbon\Carbon;
+use id;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use Ramsey\Uuid\Uuid;
 
 final class FormTable extends PowerGridComponent
 {
@@ -55,38 +51,33 @@ final class FormTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $user = User::find($this->userId);
+        $user            = User::find($this->userId);
         $organisation_id = $user->organisation->id;
 
-
         $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)
-            // Ensure that the relationship 'sources' exists
+        // Ensure that the relationship 'sources' exists
             ->pluck('indicator_id')
             ->toArray();
-
 
         $query = SubmissionPeriod::with([
             'form',
             'form.indicators',
-            'submissions'
+            'submissions',
         ])->whereIn('indicator_id', $myIndicators)
             ->select([
                 '*',
                 DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
             ]);
 
-
-
         return $query;
     }
-
 
     #[On('timeout')]
     public function timeout()
     {
         SubmissionPeriod::where('date_ending', '<', Carbon::now())->update([
             'is_expired' => 1,
-            'is_open' => 0
+            'is_open'    => 0,
         ]);
     }
 
@@ -120,20 +111,20 @@ final class FormTable extends PowerGridComponent
             ->add('submission_duration', function ($model) {
 
                 $date_start = Carbon::parse($model->date_established)->format('d F Y') ?? null;
-                $date_end = Carbon::parse($model->date_ending)->format('d F Y') ?? null;
+                $date_end   = Carbon::parse($model->date_ending)->format('d F Y') ?? null;
                 return "{$date_start} - {$date_end}";
             })
 
             ->add('remaining_days', function ($model) {
-                $date = Carbon::create($model->date_ending);
-                $now = Carbon::now();
+                $date     = Carbon::create($model->date_ending);
+                $now      = Carbon::now();
                 $date_end = $date->diffForHumans() ?? null;
 
                 if ($date->isPast()) {
 
                     return "<span class='badge bg-danger-subtle text-danger'>Expired!</span>";
                 } else {
-                    if ($model->is_expired === 1 && !$date->isPast()) {
+                    if ($model->is_expired === 1 && ! $date->isPast()) {
                         return "<span class='text-danger'>Expired!</span>";
                     } else {
                         return "<b> <i class='bx bx-time-five'></i> {$date_end}</b>";
@@ -149,7 +140,6 @@ final class FormTable extends PowerGridComponent
                     ->where('status', 'approved')
                     ->where('form_id', $model->form->id)->count();
 
-
                 if ($submitted === 0) {
                     return '<span class="badge bg-danger-subtle text-danger">Not submitted</span>';
                 } else {
@@ -157,8 +147,8 @@ final class FormTable extends PowerGridComponent
                 }
             })
             ->add('financial_year', fn($model) => FinancialYear::find($model->financial_year_id)->number)
-            ->add('submission_period', fn($model) => ReportingPeriodMonth::find($model->month_range_period_id)->start_month . '-' .
-                ReportingPeriodMonth::find($model->month_range_period_id)->end_month)
+            ->add('submission_period', fn($model) => ReportingPeriodMonth::find($model->reporting_period_month_id)->start_month . '-' .
+                ReportingPeriodMonth::find($model->reporting_period_month_id)->end_month)
             ->add('indicator_id')
             ->add('indicator', function ($model) {
                 $indicator = Indicator::find($model->indicator_id);
@@ -169,9 +159,8 @@ final class FormTable extends PowerGridComponent
 
     public function columns(): array
     {
-        $user = User::find($this->userId);
+        $user    = User::find($this->userId);
         $columns = [];
-
 
         $columns = [
             Column::make('#', 'rn'),
@@ -189,12 +178,10 @@ final class FormTable extends PowerGridComponent
             Column::make('Financial Year', 'financial_year'),
             Column::make('Submission Dates', 'submission_duration'),
 
-
-
         ];
 
         // Conditionally add more columns if the user does not have the 'staff' role
-        if ($user && !$user->hasAnyRole('staff')) {
+        if ($user && ! $user->hasAnyRole('staff')) {
             $columns[] = Column::make('Time remaining', 'remaining_days');
             $columns[] = Column::make('Submission status', 'submission_status');
         }
@@ -232,24 +219,22 @@ final class FormTable extends PowerGridComponent
     {
         $model = (object) $model;
 
-        $form = Form::find($model->form_id);
-        $user = Auth::user();
+        $form         = Form::find($model->form_id);
+        $user         = Auth::user();
         $organisation = $user->organisation;
-        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
-        $person = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->first();
-
+        $indicator    = $form->indicators->where('id', $model->indicator_id)->first();
+        $person       = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->first();
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
+        $project   = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
         if ($form->name == 'REPORT FORM') {
 
-
-            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id;
         } else {
-            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id;
         }
 
         $this->redirect($route);
@@ -263,11 +248,11 @@ final class FormTable extends PowerGridComponent
         $form = Form::find($model->form_id);
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
+        $project   = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
 
         $this->redirect($route);
     }
@@ -275,13 +260,11 @@ final class FormTable extends PowerGridComponent
     {
         return [
 
-
             Button::add('add-data')
                 ->slot('<i class="bx bx-plus"></i>')
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Add Data')
-
 
                 ->dispatch('sendData', ['model' => $row]),
 
@@ -292,7 +275,6 @@ final class FormTable extends PowerGridComponent
                 ->class('btn btn-warning my-1 btn-sm custom-tooltip')
                 ->dispatch('sendUploadData', ['model' => $row]),
 
-
         ];
     }
     // public function actionsFromView($row): View
@@ -302,9 +284,9 @@ final class FormTable extends PowerGridComponent
 
     public function actionRules($row): array
     {
-        $user = Auth::user();
+        $user           = Auth::user();
         $organisationId = $user->organisation->id;
-        $indicator = Indicator::find($row->indicator_id);
+        $indicator      = Indicator::find($row->indicator_id);
 
         $responsiblePeople = ResponsiblePerson::where('indicator_id', $row->indicator_id)
             ->where('organisation_id', $organisationId)
@@ -313,17 +295,14 @@ final class FormTable extends PowerGridComponent
         // Check if the organisation has responsible people
         $hasResponsiblePeople = $responsiblePeople !== null;
 
-
-        $currentDate = Carbon::now();
+        $currentDate     = Carbon::now();
         $establishedDate = $row->date_established;
-        $endDate = $row->end_date;
+        $endDate         = $row->end_date;
 
         $startDate = Carbon::parse($establishedDate);
-        $endDate = Carbon::parse($endDate);
+        $endDate   = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
-
-
 
         $userId = $this->userId;
 
@@ -333,8 +312,6 @@ final class FormTable extends PowerGridComponent
             ->where('status', 'approved')
             ->where('form_id', $row->form->id)->count();
 
-
-
         return [
             // Hide button edit for ID 1
             Rule::button('edit')
@@ -343,13 +320,13 @@ final class FormTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople  || !$withinDateRange)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || ! $hasResponsiblePeople || ! $withinDateRange)
                 ->disable(),
 
             // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople ||
-                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange || $submitted > 0)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || ! $hasResponsiblePeople ||
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || ! $withinDateRange || $submitted > 0)
                 ->disable(),
         ];
     }

@@ -1,34 +1,22 @@
 <?php
-
 namespace App\Livewire\OtherForms\SeedBeneficiaries;
 
-use Carbon\Carbon;
 use App\Models\Crop;
 use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\JobProgress;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use Livewire\WithFileUploads;
 use App\Models\SeedBeneficiary;
+use App\Models\User;
 use App\Traits\ManualDataTrait;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionTarget;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
-use App\Exports\SeedBeneficiariesExport;
-use App\Imports\SeedBeneficiariesImport;
-use App\Exceptions\ExcelValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Ramsey\Uuid\Uuid;
 
 class Add extends Component
 {
@@ -56,9 +44,9 @@ class Add extends Component
     public $crop;
     public $upload;
     public $form_name;
-    public $progress = 0;
-    public $Import_errors = [];
-    public $importing = false;
+    public $progress          = 0;
+    public $Import_errors     = [];
+    public $importing         = false;
     public $importingFinished = false;
 
     public $importProgress = 0;
@@ -77,46 +65,44 @@ class Add extends Component
     public $targetIds = [];
     public $routePrefix;
     public $type_of_plot,
-        $type_of_actor,
-        $season_type,
+    $type_of_actor,
+    $season_type,
         $group_name;
 
-    public $plots = [];
+    public $plots   = [];
     public $seasons = [];
 
     protected $rules = [
-        'district' => 'required|string|max:255',
-        'epa' => 'required|string|max:255',
-        'section' => 'required|string|max:255',
-        'name_of_aedo' => 'required|string|max:255',
+        'district'          => 'required|string|max:255',
+        'epa'               => 'required|string|max:255',
+        'section'           => 'required|string|max:255',
+        'name_of_aedo'      => 'required|string|max:255',
         'aedo_phone_number' => 'required|string|max:20',
-        'date' => 'required|date',
+        'date'              => 'required|date',
         'name_of_recipient' => 'required|string|max:255',
-        'village' => 'required|string|max:255',
-        'sex' => 'required|string',
-        'age' => 'required|integer|min:1',
-        'marital_status' => 'required|string',
-        'hh_head' => 'required|string',
-        'household_size' => 'required|integer|min:1',
-        'children_under_5' => 'required|integer|min:0',
-        'variety_received' => 'required|string|max:255',
-        'bundles_received' => 'required|integer|min:1',
-        'national_id' => 'nullable|string|max:20',
-        'phone_number' => 'nullable|max:255',
-        'crop' => 'required|string|in:OFSP,Potato,Cassava',
-        'type_of_actor' => 'nullable|string',
-        'type_of_plot' => 'nullable|string',
-        'season_type' => 'required',
-        'group_name' => 'nullable|string',
+        'village'           => 'required|string|max:255',
+        'sex'               => 'required|string',
+        'age'               => 'required|integer|min:1',
+        'marital_status'    => 'required|string',
+        'hh_head'           => 'required|string',
+        'household_size'    => 'required|integer|min:1',
+        'children_under_5'  => 'required|integer|min:0',
+        'variety_received'  => 'required|string|max:255',
+        'bundles_received'  => 'required|integer|min:1',
+        'national_id'       => 'nullable|string|max:20',
+        'phone_number'      => 'nullable|max:255',
+        'crop'              => 'required|string|in:OFSP,Potato,Cassava',
+        'type_of_actor'     => 'nullable|string',
+        'type_of_plot'      => 'nullable|string',
+        'season_type'       => 'required',
+        'group_name'        => 'nullable|string',
     ];
 
-    public $varieties = [];
+    public $varieties         = [];
     public $selectedVarieties = [];
-
 
     public function save()
     {
-
 
         $collect = collect($this->selectedVarieties);
         if ($collect->isNotEmpty()) {
@@ -130,8 +116,8 @@ class Add extends Component
         } catch (\Throwable $e) {
             //       session()->flash('validation_error', 'There are errors in the form.');
             $this->dispatch('show-alert', data: [
-                'type' => 'error',  // success, error, info, warning
-                'message' => 'There are errors in the form.'
+                'type'    => 'error', // success, error, info, warning
+                'message' => 'There are errors in the form.',
             ]);
             throw $e;
         }
@@ -141,42 +127,42 @@ class Add extends Component
 
             DB::beginTransaction();
             SeedBeneficiary::create([
-                'district' => $this->district,
-                'epa' => $this->epa,
-                'section' => $this->section,
-                'name_of_aedo' => $this->name_of_aedo,
-                'aedo_phone_number' => $this->aedo_phone_number,
-                'date' => $this->date,
-                'name_of_recipient' => $this->name_of_recipient,
-                'village' => $this->village,
-                'sex' => $this->sex,
-                'age' => $this->age,
-                'marital_status' => $this->marital_status,
-                'hh_head' => $this->hh_head,
-                'household_size' => $this->household_size,
-                'children_under_5' => $this->children_under_5,
-                'variety_received' => $this->variety_received,
-                'bundles_received' => $this->bundles_received,
-                'phone_number' => $this->phone_number ?? 'NA',
-                'national_id' => $this->national_id ?? 'NA',
-                'crop' => $this->crop,
-                'uuid' => $uuid,
-                'user_id' => auth()->user()->id,
-                'submission_period_id' => $this->submissionPeriodId,
-                'period_month_id' => $this->selectedMonth,
-                'organisation_id' => Auth::user()->organisation->id,
-                'financial_year_id' => $this->selectedFinancialYear,
-                'status' => 'approved',
-                'type_of_actor' => $this->type_of_actor,
-                'type_of_plot' => $this->type_of_plot,
-                'season_type' => $this->season_type,
-                'group_name' => $this->group_name,
-                'year' => Carbon::parse($this->date)->year
+                'district'                  => $this->district,
+                'epa'                       => $this->epa,
+                'section'                   => $this->section,
+                'name_of_aedo'              => $this->name_of_aedo,
+                'aedo_phone_number'         => $this->aedo_phone_number,
+                'date'                      => $this->date,
+                'name_of_recipient'         => $this->name_of_recipient,
+                'village'                   => $this->village,
+                'sex'                       => $this->sex,
+                'age'                       => $this->age,
+                'marital_status'            => $this->marital_status,
+                'hh_head'                   => $this->hh_head,
+                'household_size'            => $this->household_size,
+                'children_under_5'          => $this->children_under_5,
+                'variety_received'          => $this->variety_received,
+                'bundles_received'          => $this->bundles_received,
+                'phone_number'              => $this->phone_number ?? 'NA',
+                'national_id'               => $this->national_id ?? 'NA',
+                'crop'                      => $this->crop,
+                'uuid'                      => $uuid,
+                'user_id'                   => auth()->user()->id,
+                'submission_period_new_id'  => $this->submissionPeriodId,
+                'reporting_period_month_id' => $this->selectedMonth,
+                'organisation_id'           => Auth::user()->organisation->id,
+                'financial_year_id'         => $this->selectedFinancialYear,
+                'status'                    => 'approved',
+                'type_of_actor'             => $this->type_of_actor,
+                'type_of_plot'              => $this->type_of_plot,
+                'season_type'               => $this->season_type,
+                'group_name'                => $this->group_name,
+                'year'                      => Carbon::parse($this->date)->year,
             ]);
 
             $this->clearErrorBag();
             $this->dispatch('show-alert', data: [
-                'type' => 'success',
+                'type'    => 'success',
                 'message' => 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/seed-distribution-register/view">View Submission here</a>',
             ]);
             DB::commit();
@@ -184,8 +170,8 @@ class Add extends Component
             DB::rollBack();
 
             $this->dispatch('show-alert', data: [
-                'type' => 'error',
-                'message' => 'Something went wrong!'
+                'type'    => 'error',
+                'message' => 'Something went wrong!',
             ]);
 
             Log::error($th->getMessage());
@@ -195,22 +181,21 @@ class Add extends Component
         }
     }
 
-
     #[On('open-submission')]
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
         // Validate required IDs
-        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Find and validate related models
-        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Check if the submission period is open and targets are set
         $this->checkSubmissionPeriodAndTargets();
@@ -236,9 +221,6 @@ class Add extends Component
 
         $this->dispatch('get-varieties', data: $this->varieties);
     }
-
-
-
 
     public function render()
     {

@@ -197,7 +197,7 @@ final class ReportTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('report_period', 'system_reports.reporting_period_id')
+            Filter::select('report_period', 'system_reports.reporting_period_month_id')
                 ->dataSource(function () {
                     return ReportingPeriodMonth::with('reportingPeriod')
                         ->whereHas('reportingPeriod', function ($query) {

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Jobs;
 
 use App\Models\RpmFarmerConcAgreement;
@@ -31,9 +30,9 @@ class sendtoTableJob implements ShouldQueue
     {
         //
 
-        $this->table = $table;
+        $this->table          = $table;
         $this->submissionData = $submissionData;
-        $this->data = $data;
+        $this->data           = $data;
 
     }
 
@@ -46,73 +45,67 @@ class sendtoTableJob implements ShouldQueue
 
         if ($this->table == 'rtc_production_farmers') {
             $this->mappings = [];
-            $highestId = RtcProductionFarmer::max('id');
-            $data = $this->data;
+            $highestId      = RtcProductionFarmer::max('id');
+            $data           = $this->data;
             foreach ($data['main'] as $mainSheet) {
 
                 $highestId++;
 
-                $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'Yes' ? true : false;
-                $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'Yes' ? true : false;
-                $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'Yes' ? true : false;
-                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'Yes' ? true : false;
-                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'Yes' ? true : false;
-                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'Yes' ? true : false;
+                $mainSheet['is_registered']                   = $mainSheet['is_registered'] == 'Yes' ? true : false;
+                $mainSheet['is_registered_seed_producer']     = $mainSheet['is_registered_seed_producer'] == 'Yes' ? true : false;
+                $mainSheet['uses_certified_seed']             = $mainSheet['uses_certified_seed'] == 'Yes' ? true : false;
+                $mainSheet['sells_to_domestic_markets']       = $mainSheet['sells_to_domestic_markets'] == 'Yes' ? true : false;
+                $mainSheet['has_rtc_market_contract']         = $mainSheet['has_rtc_market_contract'] == 'Yes' ? true : false;
+                $mainSheet['sells_to_international_markets']  = $mainSheet['sells_to_international_markets'] == 'Yes' ? true : false;
                 $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'Yes' ? true : false;
 
-
-
-
-                $mainSheet['submission_period_id'] = $this->submissionData['submission_period_id'];
-                $mainSheet['organisation_id'] = $this->submissionData['organisation_id'];
-                $mainSheet['financial_year_id'] = $this->submissionData['financial_year_id'];
-                $mainSheet['period_month_id'] = $this->submissionData['period_month_id'];
-                $this->mappings[$mainSheet['#']] = $highestId;
-
+                $mainSheet['submission_period_new_id']  = $this->submissionData['submission_period_new_id'];
+                $mainSheet['organisation_id']           = $this->submissionData['organisation_id'];
+                $mainSheet['financial_year_id']         = $this->submissionData['financial_year_id'];
+                $mainSheet['reporting_period_month_id'] = $this->submissionData['reporting_period_month_id'];
+                $this->mappings[$mainSheet['#']]        = $highestId;
 
                 RtcProductionFarmer::create($mainSheet);
 
             }
 
-
             foreach ($data['followup'] as $mainSheet) {
 
-                $newId = $this->mappings[$mainSheet['rpm_farmer_id']];
-                $mainSheet['rpm_farmer_id'] = $newId;
+                $newId                                    = $this->mappings[$mainSheet['rpm_farmer_id']];
+                $mainSheet['rpm_farmer_id']               = $newId;
                 $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'Yes';
-                $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'Yes';
+                $mainSheet['uses_certified_seed']         = $mainSheet['uses_certified_seed'] === 'Yes';
 
                 RpmFarmerFollowUp::create($mainSheet);
             }
 
             foreach ($data['agreement'] as $mainSheet) {
-                $newId = $this->mappings[$mainSheet['rpm_farmer_id']];
+                $newId                      = $this->mappings[$mainSheet['rpm_farmer_id']];
                 $mainSheet['rpm_farmer_id'] = $newId;
-                $mainTable = RpmFarmerConcAgreement::create($mainSheet);
+                $mainTable                  = RpmFarmerConcAgreement::create($mainSheet);
 
                 // conc agreement
 
             }
 
             foreach ($data['market'] as $mainSheet) {
-                $newId = $this->mappings[$mainSheet['rpm_farmer_id']];
+                $newId                      = $this->mappings[$mainSheet['rpm_farmer_id']];
                 $mainSheet['rpm_farmer_id'] = $newId;
-                $mainTable = RpmFarmerDomMarket::create($mainSheet);
+                $mainTable                  = RpmFarmerDomMarket::create($mainSheet);
 
                 // dom market
 
             }
             foreach ($data['intermarket'] as $mainSheet) {
-                $newId = $this->mappings[$mainSheet['rpm_farmer_id']];
+                $newId                      = $this->mappings[$mainSheet['rpm_farmer_id']];
                 $mainSheet['rpm_farmer_id'] = $newId;
-                $mainTable = RpmFarmerInterMarket::create($mainSheet);
+                $mainTable                  = RpmFarmerInterMarket::create($mainSheet);
 
                 // inter market
 
             }
 
         }
-
 
     }
 }

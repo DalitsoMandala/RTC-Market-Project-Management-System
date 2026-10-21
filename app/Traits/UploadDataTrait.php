@@ -72,13 +72,13 @@ trait UploadDataTrait
         ];
 
     }
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
         // Validate required IDs
-        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Find and validate related models
-        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Check if the submission period is open and targets are set
         $this->checkSubmissionPeriodAndTargets();
@@ -92,10 +92,10 @@ trait UploadDataTrait
     /**
      * Validate that all required IDs are present.
      */
-    protected function validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    protected function validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
-        if (empty($form_id) || empty($financial_year_id) || empty($month_period_id) || empty($submission_period_id)) {
-            Log::error("Missing required IDs: form_id=$form_id, indicator_id=$indicator_id, financial_year_id=$financial_year_id, month_period_id=$month_period_id, submission_period_id=$submission_period_id");
+        if (empty($form_id) || empty($financial_year_id) || empty($month_period_id) || empty($submission_period_new_id)) {
+            Log::error("Missing required IDs: form_id=$form_id, indicator_id=$indicator_id, financial_year_id=$financial_year_id, month_period_id=$month_period_id, submission_period_new_id=$submission_period_new_id");
             abort(404);
         }
     }
@@ -103,13 +103,13 @@ trait UploadDataTrait
     /**
      * Find and validate the related models.
      */
-    protected function findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    protected function findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
         $this->selectedForm = $this->findModelOrFail(Form::class, $form_id)->id;
         //   $this->selectedIndicator = $this->findModelOrFail(Indicator::class, $indicator_id)->id;
         $this->selectedFinancialYear = $this->findModelOrFail(FinancialYear::class, $financial_year_id)->id;
         $this->selectedMonth         = $this->findModelOrFail(ReportingPeriodMonth::class, $month_period_id)->id;
-        $this->submissionPeriodId    = $this->findModelOrFail(SubmissionPeriod::class, $submission_period_id)->id;
+        $this->submissionPeriodId    = $this->findModelOrFail(SubmissionPeriod::class, $submission_period_new_id)->id;
     }
 
     /**
@@ -150,7 +150,7 @@ trait UploadDataTrait
         return SubmissionPeriod::where('form_id', $this->selectedForm)
         // ->where('indicator_id', $this->selectedIndicator)
             ->where('financial_year_id', $this->selectedFinancialYear)
-            ->where('month_range_period_id', $this->selectedMonth)
+            ->where('reporting_period_month_id', $this->selectedMonth)
             ->where('is_open', true)
             ->first();
     }
@@ -201,18 +201,18 @@ trait UploadDataTrait
                 cacheKey: $importId,
                 filePath: $path,
                 submissionDetails: [
-                    'submission_period_id' => $this->submissionPeriodId,
-                    'organisation_id'      => Auth::user()->organisation->id,
-                    'financial_year_id'    => $this->selectedFinancialYear,
-                    'period_month_id'      => $this->selectedMonth,
-                    'form_id'              => $this->selectedForm,
-                    'user_id'              => Auth::user()->id,
-                    'batch_type'           => 'batch',
-                    'is_complete'          => 1,
-                    'file_link'            => $name,
-                    'batch_no'             => $this->importId,
-                    'route'                => $this->currentRoute,
-                    'description'          => null,
+                    'submission_period_new_id'  => $this->submissionPeriodId,
+                    'organisation_id'           => Auth::user()->organisation->id,
+                    'financial_year_id'         => $this->selectedFinancialYear,
+                    'reporting_period_month_id' => $this->selectedMonth,
+                    'form_id'                   => $this->selectedForm,
+                    'user_id'                   => Auth::user()->id,
+                    'batch_type'                => 'batch',
+                    'is_complete'               => 1,
+                    'file_link'                 => $name,
+                    'batch_no'                  => $this->importId,
+                    'route'                     => $this->currentRoute,
+                    'description'               => null,
 
                 ]
             ),

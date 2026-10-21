@@ -96,16 +96,16 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                 // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
                     Submission::create([
-                        'batch_no'    => $this->cacheKey,
-                        'form_id'     => $this->submissionDetails['form_id'],
-                        'period_id'   => $this->submissionDetails['submission_period_id'],
-                        'user_id'     => $this->submissionDetails['user_id'],
-                        'status'      => 'approved',
-                        'batch_type'  => 'batch',
-                        'is_complete' => 1,
-                        'table_name'  => 'rtc_consumptions',
-                        'file_link'   => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description'],
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'approved',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'rtc_consumptions',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -119,16 +119,16 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                     );
                 } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
-                        'batch_no'    => $this->cacheKey,
-                        'form_id'     => $this->submissionDetails['form_id'],
-                        'period_id'   => $this->submissionDetails['submission_period_id'],
-                        'user_id'     => $this->submissionDetails['user_id'],
-                        'status'      => 'pending',
-                        'batch_type'  => 'batch',
-                        'is_complete' => 1,
-                        'table_name'  => 'rtc_consumptions',
-                        'file_link'   => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description'],
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'pending',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'rtc_consumptions',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,
@@ -139,16 +139,16 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                     ));
                 } else {
                     Submission::create([
-                        'batch_no'    => $this->cacheKey,
-                        'form_id'     => $this->submissionDetails['form_id'],
-                        'period_id'   => $this->submissionDetails['submission_period_id'],
-                        'user_id'     => $this->submissionDetails['user_id'],
-                        'status'      => 'pending',
-                        'batch_type'  => 'batch',
-                        'is_complete' => 1,
-                        'table_name'  => 'rtc_consumptions',
-                        'file_link'   => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description'],
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'pending',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'rtc_consumptions',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(

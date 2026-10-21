@@ -20,7 +20,7 @@ class AggregatedReport extends Model
     }
     public function reportingPeriod()
     {
-        return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_id');
+        return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }
 
     public function financialYear()

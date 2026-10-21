@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,13 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class ProgressSubmission extends Model
 {
     use HasFactory;
-    protected $table = "progress_submissions";
+    protected $table   = "progress_submissions";
     protected $guarded = [];
-
 
     public function period()
     {
-        return $this->belongsTo(SubmissionPeriod::class, 'period_id');
+        return $this->belongsTo(SubmissionPeriod::class, 'reporting_period_month_id');
     }
 
     public function user()

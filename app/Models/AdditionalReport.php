@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +8,7 @@ class AdditionalReport extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $table = "additional_report";
+    protected $table   = "additional_report";
 
     public function organisation()
     {
@@ -34,6 +33,6 @@ class AdditionalReport extends Model
 
     public function periodMonths()
     {
-        return $this->belongsTo(ReportingPeriodMonth::class, 'period_month_id');
+        return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }
 }

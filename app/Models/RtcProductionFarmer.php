@@ -1,16 +1,15 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Livewire\tables\RtcMarket\RpmFarmerMarketSegment;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class RtcProductionFarmer extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $table = "rtc_production_farmers";
+    protected $table   = "rtc_production_farmers";
     public function followups()
     {
         return $this->hasMany(RpmFarmerFollowUp::class, 'rpm_farmer_id');
@@ -42,7 +41,6 @@ class RtcProductionFarmer extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
 
     public function cultivatedArea()
     {
@@ -89,17 +87,17 @@ class RtcProductionFarmer extends Model
 
     public function organisation()
     {
-        return $this->belongsTo(Organisation::class,'organisation_id');
+        return $this->belongsTo(Organisation::class, 'organisation_id');
     }
 
     public function financialYear()
     {
-        return $this->belongsTo(FinancialYear::class,'financial_year_id');
+        return $this->belongsTo(FinancialYear::class, 'financial_year_id');
     }
 
     public function periodMonth()
     {
-        return $this->belongsTo(ReportingPeriodMonth::class,'period_month_id');
+        return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }
 
     protected static function booted()
@@ -107,7 +105,7 @@ class RtcProductionFarmer extends Model
         static::creating(function ($model) {
             // Sequential numeric ID format
             $latestFarmer = RtcProductionFarmer::latest('id')->first();
-            $number = $latestFarmer ? $latestFarmer->id + 1 : 1; // Increment based on the latest ID
+            $number       = $latestFarmer ? $latestFarmer->id + 1 : 1;      // Increment based on the latest ID
             $model->pf_id = 'PF-' . str_pad($number, 5, '0', STR_PAD_LEFT); // Example: FARM-00001
         });
     }

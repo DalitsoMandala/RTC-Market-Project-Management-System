@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Livewire\tables;
 
 use App\Helpers\TruncateText;
 use App\Models\MarketDataSubmission;
-use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -14,7 +12,6 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -28,19 +25,19 @@ final class MarketDataSubmissionTable extends PowerGridComponent
 {
     use WithExport;
     //Batch Submission Table
-use LivewireAlert;
+    use LivewireAlert;
     public $filter;
     public $userId;
     public bool $showFilters = true;
     public $batch;
-    public $row = 1;
+    public $row              = 1;
     public string $sortField = 'id';
-public $routePrefix;
+    public $routePrefix;
     public string $sortDirection = 'desc';
     public function setUp(): array
     {
         // $this->showCheckBox();
-        $route = Route::current();
+        $route      = Route::current();
         $parameters = $route->parameters();
         $collection = collect($parameters);
         if ($collection->has('batch')) {
@@ -61,20 +58,20 @@ public $routePrefix;
     {
         $query = MarketDataSubmission::query()->with(['user.organisation', 'user']);
 
-        $user = User::find(auth()->user()->id);
+        $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
 
             return $query->where('submitted_user_id', $user->id)->select([
                 '*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
             ]);
         }
 
         return $query->select([
             '*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
         ]);
     }
 
@@ -89,13 +86,12 @@ public $routePrefix;
 
                         return [
                             'status' => $submission->status === 'denied' ? 'disapproved' : $submission->status,
-                            'value' => $submission->status
+                            'value'  => $submission->status,
                         ];
                     });
                 })
                 ->optionLabel('status')
                 ->optionValue('value'),
-
 
             //     Filter::inputText('batch_no_formatted', 'batch_no'),
             //      Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
@@ -109,10 +105,9 @@ public $routePrefix;
             'user.organisation' => [
                 'name',
             ],
-            'user' => [
-                'name'
+            'user'              => [
+                'name',
             ],
-
 
         ];
     }
@@ -125,7 +120,6 @@ public $routePrefix;
             })
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
-
 
                 $text = $model->batch_no;
 
@@ -173,16 +167,14 @@ public $routePrefix;
                 }
             })
 
-            ->add('period_id')
             ->add('comments')
             ->add('comments_truncated', function ($model) {
 
-
-                $text = $model->comments;
-                $trunc = new TruncateText($text, 30);
-                $html = '';
-                $disabled = !$model->comments ? 'pe-none opacity-25' : '';
-                $html .= '
+                $text      = $model->comments;
+                $trunc     = new TruncateText($text, 30);
+                $html      = '';
+                $disabled  = ! $model->comments ? 'pe-none opacity-25' : '';
+                $html     .= '
 
 <div class="' . $disabled . '">
 <div class="accordion accordion-flush" id="default-accordion-example-' . $model->id . '">
@@ -234,18 +226,15 @@ public $routePrefix;
             ->add('updated_at');
     }
 
-
     public function columns(): array
     {
 
         return [
-            Column::make('Batch no', 'batch_no_formatted','submissions.batch_no')
+            Column::make('Batch no', 'batch_no_formatted', 'submissions.batch_no')
 
                 ->searchable(),
             Column::make('#', 'rn')->sortable()->hidden(),
             Column::make('File', 'file_link'),
-
-
 
             Column::make('SUBMITTED BY', 'username')->searchable(),
 
@@ -282,11 +271,10 @@ public $routePrefix;
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->tooltip('Review Submission')
                 ->dispatch('showMarket', [
-                    'id' => $row->id,
+                    'id'   => $row->id,
                     'name' => 'view-market-modal',
 
                 ]),
-
 
             Button::add('delete')
                 ->slot('<i class="bx bx-trash-alt"></i>')
@@ -298,8 +286,8 @@ public $routePrefix;
                 )
                 ->tooltip('Delete Data')
                 ->dispatch('deleteMarketBatch', [
-                    'id' => $row->id,
-                    'name' => 'delete-market-modal'
+                    'id'   => $row->id,
+                    'name' => 'delete-market-modal',
                 ]),
 
             Button::add('view-data')
@@ -310,7 +298,6 @@ public $routePrefix;
                 ->dispatch('view-data-market', [
                     'batch_no' => $row->batch_no,
 
-
                 ]),
 
         ];
@@ -320,12 +307,11 @@ public $routePrefix;
     {
         $routePrefix = $this->routePrefix;
 
-
-        if (!$routePrefix  || !$batch_no) {
+        if (! $routePrefix || ! $batch_no) {
             $this->alert('error', 'Missing parameters to view data', [
                 'position' => 'center',
-                'timer' => 5000,
-                'toast' => false
+                'timer'    => 5000,
+                'toast'    => false,
             ]);
             return;
         }
@@ -350,8 +336,8 @@ public $routePrefix;
                 ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => !$user->hasAnyRole('manager')
-                    || !$user->hasAnyRole('admin'))
+                ->when(fn($row) => ! $user->hasAnyRole('manager')
+                    || ! $user->hasAnyRole('admin'))
                 ->disable(),
 
             Rule::rows()

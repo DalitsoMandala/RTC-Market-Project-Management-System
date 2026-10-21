@@ -20,7 +20,7 @@ trait SystemReportsTrait
     public function __construct(
         public readonly ?int $financial_year_id = null,
         public readonly ?int $project_id = null,
-        public readonly ?int $reporting_period_id = null,
+        public readonly ?int $reporting_period_month_id = null,
         public readonly ?int $organisation_id = null,
         public readonly ?int $indicator_id = null,
     ) {}
@@ -49,8 +49,8 @@ trait SystemReportsTrait
     {
         $indicatorClasses = IndicatorClass::with('indicator')->whereHas('indicator', fn($q) => $q->where('is_active', true))->get();
 
-        $reportingPeriods = $this->reporting_period_id
-            ? [$this->reporting_period_id]
+        $reportingPeriods = $this->reporting_period_month_id
+            ? [$this->reporting_period_month_id]
             : ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->pluck('id')->toArray();
         $organisations = $this->organisation_id
             ? [$this->organisation_id]
@@ -116,12 +116,12 @@ trait SystemReportsTrait
 
                                         // Preserve historical reports
                                         $hasExistingReport = SystemReport::where([
-                                            'financial_year_id'   => $year,
-                                            'reporting_period_id' => $period,
-                                            'organisation_id'     => $org,
-                                            'indicator_id'        => $indicator->id,
-                                            'crop'                => $crop,
-                                            'project_id'          => $indicator->project_id,
+                                            'financial_year_id'         => $year,
+                                            'reporting_period_month_id' => $period,
+                                            'organisation_id'           => $org,
+                                            'indicator_id'              => $indicator->id,
+                                            'crop'                      => $crop,
+                                            'project_id'                => $indicator->project_id,
                                         ])->exists();
 
                                         // Skip only if the organisation is neither currently
@@ -141,12 +141,12 @@ trait SystemReportsTrait
                                             ) {
 
                                                 $conditions = [
-                                                    'reporting_period_id' => $period,
-                                                    'financial_year_id'   => $year,
-                                                    'organisation_id'     => $org,
-                                                    'project_id'          => $indicator->project_id,
-                                                    'indicator_id'        => $indicator->id,
-                                                    'crop'                => $crop,
+                                                    'reporting_period_month_id' => $period,
+                                                    'financial_year_id'         => $year,
+                                                    'organisation_id'           => $org,
+                                                    'project_id'                => $indicator->project_id,
+                                                    'indicator_id'              => $indicator->id,
+                                                    'crop'                      => $crop,
                                                 ];
 
                                                 $systemReport = SystemReport::firstOrCreate($conditions);
@@ -168,13 +168,13 @@ trait SystemReportsTrait
                                             $this->errorCount++;
 
                                             Log::error("System Report Run Failure: " . $e->getMessage(), [
-                                                'reporting_period_id' => $period,
-                                                'financial_year_id'   => $year,
-                                                'organisation_id'     => $org,
-                                                'crop'                => $crop,
-                                                'indicator_id'        => $indicatorClass->indicator_id,
-                                                'class'               => $indicatorClass->class,
-                                                'stack'               => $e->getTraceAsString(),
+                                                'reporting_period_month_id' => $period,
+                                                'financial_year_id'         => $year,
+                                                'organisation_id'           => $org,
+                                                'crop'                      => $crop,
+                                                'indicator_id'              => $indicatorClass->indicator_id,
+                                                'class'                     => $indicatorClass->class,
+                                                'stack'                     => $e->getTraceAsString(),
                                             ]);
 
                                         }

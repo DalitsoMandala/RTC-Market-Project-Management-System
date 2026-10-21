@@ -12,7 +12,7 @@ class ReportingPeriodMonth extends Model
     protected $guarded = [];
     public function reportingPeriod()
     {
-        return $this->belongsTo(ReportingPeriod::class, 'period_id');
+        return $this->belongsTo(ReportingPeriod::class, 'reporting_period_month_id');
     }
 
     // From: Country (Local)
@@ -30,7 +30,7 @@ class ReportingPeriodMonth extends Model
     {
         // country has post through user
 
-        return $this->hasManyThrough(Submission::class, SubmissionPeriod::class, 'month_range_period_id', 'period_id', 'id', 'id');
+        return $this->hasManyThrough(Submission::class, SubmissionPeriod::class, 'reporting_period_month_id', 'reporting_period_month_id', 'id', 'id');
     }
 
     public function project(): BelongsTo

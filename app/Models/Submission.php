@@ -1,30 +1,26 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Submission extends Model
 {
 
     use HasFactory;
-    protected $table = 'submissions';
+    protected $table   = 'submissions';
     protected $guarded = [];
 
     public function period()
     {
-        return $this->belongsTo(SubmissionPeriod::class, 'period_id');
+        return $this->belongsTo(SubmissionPeriod::class, 'reporting_period_month_id');
     }
 
     // check reporting period through submission period
     public function reporting_period()
     {
-        return $this->hasManyThrough(ReportingPeriodMonth::class, SubmissionPeriod::class, '', 'id','id', 'period_id');
+        return $this->hasManyThrough(ReportingPeriodMonth::class, SubmissionPeriod::class, '', 'id', 'id', 'reporting_period_month_id');
     }
-
-
 
     public function user()
     {

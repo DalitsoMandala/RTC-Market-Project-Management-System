@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Imports\ImportProcessor;
 
 use App\Models\JobProgress;
@@ -11,7 +10,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -27,12 +25,12 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     protected $cacheKey;
     protected $totalRows = 0;
 
-    protected const BUNDLE_MULTIPLIER = 4;  // KG per Bundle
+    protected const BUNDLE_MULTIPLIER = 4; // KG per Bundle
 
     public function __construct($data, $cacheKey, $totalRows)
     {
-        $this->data = $data;
-        $this->cacheKey = $cacheKey;
+        $this->data      = $data;
+        $this->cacheKey  = $cacheKey;
         $this->totalRows = $totalRows;
     }
 
@@ -40,7 +38,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     {
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'Production Processors' - Row {$failure->row()}, Field '{$failure->attribute()}': "
-                . implode(', ', $failure->errors());
+            . implode(', ', $failure->errors());
 
             Log::error($errorMessage);
             throw new \App\Exceptions\UserErrorException($errorMessage);
@@ -50,7 +48,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     public function model(array $row)
     {
         // Create a new RtcProductionProcessor record
-        $user = User::find($this->data['user_id']);
+        $user   = User::find($this->data['user_id']);
         $status = 'pending';
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $status = 'approved';
@@ -59,47 +57,47 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         $prodCalc = $this->calculateUsdValue($row['Production Value Date of Max Sales'], $row['Production Value Total']);
 
         $processorRecord = RtcProductionProcessor::create([
-            'group_name' => $row['Group Name'],
-            'date_of_followup' => \Carbon\Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
-            'epa' => $row['EPA'],
-            'section' => $row['Section'],
-            'district' => $row['District'],
-            'enterprise' => $row['Enterprise'],
-            'group' => $row['Group'],
-            'sector' => $row['Sector'],
-            'category' => $row['Category'],
-            'market_segment_fresh' => $row['Market Segment Fresh'] ?? 0,
-            'market_segment_processed' => $row['Market Segment Processed'] ?? 0,
-            'has_rtc_market_contract' => $row['Has RTC Market Contract'] ?? 0,
-            'total_vol_production_previous_season' => $row['Total Volume Production'] ?? 0,
-            'total_vol_production_previous_season_produce' => $row['Total Volume Production Produce'] ?? 0,
-            'total_vol_production_previous_season_seed' => $row['Total Volume Production Seed'] ?? 0,
-            'total_vol_production_previous_season_cuttings' => $row['Total Volume Production Cuttings'] ?? 0,
-            'prod_value_previous_season_total' => $row['Production Value Total'] ?? 0,
-            'prod_value_previous_season_produce' => $row['Production Value Produce'] ?? 0,
-            'prod_value_previous_season_seed' => $row['Production Value Seed'] ?? 0,
-            'prod_value_previous_season_cuttings' => $row['Production Value Cuttings'] ?? 0,
-            'prod_value_produce_prevailing_price' => $row['Production Value Produce Prevailing Price'] ?? 0,
-            'prod_value_seed_prevailing_price' => $row['Production Value Seed Prevailing Price'] ?? 0,
-            'prod_value_cuttings_prevailing_price' => $row['Production Value Cuttings Prevailing Price'] ?? 0,
-            'prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Production Value Date of Max Sales'])->format('Y-m-d'),
-            'prod_value_previous_season_usd_rate' => $prodCalc['rate'] ?? 0,
-            'prod_value_previous_season_usd_value' => $prodCalc['usd_value'] ?? 0,
-            'sells_to_domestic_markets' => $row['Sells to Domestic Markets'] ?? 0,
-            'sells_to_international_markets' => $row['Sells to International Markets'] ?? 0,
-            'uses_market_information_systems' => $row['Uses Market Info Systems'] ?? 0,
-            'sells_to_aggregation_centers' => $row['Sells to Aggregation Centers'] ?? 0,
-            'total_vol_aggregation_center_sales' => $row['Total Volume Aggregation Center Sales'] ?? 0,
-            'uuid' => $this->data['batch_no'],
-            'user_id' => $this->data['user_id'],
-            'organisation_id' => $this->data['organisation_id'],
-            'submission_period_id' => $this->data['submission_period_id'],
-            'financial_year_id' => $this->data['financial_year_id'],
-            'period_month_id' => $this->data['period_month_id'],
-            'status' => $status,
-            'type' => $row['Type'],
+            'group_name'                                       => $row['Group Name'],
+            'date_of_followup'                                 => \Carbon\Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
+            'epa'                                              => $row['EPA'],
+            'section'                                          => $row['Section'],
+            'district'                                         => $row['District'],
+            'enterprise'                                       => $row['Enterprise'],
+            'group'                                            => $row['Group'],
+            'sector'                                           => $row['Sector'],
+            'category'                                         => $row['Category'],
+            'market_segment_fresh'                             => $row['Market Segment Fresh'] ?? 0,
+            'market_segment_processed'                         => $row['Market Segment Processed'] ?? 0,
+            'has_rtc_market_contract'                          => $row['Has RTC Market Contract'] ?? 0,
+            'total_vol_production_previous_season'             => $row['Total Volume Production'] ?? 0,
+            'total_vol_production_previous_season_produce'     => $row['Total Volume Production Produce'] ?? 0,
+            'total_vol_production_previous_season_seed'        => $row['Total Volume Production Seed'] ?? 0,
+            'total_vol_production_previous_season_cuttings'    => $row['Total Volume Production Cuttings'] ?? 0,
+            'prod_value_previous_season_total'                 => $row['Production Value Total'] ?? 0,
+            'prod_value_previous_season_produce'               => $row['Production Value Produce'] ?? 0,
+            'prod_value_previous_season_seed'                  => $row['Production Value Seed'] ?? 0,
+            'prod_value_previous_season_cuttings'              => $row['Production Value Cuttings'] ?? 0,
+            'prod_value_produce_prevailing_price'              => $row['Production Value Produce Prevailing Price'] ?? 0,
+            'prod_value_seed_prevailing_price'                 => $row['Production Value Seed Prevailing Price'] ?? 0,
+            'prod_value_cuttings_prevailing_price'             => $row['Production Value Cuttings Prevailing Price'] ?? 0,
+            'prod_value_previous_season_date_of_max_sales'     => \Carbon\Carbon::parse($row['Production Value Date of Max Sales'])->format('Y-m-d'),
+            'prod_value_previous_season_usd_rate'              => $prodCalc['rate'] ?? 0,
+            'prod_value_previous_season_usd_value'             => $prodCalc['usd_value'] ?? 0,
+            'sells_to_domestic_markets'                        => $row['Sells to Domestic Markets'] ?? 0,
+            'sells_to_international_markets'                   => $row['Sells to International Markets'] ?? 0,
+            'uses_market_information_systems'                  => $row['Uses Market Info Systems'] ?? 0,
+            'sells_to_aggregation_centers'                     => $row['Sells to Aggregation Centers'] ?? 0,
+            'total_vol_aggregation_center_sales'               => $row['Total Volume Aggregation Center Sales'] ?? 0,
+            'uuid'                                             => $this->data['batch_no'],
+            'user_id'                                          => $this->data['user_id'],
+            'organisation_id'                                  => $this->data['organisation_id'],
+            'submission_period_new_id'                         => $this->data['submission_period_new_id'],
+            'financial_year_id'                                => $this->data['financial_year_id'],
+            'reporting_period_month_id'                        => $this->data['period_month_id'],
+            'status'                                           => $status,
+            'type'                                             => $row['Type'],
             'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seed'] / self::BUNDLE_MULTIPLIER) : 0,
-            'prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
+            'prod_value_previous_season_seed_bundle'           => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
 
         ]);
 
@@ -120,15 +118,15 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        if (!empty($row['Date Of Follow Up'])) {
+        if (! empty($row['Date Of Follow Up'])) {
             $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up']);
         }
 
         $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'] ?? null;
 
-        if (!empty($row['Enterprise']) && $row['Enterprise'] != 'Potato') {
+        if (! empty($row['Enterprise']) && $row['Enterprise'] != 'Potato') {
             // Ensure numeric value before conversion
-            $seedVolume = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
+            $seedVolume                          = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
             $row['Total Volume Production Seed'] = $this->convertToMetricTonnes($seedVolume);
         } else {
             // Ensure numeric even if not converting
@@ -137,9 +135,9 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
 
         // Calculate total volume with proper type casting
         $row['Total Volume Production'] =
-            $this->ensureNumeric($row['Total Volume Production Produce'] ?? 0) +
-            $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0) +
-            $this->ensureNumeric($row['Total Volume Production Cuttings'] ?? 0);
+        $this->ensureNumeric($row['Total Volume Production Produce'] ?? 0) +
+        $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0) +
+        $this->ensureNumeric($row['Total Volume Production Cuttings'] ?? 0);
 
         $row['Production Value Total'] = $this->calculateTotalProduction(
             $this->ensureNumeric($row['Production Value Produce'] ?? 0),
@@ -150,16 +148,15 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             $this->ensureNumeric($row['Production Value Cuttings Prevailing Price'] ?? 0)
         );
 
-        $row['Production Value USD Rate'] = 0;
+        $row['Production Value USD Rate']  = 0;
         $row['Production Value USD Value'] = 0;
 
-        $row['EPA'] = (string)($row['EPA'] ?? '');
-        $row['Section'] = (string)($row['Section'] ?? '');
-        $row['District'] = (string)($row['District'] ?? '');
+        $row['EPA']      = (string) ($row['EPA'] ?? '');
+        $row['Section']  = (string) ($row['Section'] ?? '');
+        $row['District'] = (string) ($row['District'] ?? '');
 
         return $row;
     }
-
 
     public function convertToMetricTonnes($value)
     {
@@ -174,61 +171,60 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
 
         $cuttings = (float) ($cuttings ?? 0);
 
-
         $totalProduction = ($produce)
-            + ($seed)
-            + ($cuttings);
+             + ($seed)
+             + ($cuttings);
 
         return $totalProduction;
     }
     public function rules(): array
     {
         return [
-            'ID' => 'required|numeric',
-            'Group Name' => 'required|string|max:255',
-            'Date Of Follow Up' => 'required|date|date_format:d-m-Y',
-            'EPA' => 'nullable|string|max:255',
-            'Section' => 'nullable|string|max:255',
-            'District' => 'nullable|string|max:255',
-            'Enterprise' => 'required|string|max:255',
-            'Group' => 'nullable|string|max:255|in:Producer organization (PO),Large scale farm,Large scale processor,Small medium enterprise (SME),Other',
-            'Sector' => 'nullable|string|max:255|in:Private,Public',
-            'Category' => 'nullable|string|max:255|in:Early generation seed producer,Seed multiplier,RTC producer',
-            'Market Segment Fresh' => 'nullable|boolean',
-            'Market Segment Processed' => 'nullable|boolean',
-            'Has RTC Market Contract' => 'nullable|boolean',
-            'Total Volume Production' => 'nullable|numeric|min:0',
-            'Total Volume Production Produce' => 'nullable|numeric|min:0',
-            'Total Volume Production Seed' => 'nullable|numeric|min:0',
-            'Total Volume Production Cuttings' => 'nullable|numeric|min:0',
-            'Production Value Total' => 'nullable|numeric|min:0',
-            'Production Value Produce' => 'nullable|numeric|min:0',
-            'Production Value Seed' => 'nullable|numeric|min:0',
-            'Production Value Cuttings' => 'nullable|numeric|min:0',
-            'Production Value Produce Prevailing Price' => 'nullable|numeric|min:0',
-            'Production Value Seed Prevailing Price' => 'nullable|numeric|min:0',
-            'Production Value Cuttings Prevailing Price' => 'nullable|numeric|min:0',
-            'Total Volume Irrigation Production' => 'nullable|numeric|min:0',
-            'Total Volume Irrigation Production Produce' => 'nullable|numeric|min:0',
-            'Total Volume Irrigation Production Seed' => 'nullable|numeric|min:0',
+            'ID'                                          => 'required|numeric',
+            'Group Name'                                  => 'required|string|max:255',
+            'Date Of Follow Up'                           => 'required|date|date_format:d-m-Y',
+            'EPA'                                         => 'nullable|string|max:255',
+            'Section'                                     => 'nullable|string|max:255',
+            'District'                                    => 'nullable|string|max:255',
+            'Enterprise'                                  => 'required|string|max:255',
+            'Group'                                       => 'nullable|string|max:255|in:Producer organization (PO),Large scale farm,Large scale processor,Small medium enterprise (SME),Other',
+            'Sector'                                      => 'nullable|string|max:255|in:Private,Public',
+            'Category'                                    => 'nullable|string|max:255|in:Early generation seed producer,Seed multiplier,RTC producer',
+            'Market Segment Fresh'                        => 'nullable|boolean',
+            'Market Segment Processed'                    => 'nullable|boolean',
+            'Has RTC Market Contract'                     => 'nullable|boolean',
+            'Total Volume Production'                     => 'nullable|numeric|min:0',
+            'Total Volume Production Produce'             => 'nullable|numeric|min:0',
+            'Total Volume Production Seed'                => 'nullable|numeric|min:0',
+            'Total Volume Production Cuttings'            => 'nullable|numeric|min:0',
+            'Production Value Total'                      => 'nullable|numeric|min:0',
+            'Production Value Produce'                    => 'nullable|numeric|min:0',
+            'Production Value Seed'                       => 'nullable|numeric|min:0',
+            'Production Value Cuttings'                   => 'nullable|numeric|min:0',
+            'Production Value Produce Prevailing Price'   => 'nullable|numeric|min:0',
+            'Production Value Seed Prevailing Price'      => 'nullable|numeric|min:0',
+            'Production Value Cuttings Prevailing Price'  => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production'          => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Produce'  => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Seed'     => 'nullable|numeric|min:0',
             'Total Volume Irrigation Production Cuttings' => 'nullable|numeric|min:0',
-            'Sells to Domestic Markets' => 'nullable|boolean',
-            'Sells to International Markets' => 'nullable|boolean',
-            'Uses Market Info Systems' => 'nullable|boolean',
-            'Sells to Aggregation Centers' => 'nullable|boolean',
-            'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0',
-            'Type' => 'nullable|string|max:255|in:Farmers,Processors,Traders,Aggregators,Transporters',
+            'Sells to Domestic Markets'                   => 'nullable|boolean',
+            'Sells to International Markets'              => 'nullable|boolean',
+            'Uses Market Info Systems'                    => 'nullable|boolean',
+            'Sells to Aggregation Centers'                => 'nullable|boolean',
+            'Total Volume Aggregation Center Sales'       => 'nullable|numeric|min:0',
+            'Type'                                        => 'nullable|string|max:255|in:Farmers,Processors,Traders,Aggregators,Transporters',
         ];
     }
     private function calculateUsdValue(?string $date, ?float $mwkValue): array
     {
-        if (!$date || !$mwkValue) {
+        if (! $date || ! $mwkValue) {
             return ['rate' => 0, 'usd_value' => 0];
         }
 
         try {
-            $helper = new \App\Helpers\ExchangeRateHelper();
-            $rate = $helper->getRate($mwkValue, $date);
+            $helper   = new \App\Helpers\ExchangeRateHelper();
+            $rate     = $helper->getRate($mwkValue, $date);
             $usdValue = $rate ? round($mwkValue / $rate, 2) : 0;
             return ['rate' => $rate, 'usd_value' => $usdValue];
         } catch (\Exception $e) {

@@ -1,29 +1,24 @@
 <?php
-
 namespace App\Traits;
 
-
-
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use App\Models\Project;
-use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\OrganisationTarget;
+use App\Models\Project;
+use App\Models\ReportingPeriodMonth;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Models\OrganisationTarget;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Livewire\Attributes\On;
+use Ramsey\Uuid\Uuid;
 
 trait ManualDataTrait
 {
     //
-
 
     public $variable;
     public $rowId;
@@ -32,7 +27,7 @@ trait ManualDataTrait
     public $period;
     public $forms = [];
     public $selectedForm;
-    public $months = [];
+    public $months         = [];
     public $financialYears = [];
     public $selectedFinancialYear;
     public $projects = [];
@@ -42,25 +37,23 @@ trait ManualDataTrait
     public $indicators;
     public $selectedIndicator;
     public $organisation_id;
-    public $loadAggregate = [];
-    public $aggregateData = [];
+    public $loadAggregate    = [];
+    public $aggregateData    = [];
     public $checkifAggregate = false;
-    public $showReport = false;
-    public $validated = true;
+    public $showReport       = false;
+    public $validated        = true;
     public $routePrefix;
     public $targetSet = false;
     public $targetIds = [];
 
-
-
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
 
         // Validate required IDs
-        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Find and validate related models
-        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Check if the submission period is open and targets are set
         $this->checkSubmissionPeriodAndTargets();
@@ -72,11 +65,11 @@ trait ManualDataTrait
     /**
      * Validate that all required IDs are present.
      */
-    protected function validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    protected function validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
 
-        if (empty($form_id)  || empty($financial_year_id) || empty($month_period_id) || empty($submission_period_id)) {
-            Log::error("Missing required IDs: form_id=$form_id, indicator_id=$indicator_id, financial_year_id=$financial_year_id, month_period_id=$month_period_id, submission_period_id=$submission_period_id");
+        if (empty($form_id) || empty($financial_year_id) || empty($month_period_id) || empty($submission_period_new_id)) {
+            Log::error("Missing required IDs: form_id=$form_id, indicator_id=$indicator_id, financial_year_id=$financial_year_id, month_period_id=$month_period_id, submission_period_new_id=$submission_period_new_id");
             abort(404);
         }
     }
@@ -84,14 +77,14 @@ trait ManualDataTrait
     /**
      * Find and validate the related models.
      */
-    protected function findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    protected function findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
         $this->selectedForm = $this->findModelOrFail(Form::class, $form_id)->id;
         // $this->selectedIndicator = $this->findModelOrFail(Indicator::class, $indicator_id)->id;
 
         $this->selectedFinancialYear = $this->findModelOrFail(FinancialYear::class, $financial_year_id)->id;
-        $this->selectedMonth = $this->findModelOrFail(ReportingPeriodMonth::class, $month_period_id)->id;
-        $this->submissionPeriodId = $this->findModelOrFail(SubmissionPeriod::class, $submission_period_id)->id;
+        $this->selectedMonth         = $this->findModelOrFail(ReportingPeriodMonth::class, $month_period_id)->id;
+        $this->submissionPeriodId    = $this->findModelOrFail(SubmissionPeriod::class, $submission_period_new_id)->id;
     }
 
     /**
@@ -100,7 +93,7 @@ trait ManualDataTrait
     protected function findModelOrFail($modelClass, $id)
     {
         $model = $modelClass::find($id);
-        if (!$model) {
+        if (! $model) {
             Log::error("$modelClass with ID $id not found");
             abort(404);
         }
@@ -113,14 +106,12 @@ trait ManualDataTrait
     protected function checkSubmissionPeriodAndTargets()
     {
         $submissionPeriod = $this->getOpenSubmissionPeriod();
-        $targets = $this->getSubmissionTargets();
-        $this->targetIds = $targets->pluck('id')->toArray();
+        $targets          = $this->getSubmissionTargets();
+        $this->targetIds  = $targets->pluck('id')->toArray();
 
-
-        $this->openSubmission =  $submissionPeriod->count() > 0 ? true : false; // tempolary
-        $this->targetSet = $this->openSubmission; // tempolary
-        //   $this->openSubmission = $submissionPeriod && $this->hasOrganisationTargets($targets);
-
+        $this->openSubmission = $submissionPeriod->count() > 0 ? true : false; // tempolary
+        $this->targetSet      = $this->openSubmission;                         // tempolary
+                                                                               //   $this->openSubmission = $submissionPeriod && $this->hasOrganisationTargets($targets);
 
         //  $this->targetSet = $this->openSubmission;
     }
@@ -131,9 +122,9 @@ trait ManualDataTrait
     protected function getOpenSubmissionPeriod()
     {
         return SubmissionPeriod::where('form_id', $this->selectedForm)
-            //  ->whereIn('indicator_id', $this->selectedIndicator)
+        //  ->whereIn('indicator_id', $this->selectedIndicator)
             ->where('financial_year_id', $this->selectedFinancialYear)
-            ->where('month_range_period_id', $this->selectedMonth)
+            ->where('reporting_period_month_id', $this->selectedMonth)
             ->where('is_open', true)
             ->first();
     }
@@ -153,7 +144,7 @@ trait ManualDataTrait
      */
     protected function hasOrganisationTargets($targets)
     {
-        $user = User::find(auth()->user()->id);
+        $user      = User::find(auth()->user()->id);
         $targetIds = $targets->pluck('id');
 
         return OrganisationTarget::where('organisation_id', $user->organisation->id)
@@ -177,18 +168,17 @@ trait ManualDataTrait
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 
     public function saveManualSubmission($modelClass, $data, $submissionData, $tableName, $routePrefix)
     {
 
-
         try {
-            $uuid = Uuid::uuid4()->toString();
-            $user = User::find(auth()->user()->id); // Get the authenticated user using Auth::user();
-            $data['uuid'] = $uuid;
+            $uuid            = Uuid::uuid4()->toString();
+            $user            = User::find(auth()->user()->id); // Get the authenticated user using Auth::user();
+            $data['uuid']    = $uuid;
             $data['user_id'] = $user->id;
 
             // Add role-specific logic
@@ -199,24 +189,24 @@ trait ManualDataTrait
             }
 
             // Create the submission record
-            $submissionData['batch_no'] = $uuid;
+            $submissionData['batch_no']   = $uuid;
             $submissionData['table_name'] = $tableName;
 
-            $data['submission_period_id'] = $this->submissionPeriodId;
-            $data['period_month_id'] = $this->selectedMonth;
-            $data['organisation_id'] = $user->organisation->id;
-            $data['financial_year_id'] = $this->selectedFinancialYear;
+            $data['submission_period_new_id']  = $this->submissionPeriodId;
+            $data['reporting_period_month_id'] = $this->selectedMonth;
+            $data['organisation_id']           = $user->organisation->id;
+            $data['financial_year_id']         = $this->selectedFinancialYear;
 
             Submission::create($submissionData);
 
             // Create the model record
-            $model = new $modelClass;
+            $model  = new $modelClass;
             $latest = $model->create($data);
 
-            $project = Project::where('is_active', true)->first();
+            $project      = Project::where('is_active', true)->first();
             $project_name = strtolower(str_replace(' ', '_', $project->name));
-            $form = Form::find($this->selectedForm);
-            $formName = strtolower(str_replace(' ', '-', $form->name));
+            $form         = Form::find($this->selectedForm);
+            $formName     = strtolower(str_replace(' ', '-', $form->name));
 
             // Flash success messages
             session()->flash('success', 'Successfully submitted! <a href="' . $routePrefix . '/forms/' . $project_name . '/' . $formName . '/view">View Submission here</a>');

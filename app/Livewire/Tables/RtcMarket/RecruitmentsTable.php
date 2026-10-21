@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Livewire\tables\RtcMarket;
 
 use App\Models\Project;
@@ -10,14 +9,11 @@ use App\Traits\ExportTrait;
 use App\Traits\UITrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -59,14 +55,14 @@ final class RecruitmentsTable extends PowerGridComponent
     }
     public function datasource(): Builder
     {
-        $user = User::find(auth()->user()->id);
+        $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = Recruitment::query()->with([
+        $query           = Recruitment::query()->with([
             'user' => fn($q) => $q->withTrashed(),
-            'user.organisation'
+            'user.organisation',
         ])->select([
             'recruitments.*',
-            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
         ]);
         if ($user->hasAnyRole('external')) {
 
@@ -75,7 +71,6 @@ final class RecruitmentsTable extends PowerGridComponent
 
         return $query;
     }
-
 
     public function fields(): PowerGridFields
     {
@@ -135,10 +130,10 @@ final class RecruitmentsTable extends PowerGridComponent
             ->add('submitted_by', function ($model) {
                 return $model->user?->name . '(' . $model->user?->organisation->name . ')';
             })
-            ->add('submission_period_id')
+            ->add('submission_period_new_id')
             ->add('organisation_id')
             ->add('financial_year_id')
-            ->add('period_month_id')
+            ->add('reporting_period_month_id')
             ->add('status')
             ->add('created_at')
             ->add('updated_at');
@@ -152,10 +147,9 @@ final class RecruitmentsTable extends PowerGridComponent
 
     public function actions($row): array
     {
-        $user = User::find(auth()->user()->id);
+        $user    = User::find(auth()->user()->id);
         $project = Project::where('name', 'RTC Market')->first();
-        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-actor-recruitment-form/edit/' . $row->id . '/' . $row->uuid;
-
+        $link    = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-actor-recruitment-form/edit/' . $row->id . '/' . $row->uuid;
 
         switch ($user->roles()->first()->name) {
             case 'admin':
@@ -190,7 +184,7 @@ final class RecruitmentsTable extends PowerGridComponent
                 ->render(function () use ($link) {
                     // Using a simple return is faster than compiling a Blade view for a single button
                     return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
-                })
+                }),
         ];
     }
     public function columns(): array
@@ -228,9 +222,6 @@ final class RecruitmentsTable extends PowerGridComponent
 
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
                 ->sortable(),
-
-
-
 
             Column::make('Name of representative', 'name_of_representative')
                 ->sortable()
@@ -333,17 +324,12 @@ final class RecruitmentsTable extends PowerGridComponent
             Column::make('Is registered seed producer', 'is_registered_seed_producer')
                 ->sortable(),
 
-
             Column::make('Uses certified seed', 'uses_certified_seed')
                 ->sortable(),
 
             Column::make('Submitted by', 'submitted_by')
 
                 ->searchable(),
-
-
-
-
 
         ];
     }

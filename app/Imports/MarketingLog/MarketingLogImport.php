@@ -70,42 +70,42 @@ WithStartRow
         $productionMarketing = ProductionMarketingLog::create([
 
             // Location
-            'district'              => $row['District'] ?? null,
-            'epa'                   => $row['EPA'] ?? null,
-            'section'               => $row['Section'] ?? null,
+            'district'                  => $row['District'] ?? null,
+            'epa'                       => $row['EPA'] ?? null,
+            'section'                   => $row['Section'] ?? null,
 
             // Production information
-            'enterprise'            => $row['Crop'] ?? null,
-            'group_name'            => $row['Name of group'] ?? null,
-            'type_of_farming'       => $row['Type of farming'] ?? null,
-            'season'                => $row['Season'] ?? null,
+            'enterprise'                => $row['Crop'] ?? null,
+            'group_name'                => $row['Name of group'] ?? null,
+            'type_of_farming'           => $row['Type of farming'] ?? null,
+            'season'                    => $row['Season'] ?? null,
 
             // Group chair
-            'group_chair_name'      => $row['Name of group Chair'] ?? null,
-            'group_chair_contact'   => $row['Contact of group chair'] ?? null,
+            'group_chair_name'          => $row['Name of group Chair'] ?? null,
+            'group_chair_contact'       => $row['Contact of group chair'] ?? null,
 
             // Farmer
-            'farmer_name'           => $row['Name of farmer'] ?? null,
-            'farmer_id_phone'       => $row['ID No/Phone No.'] ?? null,
-            'sex'                   => $row['Sex'] ?? null,
-            'age'                   => $row['Age'] ?? null,
+            'farmer_name'               => $row['Name of farmer'] ?? null,
+            'farmer_id_phone'           => $row['ID No/Phone No.'] ?? null,
+            'sex'                       => $row['Sex'] ?? null,
+            'age'                       => $row['Age'] ?? null,
 
             // Production
-            'area_grown_acre'       => $row['Area grown (acre)'] ?? null,
-            'variety'               => strtolower($row['Variety']) ?? null,
-            'harvesting_units'      => $row['Harvesting units'] ?? null,
-            'unit_weight_kg'        => $row['Unit weight (Kg)'] ?? null,
-            'qty'                   => $row['QTY'] ?? null,
+            'area_grown_acre'           => $row['Area grown (acre)'] ?? null,
+            'variety'                   => strtolower($row['Variety']) ?? null,
+            'harvesting_units'          => $row['Harvesting units'] ?? null,
+            'unit_weight_kg'            => $row['Unit weight (Kg)'] ?? null,
+            'qty'                       => $row['QTY'] ?? null,
 
             // Marketing
-            'selling_price'         => $row['Selling price'] ?? null,
-            'main_buyer'            => $row['Main buyer'] ?? null,
+            'selling_price'             => $row['Selling price'] ?? null,
+            'main_buyer'                => $row['Main buyer'] ?? null,
 
             // Seed
-            'seed_class'            => $row['Seed Class'] ?? null,
-            'date_recorded'         => Carbon::parse($row['Date Recorded'])->format('Y-m-d') ?? null,
-            'production_value_usd'  => $usdValue,
-            'production_value_rate' => $usdRate,
+            'seed_class'                => $row['Seed Class'] ?? null,
+            'date_recorded'             => Carbon::parse($row['Date Recorded'])->format('Y-m-d') ?? null,
+            'production_value_usd'      => $usdValue,
+            'production_value_rate'     => $usdRate,
 
             /*
             |--------------------------------------------------------------------------
@@ -113,19 +113,19 @@ WithStartRow
             |--------------------------------------------------------------------------
             */
 
-            'uuid'                  => $this->data['batch_no'],
+            'uuid'                      => $this->data['batch_no'],
 
-            'user_id'               => $this->data['user_id'],
+            'user_id'                   => $this->data['user_id'],
 
-            'organisation_id'       => $this->data['organisation_id'],
+            'organisation_id'           => $this->data['organisation_id'],
 
-            'submission_period_id'  => $this->data['submission_period_id'],
+            'submission_period_new_id'  => $this->data['submission_period_new_id'],
 
-            'financial_year_id'     => $this->data['financial_year_id'],
+            'financial_year_id'         => $this->data['financial_year_id'],
 
-            'period_month_id'       => $this->data['period_month_id'],
+            'reporting_period_month_id' => $this->data['reporting_period_month_id'],
 
-            'status'                => $status,
+            'status'                    => $status,
         ]);
 
         /*

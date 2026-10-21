@@ -80,12 +80,12 @@ class AggImportSheet implements ToModel, WithHeadingRow, WithValidation, WithChu
 
                 if (isset($row[$columnKey]) && $row[$columnKey] >= 0) {
                     $conditions = [
-                        'financial_year_id'   => $financialYear->id,
-                        'reporting_period_id' => $reportingPeriodMonth->id,
-                        'organisation_id'     => $this->organisation_id,
-                        'project_id'          => $this->projectId,
-                        'crop'                => $this->crop,
-                        'indicator_id'        => $indicator->id,
+                        'financial_year_id'         => $financialYear->id,
+                        'reporting_period_month_id' => $reportingPeriodMonth->id,
+                        'organisation_id'           => $this->organisation_id,
+                        'project_id'                => $this->projectId,
+                        'crop'                      => $this->crop,
+                        'indicator_id'              => $indicator->id,
                     ];
 
                     $report = AggregatedReport::firstOrCreate($conditions);

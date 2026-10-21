@@ -34,7 +34,7 @@ class SubmissionReport extends Model
 
     public function periodMonth()
     {
-        return $this->belongsTo(ReportingPeriodMonth::class, 'period_month_id');
+        return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }
 
     public function financialYear()

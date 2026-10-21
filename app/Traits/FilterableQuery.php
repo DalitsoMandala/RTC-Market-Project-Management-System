@@ -14,7 +14,7 @@ trait FilterableQuery
     public function applyFilters(Builder $query, $is_report = false): Builder
     {
         $query = $query
-            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
+            ->when($this->reporting_period, fn($q) => $q->where('reporting_period_month_id', $this->reporting_period))
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
@@ -32,7 +32,7 @@ trait FilterableQuery
     public function applyHouseHoldFilters(Builder $query, $is_report = false): Builder
     {
         $query = $query
-            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
+            ->when($this->reporting_period, fn($q) => $q->where('reporting_period_month_id', $this->reporting_period))
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
@@ -58,7 +58,7 @@ trait FilterableQuery
     public function applyConsumptionFilters(Builder $query, $is_report = false): Builder
     {
         $query = $query
-            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
+            ->when($this->reporting_period, fn($q) => $q->where('reporting_period_month_id', $this->reporting_period))
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
@@ -75,7 +75,7 @@ trait FilterableQuery
     public function applySeedFilters(Builder $query, $is_report = false): Builder
     {
         $query = $query
-            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
+            ->when($this->reporting_period, fn($q) => $q->where('reporting_period_month_id', $this->reporting_period))
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
@@ -96,7 +96,7 @@ trait FilterableQuery
     public function applyAttendanceFilters(Builder $query, $is_report = false): Builder
     {
         $query = $query
-            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
+            ->when($this->reporting_period, fn($q) => $q->where('reporting_period_month_id', $this->reporting_period))
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 

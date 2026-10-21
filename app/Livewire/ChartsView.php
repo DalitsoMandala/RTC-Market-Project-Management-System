@@ -49,7 +49,7 @@ class ChartsView extends Component
             $query->whereNull('crop')
                 ->where('indicator_id', $indicatorId)
                 ->where('project_id', $projectId)
-                ->where('reporting_period_id', '!=', $unspecifiedPeriodId);
+                ->where('reporting_period_month_id', '!=', $unspecifiedPeriodId);
         })
             ->where('name', 'Total') // Query only 'Total' directly instead of pulling & filtering all names
             ->sum('value');

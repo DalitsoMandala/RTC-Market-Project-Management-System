@@ -1,42 +1,28 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
-use Throwable;
-use Carbon\Carbon;
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\ImportError;
-use App\Models\JobProgress;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use Livewire\WithFileUploads;
-use App\Traits\UploadDataTrait;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionTarget;
-use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
-use App\Traits\CheckProgressTrait;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
-use App\Exceptions\UserErrorException;
-use App\Notifications\JobNotification;
-use Illuminate\Support\Facades\Storage;
 use App\Exceptions\ExcelValidationException;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
-use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
+use App\Models\Form;
+use App\Models\ImportError;
+use App\Models\JobProgress;
+use App\Models\User;
+use App\Traits\CheckProgressTrait;
+use App\Traits\UploadDataTrait;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Upload extends Component
 {
@@ -92,38 +78,32 @@ class Upload extends Component
 
             if ($this->upload) {
 
-                $name = 'rpmf' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $name      = 'rpmf' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $directory = 'public/imports';
-                if (!Storage::exists($directory)) {
+                if (! Storage::exists($directory)) {
                     Storage::makeDirectory($directory);
                 }
 
                 $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
 
-
-
-
-
-
                 try {
-
 
                     Excel::import(new RtcProductionFarmersMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
-                        'submission_period_id' => $this->submissionPeriodId,
-                        'organisation_id' => Auth::user()->organisation->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'period_month_id' => $this->selectedMonth,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => Auth::user()->id,
-                        'batch_type' => 'batch',
-                        'table_name' => 'household_rtc_consumption',
-                        'is_complete' => 1,
-                        'file_link' => $name,
-                        'batch_no' => $this->importId,
-                        'route' => $this->currentRoute,
-'description' => $this->description
+                        'submission_period_new_id'  => $this->submissionPeriodId,
+                        'organisation_id'           => Auth::user()->organisation->id,
+                        'financial_year_id'         => $this->selectedFinancialYear,
+                        'reporting_period_month_id' => $this->selectedMonth,
+                        'form_id'                   => $this->selectedForm,
+                        'user_id'                   => Auth::user()->id,
+                        'batch_type'                => 'batch',
+                        'table_name'                => 'household_rtc_consumption',
+                        'is_complete'               => 1,
+                        'file_link'                 => $name,
+                        'batch_no'                  => $this->importId,
+                        'route'                     => $this->currentRoute,
+                        'description'               => $this->description,
 
                     ]), $path);
                     $this->checkProgress();
@@ -142,19 +122,15 @@ class Upload extends Component
             $this->redirect(url()->previous());
         }
 
-
     }
-
-
 
     #[On('open-submission')]
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
-
 
     public function checkErrors()
     {
@@ -163,7 +139,7 @@ class Upload extends Component
 
         if ($importError) {
             $this->Import_errors = json_decode($importError->errors, true);
-            $this->importing = false;
+            $this->importing     = false;
 
             $this->reset('upload');
             if ($importError->type == 'validation') {
@@ -173,20 +149,20 @@ class Upload extends Component
             }
 
             $this->importingFinished = true;
-            $userId = auth()->user()->id;
+            $userId                  = auth()->user()->id;
 
             $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
             if ($importJob) {
                 $importJob->update([
-                    'status' => 'failed',
-                    'is_finished' => true
+                    'status'      => 'failed',
+                    'is_finished' => true,
                 ]);
             }
             $importError->delete();
         } else {
             // Check progress
 
-            $userId = auth()->user()->id;
+            $userId    = auth()->user()->id;
             $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
 
             if ($importJob) {
@@ -198,14 +174,14 @@ class Upload extends Component
             if ($this->progress > 0 && $this->progress == 100) {
 
                 $this->reset('upload');
-                $this->importing = false;
+                $this->importing         = false;
                 $this->importingFinished = true;
                 $this->dispatch('import-finished');
 
                 if ($importJob) {
                     $importJob->update([
-                        'status' => 'completed',
-                        'is_finished' => true
+                        'status'      => 'completed',
+                        'is_finished' => true,
                     ]);
                     $this->importId = Uuid::uuid4()->toString();
                     $this->sendToLocation();
@@ -213,7 +189,6 @@ class Upload extends Component
             }
         }
     }
-
 
     public function send()
     {
@@ -231,15 +206,13 @@ class Upload extends Component
         }
     }
 
-
-
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
         // Validate required IDs
-        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Find and validate related models
-        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Check if the submission period is open and targets are set
         $this->checkSubmissionPeriodAndTargets();
@@ -247,10 +220,9 @@ class Upload extends Component
         //import ID
         $this->importId = Uuid::uuid4()->toString();
         // Set the route prefix
-        $this->routePrefix = Route::current()->getPrefix();
-        $this->currentRoute =  url()->current();
+        $this->routePrefix  = Route::current()->getPrefix();
+        $this->currentRoute = url()->current();
     }
-
 
     public function downloadTemplate()
     {

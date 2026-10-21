@@ -1,22 +1,18 @@
 <?php
-
 namespace App\Livewire\admin;
 
 use App\Models\Form;
 use App\Models\Indicator;
 use App\Models\Organisation;
-use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\Source;
 use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -52,7 +48,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
         return SubmissionPeriod::query()->with([
             'form',
             'financialYears',
-            'reportingMonths'
+            'reportingMonths',
         ]);
     }
 
@@ -65,13 +61,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 $form = Form::find($model->form_id);
 
                 $form_name = str_replace(' ', '-', strtolower($form->name));
-                $project = str_replace(' ', '-', strtolower($form->project->name));
+                $project   = str_replace(' ', '-', strtolower($form->project->name));
 
                 return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
             })
             ->add('financial_year', function ($model) {
                 return $model->financialYears->number;
-                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+                //   ReportingPeriodMonth::find($model->reporting_period_month_id)->;
             })
 
             ->add('indicator_id')
@@ -90,30 +86,29 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
                 $checkIds = $indicator->responsiblePeopleforIndicators->pluck('id');
 
-
-                $sources = Source::whereIn('person_id', $checkIds)->where('form_id', $model->form_id)->pluck('person_id');
+                $sources           = Source::whereIn('person_id', $checkIds)->where('form_id', $model->form_id)->pluck('person_id');
                 $responsiblePeople = $indicator->responsiblePeopleforIndicators->whereIn('id', $sources)->pluck('organisation_id');
-                $oganisations = Organisation::whereIn('id', $responsiblePeople)->pluck('name');
+                $oganisations      = Organisation::whereIn('id', $responsiblePeople)->pluck('name');
                 return implode(', ', $oganisations->toArray());
             })
 
             ->add('month_range', function ($model) {
 
                 return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
-                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+                //   ReportingPeriodMonth::find($model->reporting_period_month_id)->;
             })
             ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y'))
             ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y'))
             ->add('is_open')
             ->add('is_open_toggle', function ($model) {
-                $open = $model->is_open === 1 ? 'bg-success' : 'bg-secondary';
+                $open    = $model->is_open === 1 ? 'bg-success' : 'bg-secondary';
                 $is_open = $model->is_open === 1 ? 'Open' : 'Closed';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_open . '</span>';
             })
             ->add('is_expired')
             ->add('is_expired_toggle', function ($model) {
-                $open = $model->is_expired === 1 ? 'bg-theme-red' : 'bg-secondary';
+                $open       = $model->is_expired === 1 ? 'bg-theme-red' : 'bg-secondary';
                 $is_expired = $model->is_expired === 1 ? 'Yes' : 'No';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
@@ -123,7 +118,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 if ($getDate->isPast()) {
                     SubmissionPeriod::find($model->id)->update([
                         'is_expired' => 1,
-                        'is_open' => 0,
+                        'is_open'    => 0,
                     ]);
 
                     $this->refreshData();
@@ -140,18 +135,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'forms' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'forms'           => [ // relationship on dishes model
+                'name',                // column enabled to search
 
             ],
             'reportingMonths' => [ // relationship on dishes model
-                'start_date', // column enabled to search
-                'end_date', // column enabled to search
+                'start_date',          // column enabled to search
+                'end_date',            // column enabled to search
             ],
-
-
-
-
 
         ];
     }
@@ -232,54 +223,48 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         $model = (object) $model;
 
-        $form = Form::find($model->form_id);
-        $user = Auth::user();
+        $form         = Form::find($model->form_id);
+        $user         = Auth::user();
         $organisation = $user->organisation;
-        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
-        $person = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->first();
-
+        $indicator    = $form->indicators->where('id', $model->indicator_id)->first();
+        $person       = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->first();
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
+        $project   = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
-
-
         if ($form->name == 'REPORT FORM') {
 
-
-            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id;
         } else {
-            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id;
         }
 
         $this->redirect($route);
     }
-
 
     #[On('sendFollowUpData')]
     public function sendFollowUpData($model)
     {
         $model = (object) $model;
 
-        $form = Form::find($model->form_id);
-        $user = Auth::user();
-        $organisation = $user->organisation;
-        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
+        $form                  = Form::find($model->form_id);
+        $user                  = Auth::user();
+        $organisation          = $user->organisation;
+        $indicator             = $form->indicators->where('id', $model->indicator_id)->first();
         $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
+        $project   = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
         if ($checkTypeofSubmission->contains('aggregate')) {
 
-
-            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id;
         } else {
-            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id;
         }
 
         $this->redirect($route);
@@ -293,11 +278,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $form = Form::find($model->form_id);
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
+        $project   = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
 
         $this->redirect($route);
     }
@@ -306,7 +291,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         SubmissionPeriod::where('date_ending', '<', Carbon::now())->update([
             'is_expired' => 1,
-            'is_open' => 0
+            'is_open'    => 0,
         ]);
     }
 
@@ -334,7 +319,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->class('btn btn-warning my-1 btn-sm')
                 ->dispatch('sendUploadData', ['model' => $row]),
 
-
         ];
     }
     // public function actionsFromView($row): View
@@ -344,9 +328,9 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
     public function actionRules($row): array
     {
-        $user = Auth::user();
+        $user           = Auth::user();
         $organisationId = $user->organisation->id;
-        $indicator = Indicator::find($row->indicator_id);
+        $indicator      = Indicator::find($row->indicator_id);
 
         $responsiblePeople = ResponsiblePerson::where('indicator_id', $row->indicator_id)
             ->where('organisation_id', $organisationId)
@@ -361,18 +345,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
         // Check if the organisation is responsible for the indicator
         $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
 
-
-        $currentDate = Carbon::now();
+        $currentDate     = Carbon::now();
         $establishedDate = $row->date_established;
-        $endDate = $row->end_date;
+        $endDate         = $row->end_date;
 
         $startDate = Carbon::parse($establishedDate);
-        $endDate = Carbon::parse($endDate);
+        $endDate   = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
-
-
-
 
         return [
             // Hide button edit for ID 1
@@ -382,13 +362,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || ! $hasResponsiblePeople || ! $hasFormAccess || ! $withinDateRange)
                 ->disable(),
 
             // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$isOrganisationResponsible ||
-                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || ! $isOrganisationResponsible ||
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || ! $withinDateRange)
                 ->disable(),
         ];
     }

@@ -166,10 +166,10 @@ class AggregatedReportsPage extends Component
 
         // Duplicate check — same combination already exists?
         $existing = AggregatedReport::where([
-            'indicator_id'        => $this->formIndicatorId,
-            'organisation_id'     => $this->formOrganisationId,
-            'financial_year_id'   => $this->formFinancialYearId,
-            'reporting_period_id' => $this->formReportingPeriodId,
+            'indicator_id'              => $this->formIndicatorId,
+            'organisation_id'           => $this->formOrganisationId,
+            'financial_year_id'         => $this->formFinancialYearId,
+            'reporting_period_month_id' => $this->formReportingPeriodId,
         ])->when($this->formCrop, fn($q) => $q->where('crop', $this->formCrop))
             ->first();
 
@@ -179,11 +179,11 @@ class AggregatedReportsPage extends Component
         }
 
         $record = AggregatedReport::create([
-            'indicator_id'        => $this->formIndicatorId,
-            'organisation_id'     => $this->formOrganisationId,
-            'financial_year_id'   => $this->formFinancialYearId,
-            'reporting_period_id' => $this->formReportingPeriodId,
-            'crop'                => $this->formCrop ?: null,
+            'indicator_id'              => $this->formIndicatorId,
+            'organisation_id'           => $this->formOrganisationId,
+            'financial_year_id'         => $this->formFinancialYearId,
+            'reporting_period_month_id' => $this->formReportingPeriodId,
+            'crop'                      => $this->formCrop ?: null,
         ]);
 
         AggregatedReportData::create([
@@ -212,7 +212,7 @@ class AggregatedReportsPage extends Component
         $this->filterIndicator       = (string) $record->indicator_id;
         $this->filterOrganisation    = (string) $record->organisation_id;
         $this->filterFinancialYear   = (string) $record->financial_year_id;
-        $this->filterReportingPeriod = (string) $record->reporting_period_id;
+        $this->filterReportingPeriod = (string) $record->reporting_period_month_id;
         $this->filterDisaggregation  = $record->indicatorDisaggregation->name ?? '';
         $this->filterCrop            = $record->crop ?? '';
 
@@ -286,11 +286,11 @@ class AggregatedReportsPage extends Component
         // If this is a crop-specific value, update all matching crop records
         if ($report->crop) {
             AggregatedReport::where([
-                'indicator_id'        => $report->indicator_id,
-                'organisation_id'     => $report->organisation_id,
-                'financial_year_id'   => $report->financial_year_id,
-                'reporting_period_id' => $report->reporting_period_id,
-                'crop'                => $report->crop,
+                'indicator_id'              => $report->indicator_id,
+                'organisation_id'           => $report->organisation_id,
+                'financial_year_id'         => $report->financial_year_id,
+                'reporting_period_month_id' => $report->reporting_period_month_id,
+                'crop'                      => $report->crop,
             ])
                 ->first()?->data()
                 ->where('name', $report->crop)
@@ -348,7 +348,7 @@ class AggregatedReportsPage extends Component
             'systemReport.organisation',
             'systemReport.project',
         ])->whereHas('systemReport.project', fn($q) => $q->where('name', 'RTC MARKET'))->join('aggregated_reports', 'aggregated_report_data.aggregated_report_id', '=', 'aggregated_reports.id')
-            ->select('aggregated_report_data.*', 'aggregated_reports.indicator_id', 'aggregated_reports.organisation_id', 'aggregated_reports.financial_year_id', 'aggregated_reports.reporting_period_id', 'aggregated_reports.crop');
+            ->select('aggregated_report_data.*', 'aggregated_reports.indicator_id', 'aggregated_reports.organisation_id', 'aggregated_reports.financial_year_id', 'aggregated_reports.reporting_period_month_id', 'aggregated_reports.crop');
 
         // Search
         if ($this->search) {
@@ -380,7 +380,7 @@ class AggregatedReportsPage extends Component
         }
 
         if ($this->filterReportingPeriod) {
-            $query->where('reporting_period_id', $this->filterReportingPeriod);
+            $query->where('reporting_period_month_id', $this->filterReportingPeriod);
         }
 
         if ($this->filterDisaggregation) {
