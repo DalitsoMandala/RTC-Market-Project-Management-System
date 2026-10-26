@@ -2,10 +2,10 @@
 namespace App\Livewire;
 
 use App\Models\Indicator;
-use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
 use App\Models\SubmissionTarget;
 use App\Models\SystemReportData;
+use App\Services\ProjectService;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -17,27 +17,29 @@ class ChartsView extends Component
     public $data;
 
     public $projectData;
+
+    public $appProject;
     public function save()
     {}
 
     public function mount()
-    {
-        $this->getCurrentData();
+    {$this->appProject = ProjectService::app_project();
 
-    }
+        $this->getCurrentData();}
 
     #[On('updateChartData')]
     public function updateCharts($data)
     {
         // Access parameters as needed
         $this->data = $data;
+
     }
 
     private function getCurrentData()
     {
         // 1. Retrieve required foreign keys upfront
         $indicatorId         = Indicator::where('indicator_no', 'A1')->value('id');
-        $projectId           = Project::where('name', 'RTC MARKET')->value('id');
+        $projectId           = $this->appProject->pluck('id');
         $unspecifiedPeriodId = ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->value('id');
 
         if (! $indicatorId || ! $projectId || ! $unspecifiedPeriodId) {
@@ -62,6 +64,7 @@ class ChartsView extends Component
         $this->projectData = [
             'actual' => (float) $totalValue ?? 0,
             'lop'    => (float) $lopTarget ?? 0,
+
         ];
     }
 
@@ -104,7 +107,9 @@ class ChartsView extends Component
             return $collection;
         } catch (\Exception $e) {
             Log::error('Failed to get LOP targets', [
-                'error' => $e->getMessage(),
+                'error'        => $e->getMessage(),
+                'stack'        => $e->getTraceAsString(),
+                'indicatorIds' => $indicators->keys()->toArray(),
             ]);
 
             return [];
@@ -113,5 +118,7 @@ class ChartsView extends Component
     public function render()
     {
         return view('livewire.charts-view');
+        //render conditional
+
     }
 }

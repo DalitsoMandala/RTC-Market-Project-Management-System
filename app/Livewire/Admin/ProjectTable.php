@@ -1,22 +1,18 @@
 <?php
-
 namespace App\Livewire\admin;
 
 use App\Models\Project;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class ProjectTable extends PowerGridComponent
 {
@@ -32,6 +28,7 @@ final class ProjectTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
+
         ];
     }
 
@@ -39,7 +36,7 @@ final class ProjectTable extends PowerGridComponent
     {
         return Project::with([
             'reportingPeriod',
-            'indicators'
+            'indicators',
         ]);
     }
 
@@ -110,8 +107,8 @@ final class ProjectTable extends PowerGridComponent
                 ->class('btn btn-warning')
                 ->dispatch('showModal', [
                     'rowId' => $row->id,
-                    'name' => 'view-edit-modal'
-                ])
+                    'name'  => 'view-edit-modal',
+                ]),
         ];
     }
 

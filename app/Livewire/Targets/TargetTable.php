@@ -26,6 +26,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class TargetTable extends PowerGridComponent
 {
     use WithExport;
+    //
 
     public function setUp(): array
     {

@@ -1,14 +1,14 @@
 <div>
     <div wire:ignore class="dropdown d-inline-block">
-        <button @click="$wire.readNotifications()" type="button" class="btn header-item noti-icon"
+        <button @click="$wire.readNotifications()" type="button" class="btn  noti-icon d-flex align-items-center"
             id="page-header-notifications-dropdown" data-bs-toggle="dropdown" role="button" aria-haspopup="true"
             aria-expanded="false">
 
             @if ($unreadNotifications->count() > 0)
-                <i class='bx bx-bell fs-3 text-muted'></i>
+                <i class='bx bx-bell fs-6' style="color: #495057"></i>
                 <span class="noti-dot bg-danger rounded-pill">{{ $unreadNotifications->count() }}</span>
             @else
-                <i class='bx bx-bell-off fs-3 text-muted custom-tooltip' title="No Notifications"></i>
+                <i class='bx bx-bell fs-3' style="color: #495057"></i>
             @endif
         </button>
 
@@ -141,7 +141,7 @@
 
                 @if ($notifications->count() == 0)
                     <div class="py-4 text-center">
-                        <p class="mb-0"><i class="bx bx-bell-off"></i> No notifications available.</p>
+                        <p class="mb-0"><i class="bx bx-bell"></i> No notifications available.</p>
                     </div>
                 @endif
             </div>

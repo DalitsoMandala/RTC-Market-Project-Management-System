@@ -5,7 +5,7 @@
 
     <div class="my-4 ">
         <div class="my-2 row align-items-center" x-data="{
-        
+
             showContent: $wire.entangle('showContent'),
         }" x-show="showContent">
             <div class="col-12 col-lg-6">
@@ -18,22 +18,22 @@
                     visible: true,
                     selectedReportYear: $wire.entangle('selectedReportYear'),
                     financialYears: $wire.entangle('financialYears'),
-                
+
                     changeYear(data) {
                         this.visible = false;
                         $wire.dispatch('updateReportYear', {
                             id: data.id,
                         });
-                
-                
-                
-                
-                
+
+
+
+
+
                         setTimeout(() => {
                             this.visible = true
                         }, 1000)
                     },
-                
+
                 }">
 
                     <div class="dropdown card-header-dropdown" :class="{ 'opacity-25 pe-none': visible === false }">
@@ -71,7 +71,7 @@
         @if (!$showContent)
             <div x-data x-init="() => {
                 setTimeout(() => {
-            
+
                     $wire.dispatch('showCharts');
                 }, 1000)
             }">
@@ -94,29 +94,29 @@
                                         let chartData = @js($submissions); // Data from backend
                                         let categories = []; // Will hold month-year labels
                                         let serieArray = {}; // { batch: [], manual: [], aggregate: [] }
-                                
+
                                         // Sort data by year & month to keep chart in order
                                         chartData.sort((a, b) => (a.year - b.year) || (a.month - b.month));
-                                
+
                                         // Create unique month-year keys
                                         chartData.forEach((item) => {
                                             const monthName = new Date(item.year, item.month - 1).toLocaleString('default', { month: 'long' });
                                             const monthYear = `${monthName} ${item.year}`;
-                                
+
                                             // Add category if not already in list
                                             if (!categories.includes(monthYear)) {
                                                 categories.push(monthYear);
                                             }
                                         });
-                                
-                                
-                                
+
+
+
                                         // Initialize serieArray for each type
                                         const types = [...new Set(chartData.map(i => i.type))];
                                         types.forEach(type => {
                                             serieArray[type] = Array(categories.length).fill(0);
                                         });
-                                
+
                                         // Fill serieArray with totals
                                         chartData.forEach((item) => {
                                             const monthName = new Date(item.year, item.month - 1).toLocaleString('default', { month: 'long' });
@@ -124,16 +124,16 @@
                                             const index = categories.indexOf(monthYear);
                                             serieArray[item.type][index] += item.total;
                                         });
-                                
+
                                         // Extract data
                                         const { batch = [], manual = [], aggregate = [] } = serieArray;
-                                
+
                                         // ApexCharts options
                                         let options = {
                                             chart: {
                                                 type: 'line',
                                                 height: '400px',
-                                
+
                                             },
                                             series: [
                                                 { name: 'Batch Submission', data: batch },
@@ -144,10 +144,10 @@
                                             stroke: { curve: 'smooth', width: 1.5 },
                                             xaxis: { categories: categories },
                                             colors: SystemColors,
-                                
-                                
+
+
                                         };
-                                
+
                                         let chart = new ApexCharts($refs.chart, options);
                                         chart.render();
                                     }
@@ -163,139 +163,131 @@
                     </div>
 
 
-                    <div class="row">
-                        <div class="col-12 col-xl-6 d-flex align-items-stretch">
-                            <div class="card w-100">
-                                <div class="card-header">
-                                    <div class="align-items-center d-flex justify-content-between">
-                                        <div class="">
-                                            <h4 class=" card-title flex-grow-1">Current Users</h4>
+                    <div class="row g-3 ">
+                        {{-- User Table --}}
+                        <div class="col-12 col-xl-6 d-flex">
+                            <x-table-card title="Current Users" subtitle="Recently registered system users"
+                                :url="route('admin-users')">
 
+                                <table class="table table-hover align-middle mb-0 h-100">
+                                    <thead class="table-secondary">
+                                        <tr>
+                                            <th class="  small text-uppercase fw-bold">
+                                                Username
+                                            </th>
+                                            <th class="small text-uppercase fw-bold">
+                                                Email Address
+                                            </th>
+                                            <th class=" small text-uppercase fw-bold">
+                                                Organisation
+                                            </th>
+                                        </tr>
+                                    </thead>
 
-                                        </div>
+                                    <tbody>
+                                        @forelse ($users as $user)
+                                            <tr>
+                                                <td class="ps-4 py-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="{{ $user->image ? asset('storage/profiles/' . $user->image) : asset('assets/images/users/usr.png') }}"
+                                                            class="rounded-circle object-fit-cover flex-shrink-0"
+                                                            alt="{{ $user->name }}" width="32" height="32"
+                                                            loading="lazy">
 
-                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-users') }}" role="button">
-                                            View More <i class="bx bx-right-arrow-alt"></i></a>
+                                                        <span class="fw-semibold text-dark">
+                                                            {{ $user->name }}
+                                                        </span>
+                                                    </div>
+                                                </td>
 
-                                    </div>
-                                </div>
+                                                <td class="py-3">
+                                                    @if ($user->email)
+                                                        <a href="mailto:{{ $user->email }}"
+                                                            class="text-decoration-none text-body">
+                                                            {{ $user->email }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted">Not provided</span>
+                                                    @endif
+                                                </td>
 
-                                <div class=" card-body" style="max-height: 400px">
-                                    <!-- Some borders are removed -->
+                                                <td class="pe-4 py-3">
+                                                    {{ $user->organisation?->name ?? 'Not assigned' }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center py-5">
+                                                    <x-no-data />
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
 
-                                    <div class="overflow-hidden border table-responsive rounded-3">
-                                        <table class="table align-middle table-striped table-hover ">
-                                            <thead class="table-secondary">
-
-                                                <tr>
-                                                    <th>Username</th>
-                                                    <th>Email</th>
-                                                    <th>Organisation</th>
-
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-
-                                                @foreach ($users as $user)
-                                                    <tr class="">
-                                                        <td scope="row" class="py-4">
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="{{ $user->image == null ? asset('assets/images/users/usr.png') : asset('storage/profiles/' . $user->image) }}"
-                                                                    class="avatar-sm rounded-circle object-fit-cover "
-                                                                    alt="...">
-                                                                <span class="ms-2">{{ $user->name }}</span>
-                                                            </div>
-
-                                                        </td>
-                                                        <td> <a href="mailto:{{ $user->email }}"
-                                                                style="text-decoration: underline !important;"
-                                                                class="text-dark">{{ $user->email }}</a></td>
-                                                        <td>{{ $user->organisation->name }}</td>
-
-                                                    </tr>
-                                                @endforeach
-                                                @if (count($users) == 0)
-                                                    <tr>
-                                                        <td colspan="4">
-                                                            <x-no-data />
-                                                        </td>
-                                                    </tr>
-                                                @endif
-
-                                            </tbody>
-
-                                        </table>
-                                    </div>
-
-                                </div>
-                            </div>
+                            </x-table-card>
                         </div>
-                        <div class="col-12 col-xl-6 d-flex align-items-stretch">
-                            <div class="card w-100">
-                                <div class="card-header fw-bold">
-                                    <div class="align-items-center d-flex justify-content-between">
-                                        <div>
 
-                                            <h4 class=" card-title flex-grow-1">Recent Submissions</h4>
+                        {{-- Submissions Table --}}
+                        <div class="col-12 col-xl-6 d-flex">
+                            <x-table-card title="Recent Submissions" subtitle="Latest forms submitted by partners"
+                                :url="route('admin-submissions')">
 
-                                        </div>
+                                <table class="table table-hover align-middle mb-0 h-100">
+                                    <thead class="table-secondary">
+                                        <tr>
+                                            <th class="align-middle small text-uppercase fw-bold">
+                                                Form
+                                            </th>
+                                            <th class="align-middle small text-uppercase fw-bold">
+                                                Partner
+                                            </th>
+                                            <th class="align-middle small text-uppercase fw-bold">
+                                                User
+                                            </th>
+                                            <th class="align-middle small text-uppercase fw-bold text-nowrap">
+                                                Date
+                                            </th>
+                                        </tr>
+                                    </thead>
 
-                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-submissions') }}"
-                                            role="button"> View More <i class="bx bx-right-arrow-alt"></i></a>
-                                    </div>
+                                    <tbody>
+                                        @forelse ($lastSubmission as $item)
+                                            <tr>
+                                                <td class="ps-4 py-3">
+                                                    <span class="fw-semibold text-dark">
+                                                        {{ \Illuminate\Support\Str::limit(ucwords(strtolower($item->form?->name ?? 'Unknown form')), 20, '...') }}
+                                                    </span>
+                                                </td>
 
-                                </div>
-                                <div class="card-body" style="max-height: 400px">
-                                    <div class="overflow-hidden border table-responsive rounded-3">
-                                        <table class="table align-middle table-striped table-hover ">
-                                            <thead class="table-secondary">
-                                                <tr>
-                                                    <th scope="col">Form</th>
-                                                    <th scope="col">Partner</th>
-                                                    <th scope="col">User</th>
+                                                <td class="py-3">
+                                                    {{ $item->user?->organisation?->name ?? 'Not assigned' }}
+                                                </td>
 
-                                                    <th scope="col">Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                                                <td class="py-3">
+                                                    {{ $item->user?->name ?? 'Unknown user' }}
+                                                </td>
 
-                                                @foreach ($lastSubmission as $item)
-                                                    <tr>
-                                                        <td scope="row" class="py-4">
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="{{ asset('assets/images/icons/sheet.png') }}"
-                                                                    class="avatar-sm " alt="...">
-                                                                <span class="ms-2">
-                                                                    {{ \Str::limit($item->form->name, 20, '...') }}</span>
-                                                            </div>
+                                                <td class="pe-4 py-3 text-nowrap">
+                                                    {{ $item->created_at?->format('d/m/Y h:i A') ?? 'N/A' }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="4" class="text-center py-5">
+                                                    <x-no-data />
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
 
-                                                        </td>
-                                                        <td>{{ $item->user->organisation->name }}</td>
-                                                        <td>{{ $item->user->name }}</td>
-                                                        <td>{{ $item->created_at->format('d/m/Y H:i A') }}</td>
-
-                                                    </tr>
-                                                @endforeach
-
-                                                @if (count($lastSubmission) == 0)
-                                                    <tr>
-                                                        <td colspan="4">
-                                                            <x-no-data />
-                                                        </td>
-                                                    </tr>
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-
-                                </div>
-
-
-
-                            </div>
+                            </x-table-card>
                         </div>
+
                     </div>
+
+
                 </div>
             @endhasanyrole
         @endif
