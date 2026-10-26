@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
@@ -105,7 +106,7 @@ final class FormTable extends PowerGridComponent
                 $project      = str_replace(' ', '-', strtolower($form->project->name));
 
                 $route          = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
-                $projectManager = User::find(auth()->user()->id)->hasAllRoles(['manager', 'project_manager']) ? 'disabled' : '';
+                $projectManager = User::find(auth()->user()->id)->hasAllRoles(['manager', 'project-manager']) ? 'disabled' : '';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS') {
                     return '<a class="btn text-body btn-sm custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i> </a>';
@@ -145,7 +146,7 @@ final class FormTable extends PowerGridComponent
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Project', 'project', )
+            Column::make('Project', 'project',)
                 ->searchable(),
 
             Column::make('Type', 'type')

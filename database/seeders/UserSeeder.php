@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
         Role::create(['name' => 'manager']); // ANY ONE WHO CAN DO MOST MANIPULATION
         Role::create(['name' => 'staff']); // LIMITED FUNCTIONALITY
         Role::create(['name' => 'admin']); // FULL FUNCTIONALITY
-        Role::create(['name' => 'project_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS
+        Role::create(['name' => 'project-manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS
         //    Role::create(['name' => 'external_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS ON BEHALF OF AN EXTERNAL ORGANISATION
         // Role::create(['name' => 'cip']); // PROJECT
 
@@ -72,7 +72,7 @@ class UserSeeder extends Seeder
         // ])->assignRole([
 
         //     //    'cip',
-        //     'project_manager'
+        //     'project-manager'
         // ]);
 
 
@@ -200,7 +200,7 @@ class UserSeeder extends Seeder
         //     'phone_number' => '+9999999999',
         //     'organisation_id' => getOrganisationId('CIP'),
         // ])->assignRole([
-        //     'project_manager',
+        //     'project-manager',
 
         // ]);
         // User::create([

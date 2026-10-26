@@ -191,7 +191,7 @@ Route::middleware([
     Route::get('/submissions/{batch?}', Submissions::class)->name('cip-submissions');
     Route::get('/reports', Reports::class)->name('cip-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-submission-period');
-    Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets-view');
+
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('cip-std-targets');
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets');
@@ -245,26 +245,26 @@ Route::middleware([
 
 Route::middleware([
     'auth',
-    'role:project_manager',
+    'role:project-manager',
 
 ])->prefix('cip/project-manager')->group(function () {
-    Route::get('/dashboard', \App\Livewire\Internal\Manager\Dashboard::class)->name('project_manager-dashboard');
-    Route::get('/dashboard-2', \App\Livewire\Internal\Manager\Dashboard2::class)->name('project_manager-dashboard-2');
-    Route::get('/dashboard-3', \App\Livewire\Internal\Manager\Dashboard3::class)->name('project_manager-dashboard-3');
-    Route::get('/indicators', \App\Livewire\Internal\Manager\Indicators::class)->name('project_manager-indicators');
-    Route::get('/indicators/view/{id}', \App\Livewire\Internal\Manager\ViewIndicator::class)->where('id', '[0-9]+')->name('project_manager-indicator-view');
-    Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project_manager-forms');
-    Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project_manager-reports');
-    Route::get('/targets', App\Livewire\Targets\View::class)->name('project_manager-targets');
-    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('project_manager-markets-manage-data');
-    Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('project_manager-gross-margin-manage-data');
-    Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('project_manager-gross-margin-items');
-    Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('project_manager-products-view-data');
-    Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('project_manager-products-upload-data');
+    Route::get('/dashboard', \App\Livewire\Internal\Manager\Dashboard::class)->name('project-manager-dashboard');
+    Route::get('/dashboard-2', \App\Livewire\Internal\Manager\Dashboard2::class)->name('project-manager-dashboard-2');
+    Route::get('/dashboard-3', \App\Livewire\Internal\Manager\Dashboard3::class)->name('project-manager-dashboard-3');
+    Route::get('/indicators', \App\Livewire\Internal\Manager\Indicators::class)->name('project-manager-indicators');
+    Route::get('/indicators/view/{id}', \App\Livewire\Internal\Manager\ViewIndicator::class)->where('id', '[0-9]+')->name('project-manager-indicator-view');
+    Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project-manager-forms');
+    Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project-manager-reports');
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('project-manager-targets');
+    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('project-manager-markets-manage-data');
+    Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('project-manager-gross-margin-manage-data');
+    Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('project-manager-gross-margin-items');
+    Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('project-manager-products-view-data');
+    Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('project-manager-products-upload-data');
     Route::get('/profile', \App\Livewire\Profile\Details::class)
         ->middleware(['auth'])
-        ->name('project_manager-profile');
-    registerFormRoutes('/forms/{project}', 'project_manager');
+        ->name('project-manager-profile');
+    registerFormRoutes('/forms/{project}', 'project-manager');
 });
 // External routes
 Route::middleware([

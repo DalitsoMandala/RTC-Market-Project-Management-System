@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Internal\Cip;
 
 use App\Jobs\sendAllIndicatorNotificationJob;
@@ -38,10 +39,10 @@ class SubPeriod extends Component
     public $status  = false;
     public $expired = false;
 
-    #[Validate('required', as : 'start of submissions')]
+    #[Validate('required', as: 'start of submissions')]
     public $start_period;
 
-    #[Validate('required|after:start_period', as : 'end of submissions')]
+    #[Validate('required|after:start_period', as: 'end of submissions')]
     public $end_period;
 
     #[Validate('required', message: 'The form field is required.')]
@@ -54,7 +55,7 @@ class SubPeriod extends Component
     #[Validate('required')]
     public $selectedMonth;
 
-    #[Validate('required', as : 'project year')]
+    #[Validate('required', as: 'project year')]
     public $selectedFinancialYear;
 
     #[Validate('required')]
@@ -130,7 +131,7 @@ class SubPeriod extends Component
      */
     public function removeTarget($index)
     {
-                                                               //  unset($this->targets[$index]);
+        //  unset($this->targets[$index]);
         $this->targets     = array_values($this->targets);     // Reindex the array
         $this->cip_targets = array_values($this->cip_targets); // Reindex the array
         $this->targets     = $this->targets->forget($index)->values();
@@ -215,7 +216,7 @@ class SubPeriod extends Component
                 $usersWithData = [];
 
                 $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->where('is_active', true)->has('organisation.indicatorResponsiblePeople')->whereHas('roles', function ($query) {
-                    return $query->whereNotIn('name', ['admin', 'project_manager']);
+                    return $query->whereNotIn('name', ['admin', 'project-manager']);
                 })->get();
 
                 $existingSubmissionPeriod = SubmissionPeriod::where('reporting_period_month_id', $this->selectedMonth)
@@ -278,7 +279,6 @@ class SubPeriod extends Component
 
                 session()->flash('success', 'Successfully added submission periods.');
                 $this->redirect(url()->previous());
-
             }
 
             if ($this->rowId) {
@@ -373,8 +373,8 @@ class SubPeriod extends Component
             ->whereIn('form_id', $this->selectedForm)
             ->where('date_established', $this->start_period)
             ->where('date_ending', $this->end_period)
-        // ->where('is_expired', false)
-        // ->where('is_open', true)
+            // ->where('is_expired', false)
+            // ->where('is_open', true)
             ->exists();
         $selectedPeriods = [];
 
@@ -498,7 +498,7 @@ class SubPeriod extends Component
         $organisations->get()->each(function ($organisation) use ($errorMessage, $selectedPeriods) {
             $organisation->users->each(function ($user) use ($errorMessage, $selectedPeriods) {
                 // Skip users with admin/manager roles
-                if ($user->hasAnyRole(['admin', 'project_manager'])) {
+                if ($user->hasAnyRole(['admin', 'project-manager'])) {
                     return;
                 }
 

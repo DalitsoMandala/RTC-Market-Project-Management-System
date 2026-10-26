@@ -179,7 +179,7 @@
                                                             <option value="">Select a role</option>
                                                             <template x-for="role in roles">
                                                                 <option :value="role"><span
-                                                                        x-text="role === 'project_manager' ? 'project manager' : role"></span>
+                                                                        x-text="role === 'project-manager' ? 'project manager' : role"></span>
                                                                 </option>
                                                             </template>
 
@@ -252,14 +252,16 @@
                                                     </div>
                                                 </div>
                                                 <div class="gap-1 d-flex justify-content-end">
-                                                    <button type="submit"  wire:loading.attr='disabled' class="btn btn-warning goUp">
+                                                    <button type="submit" wire:loading.attr='disabled'
+                                                        class="btn btn-warning goUp">
                                                         @if ($rowId)
                                                             Update
                                                         @else
                                                             Submit
                                                         @endif
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary" wire:loading.attr='disabled'
+                                                    <button type="button" class="btn btn-secondary"
+                                                        wire:loading.attr='disabled'
                                                         @click="showForm = false; resetForm(); ">Close</button>
 
                                             </form>
@@ -445,7 +447,7 @@
                                                                             wire:model.live="selectedRoles"
                                                                             value="{{ $role }}">
                                                                         <label class="form-check-label">
-                                                                            {{ $role === 'project_manager' ? 'Project Manager' : ucfirst($role) }}
+                                                                            {{ $role === 'project-manager' ? 'Project Manager' : ucfirst($role) }}
                                                                         </label>
                                                                     </div>
                                                                 @endforeach

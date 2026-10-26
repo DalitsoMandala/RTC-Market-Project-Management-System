@@ -275,8 +275,8 @@ class AddData extends Component
             return route('admin-gross-margin-manage-data');;
         } else if ($user->hasAnyRole('manager')) {
             return route('cip-gross-margin-manage-data');
-        } else if ($user->hasAnyRole('project_manager')) {
-            return route('project_manager-gross-margin-manage-data');
+        } else if ($user->hasAnyRole('project-manager')) {
+            return route('project-manager-gross-margin-manage-data');
         }
     }
 

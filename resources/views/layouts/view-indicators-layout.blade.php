@@ -13,8 +13,8 @@
                         @hasallroles('manager')
                             <li class="breadcrumb-item"><a href="/cip/indicators">Indicators</a></li>
                         @endrole
-                        @hasallroles('project_manager')
-                            <li class="breadcrumb-item"><a href="/project_manager/indicators">Indicators</a></li>
+                        @hasallroles('project-manager')
+                            <li class="breadcrumb-item"><a href="/project-manager/indicators">Indicators</a></li>
                         @endrole
                         @hasallroles('staff')
                             <li class="breadcrumb-item"><a href="/staff/indicators">Indicators</a></li>
@@ -51,8 +51,8 @@
                             case 'manager':
                                 $link = 'cip-indicator-view';
                                 break;
-                            case 'project_manager':
-                                $link = 'project_manager-indicator-view';
+                            case 'project-manager':
+                                $link = 'project-manager-indicator-view';
                                 break;
                             case 'staff':
                                 $link = 'staff-indicator-view';

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\admin;
 
 use App\Models\Indicator;
@@ -49,14 +50,13 @@ final class OrganisationFormsTable extends PowerGridComponent
                     'indicator_classes.class as file_location',
                     DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
                 ])
-            // 1st: Active items (1) first, Inactive items (0) at the end
+                // 1st: Active items (1) first, Inactive items (0) at the end
                 ->orderBy('indicators.is_active', 'desc')
-            // 2nd: Letters first, then numbers
+                // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-            // 3rd: Indicator number sorting
+                // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
-
-        } else if ($user->hasAnyRole(['manager', 'monitor', 'project_manager', 'staff'])) {
+        } else if ($user->hasAnyRole(['manager', 'monitor', 'project-manager', 'staff'])) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
@@ -71,13 +71,12 @@ final class OrganisationFormsTable extends PowerGridComponent
                     DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
                 ])
 
-            // 1st: Active items (1) first, Inactive items (0) at the end
+                // 1st: Active items (1) first, Inactive items (0) at the end
                 ->orderBy('indicators.is_active', 'desc')
-            // 2nd: Letters first, then numbers
+                // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-            // 3rd: Indicator number sorting
+                // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
-
         } else {
             $organisation_id = $user->organisation->id;
 
@@ -94,11 +93,11 @@ final class OrganisationFormsTable extends PowerGridComponent
                 'indicators.*',
                 DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
             ])
-            // 1st: Active items (1) first, Inactive items (0) at the end
+                // 1st: Active items (1) first, Inactive items (0) at the end
                 ->orderBy('indicators.is_active', 'desc')
-            // 2nd: Letters first, then numbers
+                // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-            // 3rd: Indicator number sorting
+                // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
         }
     }
@@ -149,8 +148,7 @@ final class OrganisationFormsTable extends PowerGridComponent
         return [];
     }
     #[\Livewire\Attributes\On('refresh')]
-    public function refreshData(): void
-    {}
+    public function refreshData(): void {}
 
     public function actions($row): array
     {

@@ -47,10 +47,10 @@ class NewUserNotification extends Notification implements ShouldQueue
             ->line('Here are your login credentials:')
             ->line('**Email:** ' . $this->email)
             ->line('**Password:** ' . $this->password)
-                       ->bcc(config('app.debug_email'))
+            ->bcc(config('app.debug_email'))
             ->action('Access Your Account', url('/login'));
 
-        if ($role === 'project_manager') {
+        if ($role === 'project-manager') {
             $message->line('As a manager, you can now monitor project activity and view progress dashboards.');
         }
         if ($role === 'manager' || $role === 'admin') {

@@ -19,6 +19,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use Illuminate\Pagination\Paginator;
+
 final class UserTable extends PowerGridComponent
 {
     use WithExport;
@@ -45,7 +46,7 @@ final class UserTable extends PowerGridComponent
             'roles'
         ])->withTrashed()->select([
             'users.*',
-DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
     }
 
@@ -79,7 +80,7 @@ DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
                 return $model->organisation->name;
             })
             ->add('image')
-            ->add('role',fn($model) => $model->roles->pluck('name')->implode(', '))
+            ->add('role', fn($model) => $model->roles->pluck('name')->implode(', '))
             ->add('role_name', function ($model) {
 
                 $roles = $model->roles;
@@ -95,7 +96,7 @@ DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
                         $role->name = '<span class="badge bg-info-subtle text-info" >Manager</span>';
                     } else  if ($role->name == 'admin') {
                         $role->name = '<span class="badge bg-success-subtle text-success" >Administrator</span>';
-                    } else if ($role->name == 'project_manager') {
+                    } else if ($role->name == 'project-manager') {
                         $role->name = '<span class="badge bg-success-subtle text-success" >Project Manager</span>';
                     } else  if ($role->name == 'staff') {
                         $role->name = '<span class="badge bg-warning-subtle text-warning" >Staff</span>';
@@ -109,7 +110,7 @@ DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
                 })->pluck('name');
                 return implode(' ', $roleArray->toArray());
             })
-            ->add('status',fn($model) => !$model->is_active ? 'Deleted' : 'Active')
+            ->add('status', fn($model) => !$model->is_active ? 'Deleted' : 'Active')
             ->add('status_set', function ($model) {
 
 
@@ -182,7 +183,7 @@ DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
                 ->id()
                 ->class('btn btn-warning btn-sm goUp custom-tooltip')
                 ->tooltip('Edit')
-                ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('edit', [
                     'rowId' => $row->id,
                     'name' => 'view-edit-modal'
@@ -193,7 +194,7 @@ DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
                 ->id()
                 ->class('btn btn-theme-red btn-sm goUp  custom-tooltip')
                 ->tooltip('Delete')
-                         ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('showModal-delete', [
                     'rowId' => $row->id,
                     'name' => 'view-delete-modal'
@@ -204,7 +205,7 @@ DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
                 ->id()
                 ->class('btn btn-success btn-sm goUp  custom-tooltip')
                 ->tooltip('Restore')
-                         ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('showModal-restore', [
                     'rowId' => $row->id,
                     'name' => 'view-restore-modal'
