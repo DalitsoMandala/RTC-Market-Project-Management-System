@@ -7,21 +7,20 @@
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
 
-
-                    <div class="page-title-left col-12 " wire:ignore>
-                        @php
-                            $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
-                        @endphp
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="/{{ $routePrefix }}/forms">Forms</a></li>
-                            <li class="breadcrumb-item active">View Data</li>
-                        </ol>
-                    </div>
-
-                </div>
+                @if (auth()->user()->organisation->name === 'CIP')
+                    <x-table-card :title="'Seed Beneficiaries Table'" :subtitle="'Seed Beneficiaries Data (Potato)'">
+                        <livewire:tables.seed-beneficiary-table :crop="'Potato'" />
+                    </x-table-card>
+                    <x-table-card :title="'Seed Beneficiaries Table'" :subtitle="'Seed Beneficiaries Data (OFSP)'">
+                        <livewire:tables.seed-beneficiaries-o-f-s-p-table :crop="'OFSP'" />
+                    </x-table-card>
+                @endif
+                @if (auth()->user()->organisation->name === 'IITA' || auth()->user()->organisation->name === 'CIP')
+                    <x-table-card :title="'Seed Beneficiaries Table'" :subtitle="'Seed Beneficiaries Data (Cassava)'">
+                        <livewire:tables.seed-beneficiaries-cassava-table :crop="'Cassava'" />
+                    </x-table-card>
+                @endif
             </div>
         </div>
 
@@ -29,54 +28,6 @@
 
 
 
-        <div class="card">
-            <x-card-header>Seed Beneficiaries Table</x-card-header>
-
-            <div class="card-body">
-                <ul class=" nav nav-tabs" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
-                    <li class="nav-item " role="presentation">
-                        <button class="nav-link active {{ auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name ==='IITA' ? 'disabled' : '' }}" id="potato-tab" data-bs-toggle="tab" data-bs-target="#potato"
-                            type="button" role="tab" aria-controls="potato" aria-selected="true">Potato
-                            Beneficiaries</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link  {{ auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name ==='IITA' ? 'disabled' : '' }}" id="ofsp-tab" data-bs-toggle="tab" data-bs-target="#ofsp"
-                            type="button" role="tab" aria-controls="ofsp" aria-selected="false">OFSP
-                            Beneficiaries</button>
-                    </li>
-
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link " id="cassava-tab" data-bs-toggle="tab" data-bs-target="#cassava"
-                            type="button" role="tab" aria-controls="cassava" aria-selected="false">Cassava
-                            Beneficiaries</button>
-                    </li>
-
-                </ul>
-
-                <!-- Tab Content for Livewire tables -->
-                <div class="mt-2 tab-content" id="seedBeneficiaryTabsContent">
-                    <!-- Potato Table -->
-                    <div class="tab-pane fade show active" id="potato" role="tabpanel" aria-labelledby="potato-tab"
-                        wire:ignore.self>
-                        <livewire:tables.seed-beneficiary-table :crop="'Potato'" />
-                    </div>
-
-                    <!-- OFSP Table -->
-                    <div class="tab-pane fade" id="ofsp" role="tabpanel" aria-labelledby="ofsp-tab"
-                        wire:ignore.self>
-                        <livewire:tables.seed-beneficiaries-o-f-s-p-table :crop="'Sweet potato'" />
-                    </div>
-
-
-
-                    <!-- Cassava Table -->
-                    <div class="tab-pane fade" id="cassava" role="tabpanel" aria-labelledby="cassava-tab"
-                        wire:ignore.self>
-                        <livewire:tables.seed-beneficiaries-cassava-table :crop="'Cassava'" />
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div x-data x-init="$wire.on('edit-showModal', (e) => {
 
@@ -123,7 +74,7 @@
                                 behavior: 'smooth'
                             })">Yes,
                             I'm sure</button>
-                                <button type="button" wire:loading.attr="disabled" class="btn btn-secondary ms-2"
+                        <button type="button" wire:loading.attr="disabled" class="btn btn-secondary ms-2"
                             data-bs-dismiss="modal">No, cancel</button>
                     </div>
                 </form>
@@ -174,8 +125,7 @@
                     <!-- EPA -->
                     <div class="mb-3">
                         <label class="form-label">EPA</label>
-                        <input type="text" class="form-control @error('epa') is-invalid @enderror"
-                            wire:model="epa">
+                        <input type="text" class="form-control @error('epa') is-invalid @enderror" wire:model="epa">
                         @error('epa')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -550,14 +500,13 @@
 </div>
 
 @script
-<script>
-       if (window.location.hash !== '') {
-                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-                if (button) {
-                    button.click();
+    <script>
+        if (window.location.hash !== '') {
+            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+            if (button) {
+                button.click();
 
-                }
             }
-
-</script>
+        }
+    </script>
 @endscript

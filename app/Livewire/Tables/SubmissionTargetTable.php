@@ -1,11 +1,11 @@
 <?php
+
 namespace App\Livewire\tables;
 
 use App\Models\FinancialYear;
 use App\Models\Indicator;
 use App\Models\IndicatorDisaggregation;
 use App\Models\SubmissionTarget;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
@@ -23,87 +23,100 @@ final class SubmissionTargetTable extends PowerGridComponent
 {
     use WithExport;
 
-    public string $sortField = 'updated_at';
+    private const PERCENT_TARGET = 'Total (% Percentage)';
 
+    // Qualified, because the joined financial_years table also has updated_at.
+    public string $sortField     = 'submission_targets.updated_at';
     public string $sortDirection = 'desc';
     public bool $multiSort       = true;
+
     public function setUp(): array
     {
-        //$this->showCheckBox();
-
         return [
-
             Header::make(),
-            Footer::make()
-                ->showPerPage()
-                ->showRecordCount(),
+            Footer::make()->showPerPage()->showRecordCount(),
         ];
     }
 
     public function datasource(): Builder
     {
-//
-
-        return SubmissionTarget::query()->with([
-            'financialYear',
-            'indicator',
-            'organisationTargets',
-        ])->join('financial_years', function ($join) {
-            $join->on('submission_targets.financial_year_id', '=', 'financial_years.id');
-        })
-            ->whereHas('indicator', function ($query) {
-                $query->where('indicators.is_active', 1);
-            })
+        return SubmissionTarget::query()
+            ->with('indicator')
+            ->join('financial_years', 'submission_targets.financial_year_id', '=', 'financial_years.id')
+            ->whereHas('indicator', fn ($query) => $query->where('indicators.is_active', 1))
             ->select([
                 'submission_targets.*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                 'financial_years.number as year',
-
+                DB::raw('ROW_NUMBER() OVER (ORDER BY submission_targets.id) AS rn'),
             ]);
-
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('financial_year_id')
-            ->add('financial_year', fn($model) => 'Year ' . $model->financialYear->number)
-            ->add('indicator_id')
-            ->add('indicator', fn($model) => "({$model->indicator->indicator_no}) " . $model->indicator->indicator_name)
+            ->add('financial_year', fn ($model) => 'Year ' . $model->year)
+            ->add('indicator', fn ($model) => "({$model->indicator->indicator_no}) {$model->indicator->indicator_name}")
             ->add('target_name')
-            ->add('target_value', function ($model) {
-
-                $formatted = number_format($model->target_value, 2, '.', '');
-
-                // Remove trailing .00 if necessary
-                if (strpos($formatted, '.00') !== false) {
-                    $formatted = rtrim($formatted, '0');
-                    $formatted = rtrim($formatted, '.');
-                }
-
-                $model->target_value = $formatted; // Output: 2
-                if ($model->target_name == "Total (% Percentage)") {
-                    return $model->target_value . '%';
-                }
-                return $model->target_value;
-            })
-            ->add('created_at')
-            ->add('updated_at');
+            ->add('target_value', fn ($model) => $this->formatValue($model->target_value, $model->target_name));
     }
 
     public function columns(): array
     {
         return [
+            Column::action(''),
             Column::make('#', 'rn')->sortable(),
             Column::make('Financial year', 'financial_year', 'financial_years.number')->sortable(),
             Column::make('Indicator', 'indicator'),
             Column::make('Disaggregation', 'target_name'),
             Column::make('Value', 'target_value')->bodyAttribute('fw-bold'),
-            Column::action(''),
-
         ];
     }
+
+    public function filters(): array
+    {
+        return [
+            Filter::select('financial_year', 'financial_years.number')
+                ->dataSource(
+                    FinancialYear::get()->map(fn ($year) => [
+                        'number' => $year->number,
+                        'name'   => 'Year ' . $year->number,
+                    ])
+                )
+                ->optionLabel('name')
+                ->optionValue('number'),
+
+            Filter::select('indicator', 'indicator_id')
+                ->dataSource(
+                    Indicator::where('is_active', 1)->get()->map(fn ($indicator) => [
+                        'id'             => $indicator->id,
+                        'indicator_name' => "({$indicator->indicator_no}) {$indicator->indicator_name}",
+                    ])
+                )
+                ->optionLabel('indicator_name')
+                ->optionValue('id'),
+
+            Filter::select('target_name', 'target_name')
+                ->dataSource(IndicatorDisaggregation::select('name')->distinct()->get())
+                ->optionLabel('name')
+                ->optionValue('name'),
+        ];
+    }
+
+    public function actions($row): array
+    {
+        return [
+            Button::add('edit')
+                ->slot('<i class="fa fa-eye"></i>')
+                ->id()
+                ->tooltip('View Details')
+                ->class('btn btn-warning btn-sm custom-tooltip')
+                ->can(auth()->user()?->hasRole('admin') ?? false)
+                ->dispatch('modify-targets', ['rowId' => $row->id]),
+        ];
+    }
+
+
 
     #[On('refresh')]
     public function refreshData(): void
@@ -111,65 +124,13 @@ final class SubmissionTargetTable extends PowerGridComponent
         $this->refresh();
     }
 
-    public function filters(): array
+    /**
+     * 12.50 -> "12.5", 3.00 -> "3", percentage target gets a "%" suffix.
+     */
+    private function formatValue(mixed $value, ?string $targetName): string
     {
-        return [
-            Filter::select('financial_year', 'financial_years.number')
-                ->dataSource(FinancialYear::get()->map(function ($year) {
-                    return [
-                        'number' => $year->number,
-                        'name'   => 'Year ' . $year->number,
-                    ];
-                }))
-                ->optionLabel('name')
-                ->optionValue('number'),
+        $formatted = rtrim(rtrim(number_format((float) $value, 2, '.', ''), '0'), '.');
 
-            Filter::select('indicator', 'indicator_id')
-                ->dataSource(Indicator::where('is_active', 1)->get()->map(function ($indicator) {
-                    return [
-                        'id'             => $indicator->id,
-                        'indicator_name' => "({$indicator->indicator_no}) " . $indicator->indicator_name,
-                    ];
-                }))
-                ->optionLabel('indicator_name')
-                ->optionValue('id'),
-
-            Filter::select('target_name', 'target_name')
-                ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
-                ->optionLabel('name')
-                ->optionValue('name'),
-        ];
+        return $targetName === self::PERCENT_TARGET ? $formatted . '%' : $formatted;
     }
-
-    #[On('edit')]
-    public function edit($rowId): void
-    {
-        $this->dispatch('show-targets', rowId: $rowId);
-    }
-
-    public function actions($row): array
-    {
-
-        return [
-            Button::add('edit')
-                ->slot('<i class="fa fa-eye"></i>')
-                ->id()
-                ->tooltip('View Details')
-                ->class('btn btn-warning btn-sm custom-tooltip')
-                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
-                ->dispatch('edit', ['rowId' => $row]),
-        ];
-    }
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }

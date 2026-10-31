@@ -6,7 +6,7 @@
 >
     @if ($loading)
         <td
-            class="{{ data_get($theme, 'table.tdBodyEmptyClass') }}"
+            class="{{ data_get($theme, 'table.tdBodyEmptyClass') }} "
             colspan="{{ ($checkbox ? 1 : 0) + count($columns) }}"
         >
             @if ($loadingComponent)

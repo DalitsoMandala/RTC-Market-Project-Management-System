@@ -72,6 +72,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
 
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('partner_name')
+            ->add('group_name', fn($model) => $model->farmers->group_name)
             ->add('country')
             ->add('date_of_maximum_sale_formatted', fn($model) => Carbon::parse($model->date_of_maximum_sale)->format('d/m/Y'))
             ->add('product_type')
@@ -87,7 +88,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
                     return $name . " (" . $organisation . ")";
                 }
 
-                   return null;
+                return null;
             })
             ->add('updated_at');
     }
@@ -134,14 +135,19 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
                 ->headerAttribute('table-sticky-col'),
             Column::make('FARMER ID', 'unique_id')->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
-
-
+            Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Partner name', 'partner_name')
+                ->sortable()
+                ->searchable()
+       ,
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
-            Column::make('Partner name', 'partner_name')
-                ->sortable()
-                ->searchable(),
+
 
             Column::make('Country', 'country')
                 ->sortable()
@@ -169,10 +175,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-
-
-        ];
+        return [];
     }
 
 

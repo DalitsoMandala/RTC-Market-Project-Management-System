@@ -6,22 +6,14 @@
 
 
 
-        <div class="row gy-1 ">
-            <div class="col-12 col-md-12">
-                <div class="card">
-                    <div class="card-header card-title fw-bold border-bottom-0">
-                        <h5 class="card-title">
-                            <i class="bx bx-table"></i> Table
-                            view
-                        </h5>
-
-                    </div>
-                    <div class="card-body">
+        <div class="row">
+             <div class="col-12 col-md-12 ">
+<x-table-card title="Table view" subtitle="Indicator A1 data" :isResponsive="false">
+                    <div>
                         <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" />
                     </div>
-                </div>
-
-            </div>
+                </x-table-card>
+</div>
             <div class="col-12 col-md-12 ">
                 <div class="alert alert-warning" role="alert">
                     <strong> <i class="bx bx-chart"></i> Charts</strong>

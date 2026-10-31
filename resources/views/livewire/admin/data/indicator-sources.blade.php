@@ -6,43 +6,28 @@
 
         <!-- start page title -->
         <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-
-
-                    <div class="page-title-left col-12">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active"> Indicator Sources</li>
-                        </ol>
-                    </div>
-
-                </div>
-            </div>
+           <x-breadcrumbs />
         </div>
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
                 <x-alerts />
-                <div class="card ">
-                    <x-card-header>Indicator Sources</x-card-header>
-                    <div class=" card-body">
-                        <livewire:tables.indicator-sources-table />
-                    </div>
-                </div>
+                <x-table-card :title="'Indicator Sources'" :subtitle="'Manage indicator sources'" :isResponsive="false">
+                    <livewire:tables.indicator-sources-table />
+                </x-table-card>
             </div>
         </div>
 
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })
         $wire.on('refresh', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

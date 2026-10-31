@@ -85,9 +85,10 @@ final class RtcConsumptionTable extends PowerGridComponent
         return [
             Button::add('edit')
                 ->can($canEdit)
+
                 ->render(function () use ($link) {
                     // Using a simple return is faster than compiling a Blade view for a single button
-                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
+                    return '<a href="' . $link . '" class="btn btn-warning btn-sm custom-tooltip" title="Edit Record"><i class="bx bx-pen"></i></a>';
                 })
         ];
     }
@@ -180,14 +181,15 @@ final class RtcConsumptionTable extends PowerGridComponent
                 ->headerAttribute('table-sticky-col'),
             Column::make('#', 'rn')->sortable()->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
-            Column::make('UUID', 'uuid')->searchable()->hidden(),
+
             Column::make('Entity ID', 'en_id')->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
             Column::make('Entity Name', 'entity_name', 'entity_name')
                 ->sortable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
 
-            Column::make('Entity Type', 'entity_type', 'entity_type')->sortable()->searchable(),
+            Column::make('Entity Type', 'entity_type', 'entity_type')->sortable()->searchable()
+            ,
             Column::make('District', 'district')->sortable()->searchable(),
             Column::make('EPA', 'epa',)->sortable()->searchable(),
             Column::make('Section', 'section',)->sortable()->searchable(),
@@ -195,7 +197,7 @@ final class RtcConsumptionTable extends PowerGridComponent
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable()->searchable(),
 
-
+Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Cassava', 'crop_cassava')
                 ->sortable(),
 

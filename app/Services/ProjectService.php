@@ -14,6 +14,16 @@ class ProjectService
         });
     }
 
+    public static function app_project_id()
+    {
+        return self::app_project()->id;
+    }
+
+    public static function app_project_name()
+    {
+        return self::app_project()->name;
+    }
+
     public static function app_cgiar_project()
     {
         return once(function () {

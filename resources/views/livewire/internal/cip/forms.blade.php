@@ -6,19 +6,7 @@
 
         <!-- start page title -->
         <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-
-
-                    <div class="page-title-left col-12">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Forms</li>
-                        </ol>
-                    </div>
-
-                </div>
-            </div>
+           <x-breadcrumbs />
         </div>
         <!-- end page title -->
         <div class="row">
@@ -27,17 +15,9 @@
             <div class="col-12">
                 <x-alerts />
 
-                <div class="border-0 shadow-sm card">
-                    <x-card-header
-                        class="flex-wrap gap-3 py-3 bg-white d-flex align-items-center justify-content-between">
-                        <!-- Card Title -->
-                        <div class="mb-0 h5 card-title fw-semibold text-dark d-flex align-items-center">
-                            <i class="bx bx-file me-2 text-muted fs-4"></i>
-                            <span>Forms List</span>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex-wrap gap-2 d-flex align-items-center">
+                <x-table-card :title="'Forms List'" :subtitle="'Manage and track all project forms'" >
+<x-slot:actions>
+      <div class="flex-wrap gap-2 d-flex align-items-center">
                             @hasanyrole('monitor|admin|manager')
                                 {{-- Add Form Button --}}
                                 <button type="button"
@@ -73,12 +53,12 @@
                                 @endif
                             @endhasanyrole
                         </div>
-                    </x-card-header>
+</x-slot:actions>
 
-                    <div class="p-4 card-body">
-                        <livewire:tables.form-table />
-                    </div>
-                </div>
+       <livewire:tables.form-table />
+                </x-table-card>
+
+
             </div>
         </div>
 
@@ -87,13 +67,13 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById('form-modal'), {})
             myModal.show();
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

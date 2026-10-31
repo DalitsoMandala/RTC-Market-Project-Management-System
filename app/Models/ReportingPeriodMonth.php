@@ -12,7 +12,7 @@ class ReportingPeriodMonth extends Model
     protected $guarded = [];
     public function reportingPeriod()
     {
-        return $this->belongsTo(ReportingPeriod::class, 'reporting_period_month_id');
+        return $this->belongsTo(ReportingPeriod::class, 'reporting_period_id');
     }
 
     // From: Country (Local)

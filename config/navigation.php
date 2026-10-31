@@ -1,5 +1,7 @@
 <?php
 
+
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -28,7 +30,7 @@ return [
                 'icon'  => 'bx-folder',
                 'children' => [
                     ['label' => 'Project Management', 'children' => [
-                        ['label' => 'Reporting Periods', 'route' => 'admin-period'],
+                        ['label' => 'Project Operations', 'route' => 'admin-period'],
                     ]],
                     ['label' => 'Indicator Management', 'children' => [
                         ['label' => 'Indicators',           'route' => 'admin-indicators'],

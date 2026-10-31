@@ -6,7 +6,7 @@
 @import "./../../node_modules/tom-select/dist/css/tom-select.bootstrap5.css";
 
 .dash-card .card {
-    border: 1px solid rgba(245, 160, 49, 0.4);
+    /* border: 1px solid rgba(245, 160, 49, 0.4); */
 }
 
 .form-label,
@@ -214,38 +214,37 @@ label::first-letter {
     /* Capitalize only the first letter */
 }
 
-/* Base requirement for sticky columns */
 .table-sticky-col {
     position: sticky;
-
     z-index: 2;
+    background-clip: padding-box; /* keeps borders visible while scrolling */
 }
 
-/* First sticky column */
-td.table-sticky-col:nth-child(1),
-th.table-sticky-col:nth-child(1) {
+/* Fix widths so left offsets are reliable */
+td.table-sticky-col:nth-child(1), th.table-sticky-col:nth-child(1) {
     left: 0;
+    min-width: 50px; width: 100px; max-width: 100px;
+    z-index: 3;
+}
+td.table-sticky-col:nth-child(2), th.table-sticky-col:nth-child(2) {
+    left: 50px;
+    min-width: 50px; width: 200px; max-width: 200px;
+    z-index: 3;
+}
+td.table-sticky-col:nth-child(3), th.table-sticky-col:nth-child(3) {
+    left: 100px;
+    min-width: 100px; width: 200px; max-width: 200px;
+    z-index: 3;
+}
+td.table-sticky-col:nth-child(4), th.table-sticky-col:nth-child(4) {
+    left: 200px;
+    min-width: 200px; width: 200px; max-width: 200px;
     z-index: 3;
 }
 
-/* Second sticky column */
-td.table-sticky-col:nth-child(2),
-th.table-sticky-col:nth-child(2) {
-    left: 50px;
-    /* width of first column */
-}
-
-/* Third sticky column */
-td.table-sticky-col:nth-child(3),
-th.table-sticky-col:nth-child(3) {
-    left: 100px;
-    /* width of first + second */
-}
-
-td.table-sticky-col:nth-child(4),
-th.table-sticky-col:nth-child(4) {
-    left: 200px;
-    /* width of first + second */
+.power-grid-table,
+[data-powergrid-table] {
+    word-spacing: 0.2rem; /* Adjust this value (px, em, or rem) to your liking */
 }
 
 td.table-sticky-col {
@@ -254,7 +253,16 @@ td.table-sticky-col {
 }
 
 th.table-sticky-col {
-    background-color: #ece9e9 !important;
+    background-color: #ffefdb !important;
+}
+
+/* Header should sit above body cells when scrolling vertically */
+th.table-sticky-col {
+    z-index: 4;
+}
+
+@media (max-width: 768px) {
+    .table-sticky-col { position: static; }
 }
 
 th {
@@ -279,54 +287,72 @@ th {
     background-color: #e9ecef;
 }
 
-/* Custom Tooltip Trigger */
 .custom-tooltip {
     position: relative;
+
     cursor: pointer;
-    display: inline-block;
 }
 
-/* Custom Tooltip Text Styling */
+/* Updated: Centered to the right of the button */
 .custom-tooltip::after {
     content: attr(title);
-    font-family: "Be Vietnam", sans-serif;
-    /* Use the data-bs-title attribute */
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 8px);
+    transform: translateY(-50%);
+
+    width: max-content;
+    max-width: min(240px, calc(100vw - 24px));
+    white-space: normal;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
+
+    padding: 8px 12px;
+    border-radius: 5px;
+    background: #333;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+
     visibility: hidden;
     opacity: 0;
-    background-color: #333;
-    /* Dark background */
-    color: #fff;
-    /* White text */
-    text-align: center;
-    border-radius: 4px;
-    /* Rounded corners */
-    padding: 8px;
-    /* Padding inside the tooltip */
-    position: absolute;
-    bottom: 100%;
-    /* Position above the trigger */
-    left: 0;
-    transform: translateX(-50%);
-
-    transition: opacity 0.3s;
-    /* Smooth fade-in */
-    white-space: nowrap;
-    /* Prevent text wrapping */
-    font-size: 10px;
-    /* Responsive font size */
-    width: max-content;
-    max-width: 90vw;
-    /* Ensure it fits within the viewport */
-    word-wrap: break-word;
-    /* Allow breaking long words if needed */
-    margin: 10px 10px;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 99999;
 }
 
-/* Show the tooltip on hover */
+/* Reveal */
 .custom-tooltip:hover::after,
-.custom-tooltip:hover::before {
+.custom-tooltip:focus-visible::after {
     visibility: visible;
     opacity: 1;
+}
+
+/* Adjusted edge cases for right-positioned tooltips */
+/* Buttons near the top edge */
+.custom-tooltip.tooltip-top::after {
+    top: 0;
+    transform: none;
+}
+
+/* Buttons near the bottom edge */
+.custom-tooltip.tooltip-bottom::after {
+    top: auto;
+    bottom: 0;
+    transform: none;
+}
+
+
+
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+    .custom-tooltip::after {
+        max-width: calc(100vw - 24px);
+        font-size: 11px;
+        padding: 7px 10px;
+    }
 }
 
 .page-title-box .breadcrumb {
@@ -351,18 +377,18 @@ th {
 
 /* Secondary table styling */
 .table-secondary {
-    --bs-table-color: #49301f;
-    --bs-table-bg: #fff8f0;
-    --bs-table-border-color: #f1dfcd;
-    --bs-table-striped-bg: #fff2e5;
-    --bs-table-striped-color: #49301f;
-    --bs-table-hover-bg: #ffead5;
-    --bs-table-hover-color: #49301f;
+    --bs-table-color: #49301f !important;
+    --bs-table-bg: #fff8f0 !important;
+    --bs-table-border-color: #f1dfcd !important;
+    --bs-table-striped-bg: #fff2e5 !important;
+    --bs-table-striped-color: #49301f !important;
+    --bs-table-hover-bg: #ffead5 !important;
+    --bs-table-hover-color: #49301f !important;
 }
 
 .table-secondary thead th {
-    background-color: #f5f0eb;
-    color: #49301f;
+    background-color: #f5f0eb !important;
+    color: #49301f !important;
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -372,21 +398,21 @@ th {
 }
 
 .table-secondary tbody td {
-    padding: 12px 14px;
-    border-bottom: 1px solid #f1e8df;
-    color: #34495e;
+    padding: 12px 14px !important;
+    border-bottom: 1px solid #f1e8df !important;
+    color: #34495e !important;
 }
 
 .table-secondary tbody tr:nth-child(even) {
-    background-color: #fffaf5;
+    background-color: #fffaf5 !important;
 }
 
 .table-secondary tbody tr:hover {
-    background-color: #fff0df;
+    background-color: #fff0df !important;
 }
 
 .table-secondary tbody tr:last-child td {
-    border-bottom: none;
+    border-bottom: none !important;
 }
 
 .role-group {
@@ -1125,4 +1151,282 @@ th {
     top: 25%;
     height: 50%;
     border-left: 1px solid #dee2e6;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+.ol-compose {
+    position: relative;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.ol-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #ececec;
+    background: #faf9f8;
+    border-radius: 8px 8px 0 0;
+}
+
+.ol-send {
+    background: #0f6cbd;
+    color: #fff;
+    border: 0;
+    border-radius: 4px;
+    padding: 6px 18px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ol-send:hover {
+    background: #115ea3;
+}
+
+.ol-send:disabled {
+    opacity: 0.6;
+}
+
+.ol-count {
+    font-size: 12px;
+    color: #616161;
+}
+
+.ol-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 14px;
+    border-bottom: 1px solid #ececec;
+}
+
+.ol-label {
+    width: 56px;
+    padding-top: 6px;
+    color: #616161;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.ol-to {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    max-height: 130px;
+    overflow-y: auto;
+    min-height: 36px;
+}
+
+.ol-input {
+    flex: 1;
+    min-width: 160px;
+    border: 0;
+    outline: 0;
+    padding: 6px 2px;
+    background: transparent;
+    font-size: 14px;
+}
+
+.ol-subject {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    padding: 6px 2px;
+    font-size: 16px;
+    font-weight: 600;
+    background: transparent;
+}
+
+.ol-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ebf3fc;
+    border: 1px solid #c7e0f4;
+    color: #0f548c;
+    border-radius: 14px;
+    padding: 1px 4px 1px 2px;
+    font-size: 13px;
+    max-width: 280px;
+}
+
+.ol-chip .nm {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ol-chip button {
+    border: 0;
+    background: transparent;
+    color: #0f548c;
+    line-height: 1;
+    padding: 0 4px;
+    font-size: 15px;
+}
+
+.ol-chip button:hover {
+    color: #c50f1f;
+}
+
+.ol-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ol-roles {
+    padding: 6px 14px 8px 80px;
+    border-bottom: 1px solid #ececec;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    color: #616161;
+}
+
+.ol-toolbar {
+    padding: 6px 10px;
+    border-bottom: 1px solid #ececec;
+    background: #faf9f8;
+}
+
+.ol-toolbar.ql-toolbar.ql-snow {
+    border: 0;
+    border-bottom: 1px solid #ececec;
+}
+
+.ol-editor.ql-container.ql-snow {
+    border: 0;
+    font-size: 14px;
+}
+
+.ol-editor .ql-editor {
+    min-height: 260px;
+}
+
+.ol-hint {
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #616161;
+    border-top: 1px solid #ececec;
+    background: #faf9f8;
+    border-radius: 0 0 8px 8px;
+}
+
+.ol-menu {
+    position: absolute;
+    z-index: 1080;
+    width: 340px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    padding: 4px;
+}
+
+.ol-menu-head {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #707070;
+    padding: 6px 8px 4px;
+}
+
+.ol-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.ol-item.active {
+    background: #ebf3fc;
+}
+
+.ol-item .ol-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+
+.ol-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.ol-name {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ol-sub {
+    font-size: 12px;
+    color: #616161;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ol-role {
+    font-size: 11px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    padding: 1px 8px;
+    color: #424242;
+}
+
+.ol-empty {
+    padding: 12px;
+    text-align: center;
+    color: #707070;
+    font-size: 13px;
+}
+#scrollTopBtn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+
+    /* hidden by default */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity .25s ease, transform .25s ease, visibility .25s;
+}
+
+#scrollTopBtn.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }

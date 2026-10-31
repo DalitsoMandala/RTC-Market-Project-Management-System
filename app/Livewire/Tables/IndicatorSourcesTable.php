@@ -129,6 +129,7 @@ final class IndicatorSourcesTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+              Column::action(''),
             Column::make('#', 'id'),
             Column::make('Indicator #', 'indicator_no')->searchable(),
             Column::make('Indicator', 'indicator', 'indicator_name')->searchable()->headerAttribute(styleAttr: "min-width:300px;")
@@ -136,10 +137,10 @@ final class IndicatorSourcesTable extends PowerGridComponent
             Column::make('Organisation', 'organisation')->searchable()->headerAttribute(styleAttr: "min-width:300px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap"),
 
-            Column::make('Assigned Forms', 'forms')->headerAttribute(styleAttr: "min-width:300px;")
+            Column::make('Source (Form)', 'forms')->headerAttribute(styleAttr: "min-width:300px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap")->searchable(),
 
-            Column::action(''),
+
         ];
     }
 

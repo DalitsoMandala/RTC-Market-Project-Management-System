@@ -46,13 +46,10 @@ class Dashboard extends Component
             ->toArray();
 
         // Query for open submission periods
-        $this->openSubmissions = SubmissionPeriod::with([
-            'form',
-            'form.indicators'
-        ])
-            ->whereIn('indicator_id', $myIndicators)
+        $this->openSubmissions = SubmissionPeriod::query()
+
             ->where('is_open', true)
-            ->whereNot('is_restricted', true)
+            ->where('is_restricted', false)
             ->count();
     }
 

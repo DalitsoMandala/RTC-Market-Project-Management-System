@@ -98,7 +98,7 @@ final class RpmFarmerCertified extends PowerGridComponent
             ->add('unique_id', fn($model) => $model->farmers->pf_id)
             ->add('id')
 
-
+->add('group_name', fn($model) => $model->farmers->group_name)
             ->add('area')
             ->add('submitted_by', function ($model) {
                 $user = User::find($model->user_id);
@@ -122,6 +122,11 @@ final class RpmFarmerCertified extends PowerGridComponent
                 ->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
 
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
             Column::make('Variety', 'variety')->sortable()->searchable(),
 

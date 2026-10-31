@@ -130,6 +130,10 @@
     --bs-form-invalid-color: #fa6374;
     --bs-form-invalid-border-color: #fa6374;
     --bs-disabled: #e9ecef;
+     --sticky-action: 50px;
+    --sticky-number: 60px;
+    --sticky-entity-id: 110px;
+    --sticky-entity-name: 180px;
 }
 
 [data-bs-theme="dark"] {

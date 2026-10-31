@@ -16,58 +16,7 @@
 
     <div class="mt-3 container-fluid">
 
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-block align-items-center justify-content-between">
-
-
-                    <div class="page-title-left" wire:ignore>
-
-
-                        <ol class="m-0 breadcrumb">
-
-
-                            <li class="breadcrumb-item">
-                                <a href="/">Dashboard</a>
-                            </li>
-
-                            @role('admin')
-                                <li class="breadcrumb-item">
-                                    <a href="/admin/submission-period">Submission Periods</a>
-                                </li>
-                            @endrole
-                            @role('manager')
-                                <li class="breadcrumb-item">
-                                    <a href="/cip/submission-period">Submission Periods</a>
-                                </li>
-                            @endrole
-
-
-                            @role('external')
-                                <li class="breadcrumb-item">
-                                    <a href="/external/submission-period">Submission Periods</a>
-                                </li>
-                            @endrole
-
-                            {{-- <li class="breadcrumb-item "> <a href="{{ $addDataRoute }}">Add Data</a></li> --}}
-                            <li class="breadcrumb-item active">
-                                Upload Data
-                            </li>
-                            <li class="breadcrumb-item">
-
-                                <a href="/{{ $routePrefix }}/forms/rtc-market/{{ $formRoute }}/view">
-                                    {{ ucwords(strtolower($formName)) }} Data
-                                </a>
-                            </li>
-
-
-
-                        </ol>
-
-                    </div>
-                </div>
-            </div>
-        </div>
+      
         <div class="row justify-content-center">
             <div class="col-12 col-md-8">
                 <h3 class="mb-5 text-center text-warning">{{ $formName }}</h3>

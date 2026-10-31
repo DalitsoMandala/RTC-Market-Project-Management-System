@@ -9,8 +9,8 @@
             showContent: $wire.entangle('showContent'),
         }" x-show="showContent">
             <div class="col-12 col-lg-6">
-                <h2 class="h2">Summary</h2>
-                <p class="text-muted">{{ $name }}</p>
+                <h3 class="mb-0" >Summary</h3>
+                <p class="text-muted mb-0">{{ $name }}</p>
             </div>
             <div class="col-12 col-lg-6">
 

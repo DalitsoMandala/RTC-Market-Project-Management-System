@@ -1,23 +1,20 @@
 <?php
-namespace App\Livewire\tables;
 
-use App\Helpers\TruncateText;
+namespace App\Livewire\Tables;
+
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\Indicator;
 use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionReport;
 use App\Models\User;
 use App\Traits\DownloadImportTrait;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -34,443 +31,672 @@ final class AggregateSubmissionTable extends PowerGridComponent
     use WithExport;
     use DownloadImportTrait;
     use LivewireAlert;
-    public $filter;
+
+    public $filter = [];
+
     public $userId;
+
     public bool $showFilters = true;
-    public $row              = 1;
+
     public $batch;
-    public string $sortField     = 'submission_id';
+
+    public string $sortField = 'submission_id';
+
     public string $sortDirection = 'desc';
-    public string $primaryKey    = 'submission_id';
-    public string $tableName     = 'AggregateSubmissionTable';
+
+    public string $primaryKey = 'submission_id';
+
+    public string $tableName = 'AggregateSubmissionTable';
+
     public $routePrefix;
-    public function updatedCheckboxValues($values)
-    {
-        // logger('Selected IDs: ', $values);
-    }
+
+    /**
+     * Configure the table.
+     */
     public function setUp(): array
     {
-        $route      = Route::current();
-        $parameters = $route->parameters();
-        $collection = collect($parameters);
-        if ($collection->has('batch')) {
-            $this->batch = $collection->get('batch');
-        }
+        $this->batch = Route::current()?->parameter('batch');
 
-        //  $this->showCheckBox('submission_id');
         $this->setLocation('exports');
+
         return [
-            // Exportable::make('export')
-            //     ->striped()
-            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput()->showToggleColumns(),
+            Header::make()
+                ->showSearchInput()
+                ->showToggleColumns(),
+
             Footer::make()
-                ->showPerPage()->pageName('AggregatePage')
+                ->showPerPage()
+                ->pageName('AggregatePage')
                 ->showRecordCount(),
         ];
     }
 
+    /**
+     * Main datasource.
+     */
     public function datasource(): Builder
     {
+        $user = Auth::user();
 
         $query = Submission::query()
-
-            ->join('forms', 'forms.id', '=', 'submissions.form_id')
-            ->join('submission_periods_new', 'submissions.submission_period_new_id', '=', 'submission_periods_new.id')
-            ->leftJoin('users', 'users.id', '=', 'submissions.user_id')
-            ->join('submission_reports', 'submissions.batch_no', '=', 'submission_reports.uuid')
-            ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
-
+            ->join(
+                'forms',
+                'forms.id',
+                '=',
+                'submissions.form_id'
+            )
+            ->join(
+                'submission_periods_new',
+                'submission_periods_new.id',
+                '=',
+                'submissions.submission_period_new_id'
+            )
+            ->leftJoin(
+                'users',
+                'users.id',
+                '=',
+                'submissions.user_id'
+            )
+            ->leftJoin(
+                'organisations',
+                'organisations.id',
+                '=',
+                'users.organisation_id'
+            )
+            ->leftJoin(
+                'submission_reports',
+                'submission_reports.uuid',
+                '=',
+                'submissions.batch_no'
+            )
+            ->leftJoin(
+                'indicators',
+                'indicators.id',
+                '=',
+                'submission_reports.indicator_id'
+            )
+            ->leftJoin(
+                'reporting_period_months',
+                'reporting_period_months.id',
+                '=',
+                'submission_periods_new.reporting_period_month_id'
+            )
+            ->leftJoin(
+                'financial_years',
+                'financial_years.id',
+                '=',
+                'submission_periods_new.financial_year_id'
+            )
             ->with([
-                'period.indicator',
-                'user' => fn($q) => $q->withTrashed(),
+
+                'user' => fn ($q) => $q->withTrashed(),
                 'user.organisation',
                 'period.reportingMonths',
-                'form',
                 'period.financialYears',
+                'form',
             ])
-            ->where('batch_type', 'aggregate')->select([
-            'submissions.*',
-            'submissions.id as submission_id',
-            'submission_reports.indicator_id as indicator_id',
-            'users.name as username',
-            'forms.name as form_name',
-            'organisations.name as organisation_name',
-            'organisations.id as organisation_id',
-            'submission_periods_new.id as submission_period_new_id',
-            'submission_periods_new.reporting_period_month_id as reporting_period_month_id',
+            ->where('submissions.batch_type', 'aggregate')
+            ->select([
+                'submissions.*',
 
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn'),
-        ]);
+                'submissions.id as submission_id',
 
-        $user            = User::find(auth()->user()->id);
-        $organisation_id = $user->organisation->id;
+                'submission_reports.indicator_id as indicator_id',
 
-        if ($user->hasAnyRole('external')) {
+                'indicators.indicator_no as indicator_no',
 
-            return $query->where('users.id', $user->id);
+                'indicators.indicator_name as indicator_name',
+
+                'users.name as username',
+
+                'forms.name as form_name',
+
+                'organisations.name as organisation_formatted',
+
+                'organisations.id as organisation_id',
+
+                'submission_periods_new.id as submission_period_new_id',
+
+                'submission_periods_new.reporting_period_month_id as reporting_period_month_id',
+
+                'submission_periods_new.financial_year_id as financial_year_id',
+
+                'reporting_period_months.start_month as month_start',
+
+                'reporting_period_months.end_month as month_end',
+
+                'financial_years.number as financial_year_number',
+            ]);
+
+        // External users can only view their own submissions.
+        if ($user?->hasAnyRole('external')) {
+            $query->where('submissions.user_id', $user->id);
         }
 
         return $query;
     }
 
+    /**
+     * Relationship search.
+     */
     public function relationSearch(): array
     {
         return [
+            'user.organisation' => [
+                'name',
+            ],
 
-            'user.organisation'      => [
+            'user' => [
                 'name',
             ],
-            'user'                   => [
-                'name',
-            ],
+
             'period.reportingMonths' => [
                 'start_month',
                 'end_month',
-
             ],
-            'period.financialYears'  => [
+
+            'period.financialYears' => [
                 'number',
             ],
-            'form'                   => [
-                'name',
+
+            'period.indicator' => [
+                'indicator_no',
+                'indicator_name',
             ],
 
+            'form' => [
+                'name',
+            ],
         ];
     }
 
+    /**
+     * Table filters.
+     */
     public function filters(): array
     {
         return [
-
             Filter::select('indicator')
-                ->dataSource(Indicator::get()->map(function ($indicator) {
-                    return [
-                        'indicator'      => $indicator->indicator_no . ' - ' . $indicator->indicator_name,
-                        'id'             => $indicator->id,
-                        'indicator_no'   => $indicator->indicator_no,
-                        'indicator_name' => $indicator->indicator_name,
-                    ];
-                }))
+                ->dataSource(
+                    Indicator::query()
+                        ->select([
+                            'id',
+                            'indicator_no',
+                            'indicator_name',
+                        ])
+                        ->orderBy('indicator_no')
+                        ->get()
+                        ->map(fn ($indicator) => [
+                            'indicator' => $indicator->indicator_no
+                                . ' - '
+                                . $indicator->indicator_name,
+
+                            'id' => $indicator->id,
+                        ])
+                )
                 ->optionLabel('indicator')
                 ->optionValue('id')
-                ->builder(function ($query, $value) {
+                ->builder(
+                    fn ($query, $value) => $query->where(
+                        'submission_reports.indicator_id',
+                        $value
+                    )
+                ),
 
-                    $query->where('submission_reports.indicator_id', $value);
+            Filter::select(
+                'status_formatted',
+                'submissions.status'
+            )
+                ->dataSource(
+                    Submission::query()
+                        ->where('batch_type', 'aggregate')
+                        ->select('status')
+                        ->distinct()
+                        ->get()
+                        ->map(fn ($item) => [
+                            'status' => $item->status === 'denied'
+                                ? 'disapproved'
+                                : $item->status,
 
-                }),
-            Filter::select('status_formatted', 'submissions.status')
-                ->dataSource(function () {
-                    $submission = Submission::select(['status'])->distinct();
-
-                    return $submission->get()->map(function ($submission) {
-
-                        return [
-                            'status' => $submission->status === 'denied' ? 'disapproved' : $submission->status,
-                            'value'  => $submission->status,
-                        ];
-                    });
-                })
+                            'value' => $item->status,
+                        ])
+                )
                 ->optionLabel('status')
                 ->optionValue('value'),
+
             Filter::select('form_name', 'forms.id')
-                ->dataSource(function () {
-                    $submission = Form::select(['name', 'id'])->distinct();
-
-                    return $submission->get();
-                })
+                ->dataSource(
+                    Form::query()
+                        ->select(['id', 'name'])
+                        ->orderBy('name')
+                        ->get()
+                )
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('organisation_formatted', 'organisations.id')
-                ->dataSource(function () {
-                    $submission = Organisation::select(['name', 'id'])->distinct();
-
-                    return $submission->get();
-                })
+            Filter::select(
+                'organisation_formatted',
+                'organisations.id'
+            )
+                ->dataSource(
+                    Organisation::query()
+                        ->select(['id', 'name'])
+                        ->orderBy('name')
+                        ->get()
+                )
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('reporting_period', 'submission_periods_new.reporting_period_month_id')
-                ->dataSource(function () {
-                    $submission = ReportingPeriodMonth::select(['start_month', 'end_month', 'id'])->distinct();
+            Filter::select(
+                'reporting_period',
+                'submission_periods_new.reporting_period_month_id'
+            )
+                ->dataSource(
+                    ReportingPeriodMonth::query()
+                        ->select([
+                            'id',
+                            'start_month',
+                            'end_month',
+                        ])
+                        ->orderBy('id')
+                        ->get()
+                        ->map(fn ($item) => [
+                            'name' => $item->start_month
+                                . ' - '
+                                . $item->end_month,
 
-                    return $submission->get()->map(function ($submission) {
-
-                        return [
-                            'name' => $submission->start_month . ' - ' . $submission->end_month,
-                            'id'   => $submission->id,
-                        ];
-                    });
-                })
+                            'id' => $item->id,
+                        ])
+                )
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('financial_year', 'submission_periods.financial_year_id')
-                ->dataSource(function () {
-                    $submission = FinancialYear::select(['id', 'number'])->distinct();
-
-                    return $submission->get()->map(function ($submission) {
-
-                        return [
-                            'number' => 'Year ' . $submission->number,
-                            'id'     => $submission->id,
-                        ];
-                    });
-                })
+            Filter::select(
+                'financial_year',
+                'submission_periods_new.financial_year_id'
+            )
+                ->dataSource(
+                    FinancialYear::query()
+                        ->select(['id', 'number'])
+                        ->orderBy('number')
+                        ->get()
+                        ->map(fn ($item) => [
+                            'number' => 'Year ' . $item->number,
+                            'id' => $item->id,
+                        ])
+                )
                 ->optionLabel('number')
                 ->optionValue('id'),
-
         ];
     }
 
+    /**
+     * Table fields.
+     */
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id', fn($model) => $this->row++)
+
+            ->add('id')
+
             ->add('batch_no')
-            ->add('batch_no_formatted', function ($model) {
 
-                $text = $model->batch_no;
+            ->add(
+                'batch_no_formatted',
+                fn ($model) => $this->expandable(
+                    $model->batch_no,
+                    'Batch number',
+                    'batch-' . $model->id
+                )
+            )
 
-                $html = '';
-
-                $html .= '
-
-<div>
-<div class="accordion accordion-flush" id="default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
-    <div class="border accordion-item custom-tooltip" title="show batch number">
-        <h2 class=" accordion-header" id="headingOne" >
-            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->batch_no . '_' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->batch_no . '_' . $model->id . '">
-<i class="bx bx-dots-horizontal-rounded"></i>
-            </button>
-        </h2>
-        <div id="collapse-' . $model->batch_no . '_' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
-            <div class="accordion-body">
-                ' . $text . '
-            </div>
-        </div>
-        </div>
-
-</div>
-</div>
-';
-                return $html;
-                // return $model->batch_no;
-            })
             ->add('user_id')
-            ->add('username', function ($model) {
-                return $model->user?->name;
-            })
+
+            ->add(
+                'username',
+                fn ($model) => $model->username ?? 'N/A'
+            )
+
             ->add('form_id')
-            ->add('form_name', function ($model) {
-                $form = Form::find($model->form_id);
 
-                $form_name = str_replace(' ', '-', strtolower($form->name));
-                $project   = str_replace(' ', '-', strtolower($form->project->name));
+            ->add(
+                'form_name',
+                fn ($model) => $model->form_name ?? 'N/A'
+            )
 
-                // return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-                return $form->name;
-            })
-            ->add('organisation')
-            ->add('organisation_formatted', function ($model) {
-                return $model->user?->organisation?->name;
-            })
+            ->add(
+                'organisation_formatted',
+                fn ($model) => $model->organisation_formatted ?? 'N/A'
+            )
+
             ->add('status')
+
             ->add('batch_type')
-            ->add('record_filter', function ($model) {})
-            ->add('status_formatted', function ($model) {
-                if ($model->status === 'approved') {
-                    return '<span class="badge bg-success-subtle text-success">' . $model->status . '</span>';
-                } else if ($model->status === 'pending') {
-                    return '<span class="badge bg-warning-subtle text-warning">' . $model->status . '</span>';
-                } else {
-                    return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
-                }
-            })
+
+            ->add('record_filter')
+
+            ->add(
+                'status_formatted',
+                fn ($model) => $this->statusBadge($model->status)
+            )
+
             ->add('submission_period_new_id')
-            ->add('reporting_period', function ($model) {
-                $period = SubmissionPeriod::find($model->reporting_period_month_id);
-                if ($period) {
-                    return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
-                } else {
-                    return 'N/A';
-                }
-            })
+
+            ->add(
+                'reporting_period',
+                fn ($model) => $model->period?->date_established
+                    && $model->period?->date_ended
+                    ? $model->period->date_established->format('d F Y')
+                        . ' - '
+                        . $model->period->date_ended->format('d F Y')
+                    : 'N/A'
+            )
+
             ->add('comments')
-            ->add('comments_truncated', function ($model) {
 
-                $text      = $model->comments;
-                $trunc     = new TruncateText($text, 30);
-                $html      = '';
-                $disabled  = ! $model->comments ? 'pe-none opacity-25' : '';
-                $html     .= '
+            ->add(
+                'comments_truncated',
+                fn ($model) => $this->expandable(
+                    $model->comments,
+                    'Comments',
+                    'comments-' . $model->id
+                )
+            )
 
-<div class="' . $disabled . '">
-<div class="accordion accordion-flush" id="default-accordion-example-' . $model->id . '">
-    <div class="border accordion-item custom-tooltip " title="show comments">
-        <h2 class=" accordion-header" id="headingOne" >
-            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->id . '">
-<i class="bx bx-dots-horizontal-rounded"></i>
-            </button>
-        </h2>
-        <div id="collapse-' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->id . '">
-            <div class="accordion-body">
-                ' . $text . '
-            </div>
-        </div>
-        </div>
+            ->add(
+                'financial_year',
+                fn ($model) => $model->financial_year_number
+                    ? 'Year ' . $model->financial_year_number
+                    : 'N/A'
+            )
 
-</div>
-</div>
-';
-                return $html;
-            })
-            ->add('financial_year', function ($model) {
-                $model = SubmissionPeriod::find($model->reporting_period_month_id);
-
-                return $model->financialYears->number;
-                //   ReportingPeriodMonth::find($model->reporting_period_month_id)->;
-            })
             ->add('indicator_id')
-            ->add('indicator', function ($model) {
 
-                $period = SubmissionReport::with('indicator')->where('uuid', $model->batch_no)->first();
-                return $period?->indicator?->indicator_no . ' - ' . $period?->indicator?->indicator_name;
-            })
-            ->add('month_range', function ($model) {
-                $model = SubmissionPeriod::find($model->reporting_period_month_id);
+            ->add(
+                'indicator',
+                fn ($model) => $model->indicator_no
+                    && $model->indicator_name
+                    ? $model->indicator_no . ' - ' . $model->indicator_name
+                    : 'N/A'
+            )
 
-                return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
-                //
-            })
+            ->add(
+                'month_range',
+                fn ($model) => $model->month_start
+                    && $model->month_end
+                    ? $model->month_start . ' - ' . $model->month_end
+                    : 'N/A'
+            )
+
             ->add('created_at')
-            ->add('file_link', function ($model) {
-                if ($model->file_link) {
-                    $html = "
-                       <a class='text-success custom-tooltip' title='download file' download='{$model->file_link}' href='" . asset('/storage/exports/' . $model->file_link) . "'>
 
-                    <div class='d-flex align-items-center'>
-                        <div class='flex-shrink-0 me-2'>
-                            <div class='px-2 py-1 rounded-1 bg-success-subtle'>
-                                <i class='fas fa-file-excel text-success'></i>
-                            </div>
-                        </div>
-                        <div class='flex-grow-1 fw-bolder'>
-                           {$model->file_link}
+            ->add(
+                'file_link',
+                fn ($model) => $this->fileLink($model->file_link)
+            )
 
-                        </div>
-                    </div>
+            ->add(
+                'date_of_submission',
+                fn ($model) => $model->created_at?->format(
+                    'Y-m-d H:i:s'
+                )
+            )
 
-                        </a>";
-
-                    return $html;
-                }
-
-                return null;
-            })
-            ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');
     }
 
+    /**
+     * Expandable text field.
+     */
+
+     private function expandableText(
+        ?string $text,
+        string $tooltip
+    ): string {
+        if (! $text) {
+            return '<span class="text-muted">N/A</span>';
+        }
+
+        $safeText = e($text);
+        $safeTooltip = e($tooltip);
+
+        return <<<HTML
+            <details class="custom-tooltip" title="{$safeTooltip}">
+                <summary class="btn btn-sm btn-light border">
+                    <i class="bx bx-dots-horizontal-rounded"></i>
+                </summary>
+
+                <div class="mt-2 text-wrap">
+                    {$safeText}
+                </div>
+            </details>
+        HTML;
+    }
+    private function expandable(
+        ?string $content,
+        string $label,
+        string $id
+    ): string {
+        if (blank($content)) {
+            return '<span class="text-muted">N/A</span>';
+        }
+
+        return '
+            <details class="border rounded px-2 py-1">
+                <summary class="small fw-semibold"
+                    style="cursor:pointer">
+                    <i class="bx bx-dots-horizontal-rounded"></i>
+                    ' . e($label) . '
+                </summary>
+
+                <div class="p-2 text-wrap" id="' . e($id) . '">'
+                    . nl2br(e($content)) .
+                '</div>
+            </details>
+        ';
+    }
+
+    /**
+     * Format submission status.
+     */
+    private function statusBadge(?string $status): string
+    {
+        $label = $status === 'denied'
+            ? 'disapproved'
+            : ($status ?? 'N/A');
+
+        $class = match ($status) {
+            'approved' => 'bg-success-subtle text-success',
+            'pending' => 'bg-warning-subtle text-warning',
+            default => 'bg-danger-subtle text-danger',
+        };
+
+        return '<span class="badge ' . $class . '">'
+            . e($label)
+            . '</span>';
+    }
+
+    /**
+     * File download link.
+     */
+    private function fileLink(?string $filename): ?string
+    {
+        if (blank($filename)) {
+            return null;
+        }
+
+        $url = asset(
+            'storage/exports/' . rawurlencode($filename)
+        );
+
+        return '
+            <a class="text-success custom-tooltip"
+                title="Download file"
+                download="' . e($filename) . '"
+                href="' . e($url) . '">
+
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-2">
+                        <div class="px-2 py-1 rounded-1 bg-success-subtle">
+                            <i class="fas fa-file-excel text-success"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow-1 fw-bolder">'
+                        . e($filename) .
+                    '</div>
+                </div>
+            </a>
+        ';
+    }
+
+    /**
+     * Table columns.
+     */
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable()->hidden(),
-            Column::make('File', 'file_link')->hidden(),
+            Column::make('#', 'rn')
+                ->sortable()
+                ->hidden(),
+
+            Column::make('File', 'file_link')
+                ->hidden(),
+
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
 
-            //  Column::make('Form name', 'form_name')->searchable(),
-            Column::make('Indicator', 'indicator', 'submission_reports.indicator_name')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
-                ->bodyAttribute(styleAttr: "white-space:wrap"),
+            Column::make(
+                'Indicator',
+                'indicator',
+                'indicators.indicator_name'
+            )
+                ->searchable()
+                ->headerAttribute(styleAttr: 'min-width:350px;')
+                ->bodyAttribute(styleAttr: 'white-space:wrap'),
 
-            Column::make('SUBMITTED BY', 'username')->searchable(),
-            Column::make('Organisation', 'organisation_formatted')->searchable(),
-            Column::make('SUBMISSION PERIOD', 'month_range')->searchable(),
-            Column::make('Project Year', 'financial_year')->searchable(),
+            Column::make('SUBMITTED BY', 'username')
+                ->searchable(),
+
+            Column::make('Organisation', 'organisation_formatted')
+                ->searchable(),
+
+            Column::make('SUBMISSION PERIOD', 'month_range')
+                ->searchable(),
+
+            Column::make('Project Year', 'financial_year')
+                ->searchable(),
+
             Column::make('Status', 'status_formatted')
                 ->searchable(),
-            // Column::make('Submission Period', 'reporting_period')
-            //     ->sortable()
-            //     ->searchable(),
+
             Column::make('Comments', 'comments_truncated'),
-            Column::make('Description', 'description')->searchable(),
-            Column::make('Date of submission', 'date_of_submission', 'created_at')
+
+            Column::make('Description', 'description')
+                ->searchable(),
+
+            Column::make(
+                'Date of submission',
+                'date_of_submission',
+                'submissions.created_at'
+            )
                 ->sortable(),
+
             Column::action('Action'),
-            // Column::make('Created at', 'created_at')
-            //     ->sortable()
-            //     ->searchable(),
         ];
     }
 
-    #[\Livewire\Attributes\On('refresh')]
+    /**
+     * Refresh table.
+     */
+    #[On('refresh')]
     public function refreshData(): void
     {
-        $this->refresh();
+        $this->dispatch('$refresh');
     }
 
+    /**
+     * Table actions.
+     */
     public function actions($row): array
     {
+        $user = Auth::user();
+
+        $canManage = $user?->hasAnyRole([
+            'manager',
+            'admin',
+        ]) ?? false;
+
         return [
             Button::add('edit')
                 ->slot('<i class="bx bx-analyse"></i>')
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Review Submission')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can(allowed: $canManage)
                 ->dispatch('showAggregate', [
-                    'id'   => $row->id,
+                    'id' => $row->id,
                     'name' => 'view-aggregate-modal',
                 ]),
+
             Button::add('show')
                 ->slot('<i class="fas fa-eye"></i>')
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('View Data')
                 ->dispatch('showDataAggregate', [
-                    'id'   => $row->id,
+                    'id' => $row->id,
                     'name' => 'view-data-agg-modal',
                 ]),
+
             Button::add('delete')
                 ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
                 ->class('btn btn-theme-red btn-sm my-1 custom-tooltip')
                 ->tooltip('Delete Data')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can(allowed: $canManage)
                 ->dispatch('deleteAggregate', [
-                    'id'   => $row->id,
+                    'id' => $row->id,
                     'name' => 'delete-aggregate-modal',
                 ]),
         ];
     }
 
-    public function actionRules($row): array
+    /**
+     * Button and row rules.
+     */
+    public function actionRules(): array
     {
-        $user = User::find(auth()->user()->id);
+        $user = Auth::user();
+
+        $canManage = $user?->hasAnyRole([
+            'manager',
+            'admin',
+        ]) ?? false;
 
         return [
-            // Hide button edit for ID 1
-            // Rule::button('show')
-            //     ->when(fn($row) => ($row->status === 'pending')) // if admin or manager hide the show button
-            //     ->disable(),
             Rule::button('edit')
-                ->when(fn($row) => $row->status === 'denied' || $row->status === 'disapproved')
+                ->when(fn ($row) => in_array(
+                    $row->status,
+                    ['denied', 'disapproved'],
+                    true
+                ))
                 ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => $row->status === 'pending')
+                ->when(fn ($row) => $row->status === 'pending')
                 ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => ! $user->hasAnyRole('manager')
-                    || ! $user->hasAnyRole('admin'))
+                ->when(fn () => ! $canManage)
                 ->disable(),
 
             Rule::rows()
-                ->when(fn($row) => $row->batch_no === $this->batch)
+                ->when(fn ($row) =>
+                    $this->batch !== null &&
+                    $row->batch_no === $this->batch
+                )
                 ->setAttribute('class', 'table-secondary'),
         ];
     }

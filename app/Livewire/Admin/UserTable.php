@@ -26,8 +26,6 @@ final class UserTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        // $this->showCheckBox();
-
         return [
             Exportable::make('Users_Export')
                 ->striped()
@@ -56,71 +54,46 @@ final class UserTable extends PowerGridComponent
             ->add('id')
             ->add('name')
             ->add('name_image', function ($model) {
+                $image = $model->image
+                    ? asset('storage/profiles/' . $model->image)
+                    : asset('assets/images/users/usr.png');
 
-                $image = $model->image;
-
-                if (!$image) {
-                    $image = asset('assets/images/users/usr.png');
-                } else {
-                    $image = asset('storage/profiles/' . $image);
-                }
                 return '<div class="d-flex align-items-center">
-                                                    <div class="mx-2">
-                                                        <img src="' . $image . '" alt="" class="avatar-sm rounded-circle">
-                                                    </div>
-                                                    <div>
-                                                     ' . $model->name . '
-                                                    </div>
-  </div>';
+                            <div class="mx-2">
+                                <img src="' . $image . '" alt="" class="avatar-sm rounded-circle">
+                            </div>
+                            <div>' . $model->name . '</div>
+                        </div>';
             })
             ->add('email')
             ->add('phone_number')
             ->add('organisation_id')
-            ->add('organisation', function ($model) {
-                return $model->organisation->name;
-            })
+            ->add('organisation', fn($model) => $model->organisation?->name)
             ->add('image')
             ->add('role', fn($model) => $model->roles->pluck('name')->implode(', '))
             ->add('role_name', function ($model) {
-
-                $roles = $model->roles;
-
-
-                $roleArray = $roles->map(function ($role) {
-
-
-                    if ($role->name == 'external') {
-
-                        $role->name = '<span class="badge bg-secondary-subtle text-secondary" >External user</span>';
-                    } else if ($role->name == 'manager') {
-                        $role->name = '<span class="badge bg-info-subtle text-info" >Manager</span>';
-                    } else  if ($role->name == 'admin') {
-                        $role->name = '<span class="badge bg-success-subtle text-success" >Administrator</span>';
-                    } else if ($role->name == 'project-manager') {
-                        $role->name = '<span class="badge bg-success-subtle text-success" >Project Manager</span>';
-                    } else  if ($role->name == 'staff') {
-                        $role->name = '<span class="badge bg-warning-subtle text-warning" >Staff</span>';
-                    } else  if ($role->name == 'enumerator') {
-                        $role->name = '<span class="badge bg-dark-subtle text-dark" >' . $role->name . '</span>';
-                    } else {
-                        $role->name = '<span class="badge bg-danger-subtle text-danger" >' . $role->name . '</span>';
-                    }
+                $roleArray = $model->roles->map(function ($role) {
+                    $role->name = match ($role->name) {
+                        'external'        => '<span class="badge bg-secondary-subtle text-secondary">External user</span>',
+                        'manager'         => '<span class="badge bg-info-subtle text-info">Manager</span>',
+                        'admin'           => '<span class="badge bg-success-subtle text-success">Administrator</span>',
+                        'project-manager' => '<span class="badge bg-success-subtle text-success">Project Manager</span>',
+                        'staff'           => '<span class="badge bg-warning-subtle text-warning">Staff</span>',
+                        'enumerator'      => '<span class="badge bg-dark-subtle text-dark">' . $role->name . '</span>',
+                        default           => '<span class="badge bg-danger-subtle text-danger">' . $role->name . '</span>',
+                    };
 
                     return $role;
                 })->pluck('name');
+
                 return implode(' ', $roleArray->toArray());
             })
             ->add('status', fn($model) => !$model->is_active ? 'Deleted' : 'Active')
             ->add('status_set', function ($model) {
-
-
-                if ($model->is_active) {
-                    return '<span class="badge bg-success-subtle text-success" >Active</span>';
-                } else {
-                    return '<span class="badge bg-danger-subtle text-danger" >Deleted</span>';
-                }
+                return $model->is_active
+                    ? '<span class="badge bg-success-subtle text-success">Active</span>'
+                    : '<span class="badge bg-danger-subtle text-danger">Deleted</span>';
             })
-
             ->add('created_at')
             ->add('updated_at');
     }
@@ -131,7 +104,8 @@ final class UserTable extends PowerGridComponent
             Column::make('#', 'rn', 'rn')->sortable(),
             Column::make('Name', 'name_image', 'name')
                 ->sortable()
-                ->searchable()->visibleInExport(false),
+                ->searchable()
+                ->visibleInExport(false),
             Column::make('Name', 'name')->hidden()->visibleInExport(true),
 
             Column::make('Email', 'email')
@@ -149,7 +123,6 @@ final class UserTable extends PowerGridComponent
             Column::make('Status', 'status')->hidden()->visibleInExport(true),
 
             Column::action('')->visibleInExport(false)
-
         ];
     }
 
@@ -157,7 +130,6 @@ final class UserTable extends PowerGridComponent
     {
         return [];
     }
-
 
     #[On('refresh')]
     public function refreshData(): void
@@ -168,78 +140,80 @@ final class UserTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'organisation' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'organisation' => [
+                'name',
             ],
         ];
     }
 
-
     public function actions($row): array
     {
+        $isAdmin = auth()->user()?->hasAnyRole('admin') ?? false;
+
         return [
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-warning btn-sm goUp custom-tooltip')
                 ->tooltip('Edit')
-                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
-                ->dispatch('edit', [
+                ->can($isAdmin)
+                ->dispatch('showModal-edit', [
                     'rowId' => $row->id,
-                    'name' => 'view-edit-modal'
+                    'name'  => 'addUserModal'
                 ]),
 
             Button::add('delete')
                 ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
-                ->class('btn btn-theme-red btn-sm goUp  custom-tooltip')
+                ->class('btn btn-theme-red btn-sm goUp custom-tooltip')
                 ->tooltip('Delete')
-                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can($isAdmin)
                 ->dispatch('showModal-delete', [
                     'rowId' => $row->id,
-                    'name' => 'view-delete-modal'
+                    'name'  => 'view-delete-modal'
                 ]),
 
             Button::add('restore')
                 ->slot('<i class="bx bx-recycle"></i>')
                 ->id()
-                ->class('btn btn-success btn-sm goUp  custom-tooltip')
+                ->class('btn btn-success btn-sm goUp custom-tooltip')
                 ->tooltip('Restore')
-                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can($isAdmin)
                 ->dispatch('showModal-restore', [
                     'rowId' => $row->id,
-                    'name' => 'view-restore-modal'
+                    'name'  => 'view-restore-modal'
                 ])
         ];
     }
 
-
     public function actionRules($row): array
     {
-        $user = User::withTrashed()->find($row->id);
         return [
-            // Hide the edit button for users with the 'admin' role
+            // --- EDIT BUTTON RULES ---
             Rule::button('edit')
-                ->when(fn($row) => $user->hasAnyRole('admin'))
-                ->hide(),
-
-            Rule::button('edit')
-                ->when(fn($row) => $user->is_active == false)
+                ->when(fn($row) => $row->hasAnyRole('admin'))
                 ->disable(),
 
-            // Hide the delete button for users with the 'admin' role
-            Rule::button('delete')
-                ->when(fn($row) => $user->hasAnyRole('admin'))
-                ->hide(),
-
-            Rule::button('delete')
-                ->when(fn($row) => $user->is_active == false)
+            Rule::button('edit')
+                ->when(fn($row) => $row->is_active == 0)
                 ->disable(),
 
-            // Hide the restore button for users with the 'admin' role
+            // --- DELETE BUTTON RULES ---
+            // Disable if the row user is an admin (regardless of active status)
+            Rule::button('delete')
+                ->when(fn($row) => $row->hasAnyRole('admin'))
+                ->disable(),
+
+            // Disable if the user is already inactive/deleted
+            Rule::button('delete')
+                ->when(fn($row) => $row->is_active == 1)
+                ->disable(),
+
+            // --- RESTORE BUTTON RULES ---
+            // Disable if the user is active (restore is only enabled when inactive)
             Rule::button('restore')
-                ->when(fn($row) => $user->hasAnyRole('admin'))
-                ->hide(),
+                ->when(fn($row) => $row->is_active == 1)
+                ->disable(),
         ];
     }
 }

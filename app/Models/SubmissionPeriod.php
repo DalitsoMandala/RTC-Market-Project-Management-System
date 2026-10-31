@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SubmissionPeriod extends Model
 {
     use HasFactory;
-    protected $table   = 'submission_period_new';
+    protected $table   = 'submission_periods_new';
     protected $guarded = [];
 
     public function submissions()
@@ -29,10 +29,6 @@ class SubmissionPeriod extends Model
         return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }
 
-    public function indicator()
-    {
-
-        return $this->belongsTo(Indicator::class, 'indicator_id');
-    }
+   
 
 }

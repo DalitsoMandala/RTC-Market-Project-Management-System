@@ -11,7 +11,7 @@ class SubmissionReport extends Model
     protected $guarded = [];
     public function files()
     {
-        return $this->hasMany(ReportFile::class, 'submission_period_new_id');
+        return $this->hasMany(ReportFile::class, 'submission_report_id');
     }
 
     public function indicator()

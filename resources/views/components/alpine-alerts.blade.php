@@ -22,14 +22,15 @@
     removeAlert(id) {
         this.alerts = this.alerts.filter(alert => alert.id !== id);
     }
-}" x-on:show-alert.window="addAlert($event.detail.data)" class="mt-2 space-y-2">
+}" x-on:show-alert.window="addAlert($event.detail.data)" class="mt-2 space-y-2"    >
     <template x-for="alert in alerts" :key="alert.id">
         <div x-show="true" x-transition class="alert"
             :class="{
                 'alert-success': alert.type === 'success',
                 'alert-danger': alert.type === 'error',
                 'alert-warning': alert.type === 'info',
-                'alert-secondary': alert.type === 'notice'
+                'alert-secondary': alert.type === 'notice',
+                'alert-border-left': true
             }">
             <strong x-text="alert.type.charAt(0).toUpperCase() + alert.type.slice(1) + '!'"></strong>
             <span x-html="alert.message" class="ml-2"></span>

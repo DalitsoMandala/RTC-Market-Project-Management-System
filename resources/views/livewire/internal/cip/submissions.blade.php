@@ -6,132 +6,38 @@
 
         <!-- start page title -->
         <div class="row">
+            <x-breadcrumbs />
+        </div>
+
+        @php
+            $routePrefix = Route::current()->getPrefix();
+        @endphp
+
+        <div class="row">
             <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
+                <x-alerts />
+                <x-table-card :title="'Batch Submissions'" :subtitle="'View all submissions'">
+                    <livewire:tables.submission-table :routePrefix="$routePrefix" :tableName="'SubmissionTable'" :userId="auth()->user()->id" />
+                </x-table-card>
+                <x-table-card :title="'Aggregate Submissions'" :subtitle="'View aggregate submissions'">
+                    <livewire:tables.aggregate-submission-table :routePrefix="$routePrefix" :tableName="'AggregateSubmissionTable'" :userId="auth()->user()->id" />
+                </x-table-card>
+                @hasanyrole('admin|manager|staff|enumerator')
+                    <x-table-card :title="'Manual Submissions'" :subtitle="'View manual submissions'">
+                        <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :routePrefix="$routePrefix" :userId="auth()->user()->id" />
+                    </x-table-card>
+                    <x-table-card :title="'Market Data Submissions'" :subtitle="'View market data submissions'">
+                        <livewire:tables.market-data-submission-table :routePrefix="$routePrefix" :userId="auth()->user()->id" />
+                    </x-table-card>
+                @endhasanyrole
+                <x-table-card :title="'Job Progress'" :subtitle="'View job progress'">
+                    {{-- <livewire:tables.job-progress-table :userId="auth()->user()->id" /> --}}
+                </x-table-card>
 
 
-                    <div class="page-title-left col-12">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Submissions</li>
-                        </ol>
-                    </div>
-
-                </div>
             </div>
         </div>
 
-
-        <div>
-            <x-alerts />
-        </div>
-
-        <div class="card">
-            <x-card-header>Submissions</x-card-header>
-
-
-            <div class="card-body">
-
-                <!-- Tabs -->
-                <ul class="nav nav-tabs" id="submissionTabs" role="tablist">
-
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active @hasanyrole('enumerator') disabled @endhasanyrole" id="batch-tab"
-                            data-bs-toggle="tab" data-bs-target="#batch-submission" type="button" role="tab"
-                            aria-controls="batch-submission" aria-selected="true">
-                            Batch Submissions
-                            <span class="badge bg-theme-red @if ($batch == 0) d-none @endif">
-                                {{ $batch }}
-                            </span>
-                        </button>
-                    </li>
-
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="aggregate-tab"
-                            data-bs-toggle="tab" data-bs-target="#aggregate-submission" type="button" role="tab"
-                            aria-controls="aggregate-submission" aria-selected="false">
-                            Aggregate Submission (Reports)
-                            <span class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">
-                                {{ $aggregate }}
-                            </span>
-                        </button>
-                    </li>
-
-                    @hasanyrole('admin|manager|staff|enumerator')
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
-                                data-bs-target="#manual-submission" type="button" role="tab"
-                                aria-controls="manual-submission">
-                                Manual Submission
-                            </button>
-                        </li>
-
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="market-tab" data-bs-toggle="tab"
-                                data-bs-target="#market-submission" type="button" role="tab"
-                                aria-controls="market-submission">
-                                Market Data Submission
-                                <span class="badge bg-theme-red @if ($market == 0) d-none @endif">
-                                    {{ $market }}
-                                </span>
-                            </button>
-                        </li>
-                    @endhasanyrole
-
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
-                            data-bs-target="#submission-progress" type="button" role="tab"
-                            aria-controls="submission-progress">
-                            Pending Submissions
-                            <span class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">
-                                {{ $pendingJob }}
-                            </span>
-                        </button>
-                    </li>
-
-                </ul>
-
-                <!-- Tab content -->
-                <div class="mt-3 tab-content">
-                    @php
-
-                        $route = Route::current()->getPrefix();
-                    @endphp
-                    <div class="tab-pane fade show active" id="batch-submission" role="tabpanel"
-                        aria-labelledby="batch-tab" wire:ignore>
-                        <livewire:tables.submission-table :tableName="'SubmissionTable'" :routePrefix="$route" :userId="auth()->user()->id" />
-                    </div>
-
-                    <div class="tab-pane fade" id="aggregate-submission" role="tabpanel" aria-labelledby="aggregate-tab"
-                        wire:ignore>
-                        <livewire:tables.aggregate-submission-table :routePrefix="$route" :tableName="'AggregateSubmissionTable'"
-                            :userId="auth()->user()->id" />
-                    </div>
-
-                    <div class="tab-pane fade" id="manual-submission" role="tabpanel" aria-labelledby="manual-tab"
-                        wire:ignore>
-                        <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :routePrefix="$route"
-                            :userId="auth()->user()->id" />
-                    </div>
-
-                    <div class="tab-pane fade" id="market-submission" role="tabpanel" aria-labelledby="market-tab"
-                        wire:ignore>
-                        <livewire:tables.market-data-submission-table :routePrefix="$route" :userId="auth()->user()->id" />
-                    </div>
-
-                    <div class="tab-pane fade" id="submission-progress" role="tabpanel" aria-labelledby="progress-tab"
-                        wire:ignore>
-                        <livewire:tables.job-progress-table :userId="auth()->user()->id" />
-                    </div>
-
-
-
-                </div>
-
-            </div>
-
-
-        </div>
 
         <div x-data x-init="$wire.on('showModal', (e) => {
             setTimeout(() => {

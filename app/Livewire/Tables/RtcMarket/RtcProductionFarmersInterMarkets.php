@@ -86,7 +86,7 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => $model->farmers->pf_id)->add('rpm_farmer_id')
 
-
+->add('group_name', fn($model) => $model->farmers->group_name)
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
             ->add('market_name')
@@ -123,6 +123,11 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
             Column::make('Farmer ID', 'unique_id')->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
 
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),

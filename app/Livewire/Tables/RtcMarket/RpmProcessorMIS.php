@@ -91,7 +91,9 @@ final class RpmProcessorMIS extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
 
-
+->add('group_name', function ($model) {
+                return $model->processors->group_name;
+            })
             ->add('unique_id', function ($model) {
                 return $model->processors->pp_id;
             })
@@ -123,6 +125,11 @@ final class RpmProcessorMIS extends PowerGridComponent
                 ->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
 
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
             Column::make('Name of Market Information systems', 'name')
                 ->searchable()

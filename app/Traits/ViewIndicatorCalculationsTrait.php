@@ -2,16 +2,20 @@
 
 namespace App\Traits;
 
-use App\Models\Indicator;
 use App\Models\IndicatorDisaggregation;
+use App\Models\PercentageIncreaseIndicator;
 use App\Models\SystemReport;
 use App\Models\SystemReportData;
+use App\Services\ProjectService;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 trait ViewIndicatorCalculationsTrait
 {
-    //
+    /** Summed volume/hectare field. */
+    protected const TOTAL_KEY = 'Total';
+
+    /** Percentage field — stored once on the 'UNSPECIFIED' period report, never summed. */
+    protected const PERCENTAGE_KEY = 'Total (% Percentage)';
 
     public $rowId;
     public $data = [];
@@ -22,11 +26,8 @@ trait ViewIndicatorCalculationsTrait
     public $total;
 
     public $selectedProjectYear = [];
-
     public $projectYears = [];
-
     public $selectedOrganisation = 1;
-
     public $reportingPeriods = [];
 
     public $reporting_period;
@@ -34,90 +35,95 @@ trait ViewIndicatorCalculationsTrait
     public $organisation;
     public $crop;
 
-
-
-
-
-
-
-
-
-    public function calculations()
-{
-    // 1. Fetch the relevant reports
-    $reportQuery = SystemReport::where('indicator_id', $this->indicator_id)
-        ->where('project_id', $this->project_id)
-        ->where('financial_year_id', $this->financial_year['id'])
-        ->where('crop', $this->crop);
-
-    if ($this->organisation['id'] != 0) {
-        $reportQuery->where('organisation_id', $this->organisation['id']);
-    }
-
-    $reportIds = $reportQuery->pluck('id');
-
-    if ($reportIds->isEmpty()) {
-        $this->data = [];
-        $this->total = 0;
-        return;
-    }
-
-    // 2. Fetch the data stored by your PopulatePreviousValue helper
-    $reportData = SystemReportData::whereIn('system_report_id', $reportIds)->get();
-    $groupedData = $reportData->groupBy('name');
-
-    $disaggregations = IndicatorDisaggregation::where('indicator_id', $this->indicator_id)
-        ->pluck('name')
-        ->unique();
-
-    // 3. Map the data: Just get the value, no math needed for the percentage anymore
-    $this->data = $disaggregations->mapWithKeys(function ($name) use ($groupedData) {
-        if (!$groupedData->has($name)) return [$name => 0];
-
-        // If it's the percentage, we take the first/only value available
-        // (since your helper saves it to the 'UNSPECIFIED' period report)
-        if ($name === 'Total (% Percentage)') {
-            return [$name => $groupedData[$name]->first()->value ?? 0];
-        }
-
-        // Keep sum() for non-percentage fields (like Volume or Hectares)
-        return [$name => $groupedData[$name]->sum('value')];
-    })->toArray();
-
-    // 4. OVERWRITE GLOBAL TOTAL
-    // If Global (ID 0), we pull the aggregate (weighted) growth from our tracker table
-    if ($this->organisation['id'] == 0) {
-        $calculatedRecord = \App\Models\PercentageIncreaseIndicator::where([
-            'indicator_id'      => $this->indicator_id,
-            'financial_year_id' => $this->financial_year['id'],
-            'organisation_id'   => null,
-
-        ])->first();
-
-        if ($calculatedRecord) {
-            $this->data['Total (% Percentage)'] = $calculatedRecord->growth_percentage;
-        }
-    }else{
-     $calculatedRecord = \App\Models\PercentageIncreaseIndicator::where([
-            'indicator_id'      => $this->indicator_id,
-            'financial_year_id' => $this->financial_year['id'],
-            'organisation_id'   => $this->organisation['id'],
-
-        ])->first();
-
-        if ($calculatedRecord) {
-            $this->data['Total (% Percentage)'] = $calculatedRecord->growth_percentage;
-        }
-    }
-
-    // 5. Final assignment
-    $this->total = $this->data['Total (% Percentage)'] ?? $this->data['Total'] ?? 0;
-}
-
-    public function mount()
+    public function calculations(): void
     {
+        $organisationId  = $this->organisation['id'];
+        $financialYearId = $this->financial_year['id'];
+        $projectId       = ProjectService::app_project()->pluck('id')->first();
 
+        // 1. Fetch the relevant reports
+        $reportQuery = SystemReport::query()
+            ->where('indicator_id', $this->indicator_id)
+            ->where('project_id', $projectId)
+            ->where('financial_year_id', $financialYearId)
+            ->where('crop', $this->crop);
 
+        if ($organisationId != 0) {
+            $reportQuery->where('organisation_id', $organisationId);
+        }
+
+        $reportIds = $reportQuery->pluck('id');
+
+        if ($reportIds->isEmpty()) {
+            $this->data = [];
+            $this->total = 0;
+
+            return;
+        }
+
+        // 2–3. Raw counts per disaggregation (percentage is taken, not summed)
+        $this->data = $this->disaggregationTotals($reportIds);
+
+        // 4. The percentage is not a sum — overwrite it with the pre-calculated
+        //    (weighted) growth from the tracker table, when a record exists.
+        if (($growth = $this->trackedGrowthPercentage($organisationId)) !== null) {
+            $this->data[self::PERCENTAGE_KEY] = $growth;
+        }
+
+        // 5. Final assignment
+        $this->total = $this->data[self::TOTAL_KEY] ?? 0;
+    }
+
+    /**
+     * Sum each disaggregation across the matching reports, except the
+     * percentage field, which is read as a single stored value.
+     */
+    protected function disaggregationTotals(Collection $reportIds): array
+    {
+        $groupedData = SystemReportData::query()
+            ->whereIn('system_report_id', $reportIds)
+            ->get(['name', 'value'])
+            ->groupBy('name');
+
+        return IndicatorDisaggregation::query()
+            ->where('indicator_id', $this->indicator_id)
+            ->pluck('name')
+            ->unique()
+            ->mapWithKeys(function ($name) use ($groupedData) {
+                $rows = $groupedData->get($name);
+
+                if ($rows === null) {
+                    return [$name => 0];
+                }
+
+                if ($name === self::PERCENTAGE_KEY) {
+                    return [$name => $rows->first()->value ?? 0];
+                }
+
+                return [$name => $rows->sum('value')];
+            })
+            ->all();
+    }
+
+    /**
+     * Global (organisation 0) rows are stored with a null organisation_id;
+     * organisation-specific rows are stored with their own id.
+     */
+    protected function trackedGrowthPercentage(int $organisationId)
+    {
+        $query = PercentageIncreaseIndicator::query()
+            ->where('indicator_id', $this->indicator_id)
+            ->where('financial_year_id', $this->financial_year['id']);
+
+        $organisationId != 0
+            ? $query->where('organisation_id', $organisationId)
+            : $query->whereNull('organisation_id');
+
+        return optional($query->first())->growth_percentage;
+    }
+
+    public function mount(): void
+    {
         $this->calculations();
     }
 }

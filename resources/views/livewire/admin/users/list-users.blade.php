@@ -1,635 +1,661 @@
+@section('title')
+    Users
+@endsection
+
 <div>
-    @section('title')
-        Users
-    @endsection
     <div class="container-fluid">
-
-        <!-- start page title -->
         <div class="row">
-            <div class="col-12">
-                <div>
-                    <div class="page-title-box col-12">
-
-
-                        <div class="page-title-left">
-                            <ol class="m-0 breadcrumb">
-                                <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Manage Users</li>
-                            </ol>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            <x-breadcrumbs />
 
             <div class="col-12">
-                <!-- Nav tabs -->
-
-                <div>
+                <div x-data="modalData">
                     <x-alerts />
 
-                    <ul class="nav nav-tabs" id="myTab" role="tablist" wire:ignore>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="users-tab" data-bs-toggle="tab"
-                                data-bs-target="#users-list" type="button" role="tab" aria-controls="home"
-                                aria-selected="true">
-                                Users List
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#send-email"
-                                type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                Send Email
-                            </button>
-                        </li>
+                    {{-- ============================ Users table ============================ --}}
+                    <x-table-card title="Users List" subtitle="Manage system users" :isResponsive="false">
+                        <x-slot:actions>
+                            <x-button type="button" class="btn-sm" @click="handleShowAddUserModal()">
+                                <i class="bx bx-plus me-1"></i>
+                                Add User(s)
+                            </x-button>
+                            <x-button type="button" class="btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#importUsersModal">
+                                <i class="bx bx-upload me-1"></i>
+                                Import Users
+                            </x-button>
+                        </x-slot:actions>
 
-                    </ul>
+                        <livewire:admin.user-table />
+                    </x-table-card>
 
-                    <!-- Tab panes -->
-                    <div class="tab-content">
-                        <div class="tab-pane active" wire:ignore.self id="users-list" role="tabpanel"
-                            aria-labelledby="users-tab">
-                            <!--Users Tab-->
-                            <div class="row">
-                                <div class="col-12">
+                    {{-- ============================ Send email ============================ --}}
+                    <x-table-card title="Send Email" subtitle="Compose a message to users" :isResponsive="false"
+                        :isContent="true">
+                        <form wire:submit="sendEmails" x-data="composer" class="ol-compose"
+                            @click.outside="closePeopleMenu()">
 
+                            {{-- Top bar --}}
+                            <div class="ol-topbar">
+                                <button type="submit" class="btn btn-warning" wire:loading.attr="disabled"
+                                    wire:target="sendEmails">
+                                    <i class="bx bx-send"></i>
+                                    <span wire:loading.remove wire:target="sendEmails">Send</span>
+                                    <span wire:loading wire:target="sendEmails">Sending...</span>
+                                </button>
+                                <span class="ol-count"
+                                    x-text="recipients.length + (recipients.length === 1 ? ' recipient' : ' recipients')"></span>
+                                <a href="#" class="ms-auto small text-danger" x-show="recipients.length" x-cloak
+                                    @click.prevent="handleClearAll()">Remove all</a>
+                            </div>
 
-                                    <div class="shadow-md card" x-data="{
-                                        showForm: false,
-                                        resetForm() {
-                                            $wire.dispatch('resetForm');
+                            {{-- To --}}
+                            <div class="ol-row">
+                                <div class="ol-label">To</div>
+                                <div class="ol-to" @click="$refs.toInput.focus()">
+                                    <template x-for="recipient in recipients" :key="recipient.id">
+                                        <span class="ol-chip" :title="recipient.email">
+                                            <span class="ol-avatar" :style="getAvatarStyle(recipient)"
+                                                x-text="getInitials(recipient)"></span>
+                                            <span class="nm" x-text="recipient.name"></span>
+                                            <button type="button" @click.stop="handleRemoveUser(recipient.id)"
+                                                aria-label="Remove">&times;</button>
+                                        </span>
+                                    </template>
 
-                                        },
-                                        showUploadForm: false,
-
-                                    }" @edit.window="showForm=true;">
-
-
-
-                                        <div
-                                            class="card-header d-flex justify-content-end align-items-center @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
-
-                                            <div>
-                                                <button class="px-3 btn btn-sm"
-                                                    :class="{ 'btn-secondary': showForm, 'btn-warning': !showForm }"
-                                                    :disabled="showUploadForm"
-                                                    @click="showForm= !showForm; resetForm()">
-                                                    <span x-show="showForm">Cancel <i class="bx bx-x"></i></span> <span
-                                                        x-show="!showForm">Add New User <i
-                                                            class="bx bx-plus"></i></span></span>
-                                                </button>
-                                                <button class="px-3 btn btn-sm"
-                                                    :class="{ 'btn-secondary': showUploadForm, 'btn-warning': !showUploadForm }"
-                                                    :disabled="showForm" @click="showUploadForm= !showUploadForm;">
-                                                    <span x-show="showUploadForm">Cancel <i
-                                                            class="bx bx-x"></i></span><span
-                                                        x-show="!showUploadForm">Upload
-                                                        <i class="bx bx-upload"></i></button>
-                                            </div>
-                                        </div>
-
-                                        <div class="card-header" x-show="showForm">
-
-                                            <form wire:submit="save">
-                                                <div class="mb-3">
-                                                    <label for="name" class="form-label">Name</label>
-                                                    <input type="text"
-                                                        class="form-control @error('name') is-invalid @enderror"
-                                                        id="name" wire:model="name">
-                                                    @error('name')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="mb-3">
-                                                    <label for="email" class="form-label">Email</label>
-                                                    <input type="email"
-                                                        class="form-control @error('email') is-invalid @enderror"
-                                                        id="email" wire:model="email">
-                                                    @error('email')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="mb-3">
-                                                    <label for="phone" class="form-label">Phone Number</label>
-                                                    <input type="tel"
-                                                        class="form-control @error('phone') is-invalid @enderror"
-                                                        id="phone" wire:model="phone">
-                                                    @error('phone')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-
-
-                                                <div x-data="{
-                                                    role: $wire.entangle('role'),
-                                                    organisation: $wire.entangle('organisation'),
-                                                    roles: $wire.entangle('roles'),
-                                                    organisationsData: $wire.entangle('organisations'),
-                                                    skipValidation: false,
-
-                                                    filterOrganisations(role) {
-                                                        if (role == null || role == '') { return this.organisationsData; }
-
-                                                        return this.organisationsData.filter(org => {
-                                                            return role === 'external' ?
-                                                                org.name !== 'CIP' :
-                                                                org.name === 'CIP';
-                                                        });
-                                                    },
-                                                }" x-init="$watch('role', (newRole) => {
-                                                    if (skipValidation) {
-                                                        skipValidation = false;
-                                                        return;
-                                                    }
-
-                                                    // Clear organisation if role is blank
-                                                    if (newRole == '' || newRole == null) {
-                                                        organisation = '';
-                                                        return;
-                                                    }
-
-                                                    // Validate current organisation against filtered list
-                                                    const filtered = filterOrganisations(newRole);
-                                                    const found = filtered.find(org => org.id == organisation);
-                                                    if (!found) {
-                                                        organisation = '';
-                                                    }
-                                                });
-
-                                                $wire.on('update-org', (e) => {
-                                                    skipValidation = true;
-
-                                                    setTimeout(() => {
-                                                        role = e.role;
-                                                        organisation = e.organisation;
-                                                    }, 500)
-
-                                                });">
-
-
-
-                                                    <div class="mb-3">
-                                                        <label for="role" class="form-label">Roles</label>
-                                                        <select wire:loading.attr='disabled'
-                                                            wire:loading.class='opacity-25'
-                                                            class="form-select @error('role') is-invalid @enderror"
-                                                            x-model="role">
-                                                            <option value="">Select a role</option>
-                                                            <template x-for="role in roles">
-                                                                <option :value="role"><span
-                                                                        x-text="role === 'project-manager' ? 'project manager' : role"></span>
-                                                                </option>
-                                                            </template>
-
-                                                        </select>
-                                                        @error('role')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-
-                                                    <div class="mb-3 ">
-                                                        <label for="organisation"
-                                                            class="form-label">Organisation</label>
-                                                        <select wire:loading.attr='disabled'
-                                                            wire:loading.class='opacity-25'
-                                                            class="form-select @error('organisation') is-invalid @enderror"
-                                                            x-model="organisation">
-                                                            <option value="">Select an organisation</option>
-
-                                                            <template :key="org.id"
-                                                                x-for="org in filterOrganisations(role)">
-
-                                                                <option :value="org.id"><span
-                                                                        x-text="org.name"></span></option>
-                                                            </template>
-
-                                                        </select>
-                                                        @error('organisation')
-                                                            <x-error>{{ $message }}</x-error>
-                                                        @enderror
-                                                    </div>
-
-                                                </div>
-                                                <div x-data="{
-                                                    changePassword: $wire.entangle('changePassword'),
-                                                    edit: $wire.entangle('rowId'),
-                                                }">
-
-
-                                                    <div class="mb-3">
-                                                        <div class="d-flex justify-content-between" x-show="edit">
-                                                            <label for="password" class="form-label">Password</label>
-                                                            <a href="#" data-bs-toggle="modal"
-                                                                x-show="!changePassword"
-                                                                @click="changePassword = true">Change
-                                                                password</a>
-                                                            <a href="#" data-bs-toggle="modal"
-                                                                x-show="changePassword" class="text-danger"
-                                                                @click="changePassword = false">Cancel</a>
-                                                        </div>
-
-                                                        <input type="password"
-                                                            class="form-control @error('password') is-invalid @enderror  "
-                                                            :disabled="changePassword == false" id="password"
-                                                            wire:model="password"
-                                                            :class="{ 'bg-light': changePassword == false }">
-                                                        @error('password')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label for="password_confirmation" class="form-label">Confirm
-                                                            Password</label>
-                                                        <input type="password" class="form-control "
-                                                            :disabled="changePassword == false"
-                                                            :class="{ 'bg-light': changePassword == false }"
-                                                            id="password_confirmation"
-                                                            wire:model="password_confirmation">
-                                                    </div>
-                                                </div>
-                                                <div class="gap-1 d-flex justify-content-end">
-                                                    <button type="submit" wire:loading.attr='disabled'
-                                                        class="btn btn-warning goUp">
-                                                        @if ($rowId)
-                                                            Update
-                                                        @else
-                                                            Submit
-                                                        @endif
-                                                    </button>
-                                                    <button type="button" class="btn btn-secondary"
-                                                        wire:loading.attr='disabled'
-                                                        @click="showForm = false; resetForm(); ">Close</button>
-
-                                            </form>
-                                        </div>
-
-
-                                    </div>
-
-                                    <div class="card-header" x-show="showUploadForm" x-data="uploadUsers">
-
-                                        <form id="uploadForm" @submit.prevent="uploadData()">
-                                            <div class="mb-3">
-                                                <label for="fileInput" class="form-label">Upload Excel
-                                                    File</label>
-                                                <input class="form-control @error('file') is-invalid @enderror "
-                                                    wire:model="file" type="file" id="fileInput"
-                                                    accept=".xlsx, .xls">
-                                            </div>
-
-
-                                            <div class="d-flex justify-content-between">
-                                                <div>
-                                                    <button @able-button.window="uploading = false"
-                                                        :disabled="uploading" type="button"
-                                                        @click.debounce.200ms="downloadTemplate()"
-                                                        id="downloadTemplate" wire:loading.attr='disabled'
-                                                        wire:target='usersData' class="btn btn-warning">Download
-                                                        Template</button>
-                                                </div>
-                                                <div>
-                                                    <button type="submit" @able-button.window="uploading = false"
-                                                        :disabled="uploading" class="btn btn-warning">Upload
-                                                        data</button>
-                                                    <button type="button" class="btn btn-secondary"
-                                                        wire:click="showUploadForm = false; resetForm();">Close</button>
-
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="card-body">
-                                        <livewire:admin.user-table />
-                                    </div>
+                                    <input type="text" class="ol-input" x-ref="toInput" x-model="toQuery"
+                                        placeholder="Type @ or a name to add people" autocomplete="off"
+                                        @input="handleRecipientSearch()" @focus="handleRecipientSearch()"
+                                        @keydown="handleMenuKeydown($event)" @keydown.enter.prevent
+                                        @keydown.backspace="handleBackspace()">
                                 </div>
                             </div>
+                            @error('recipientIds')
+                                <div class="px-3 pt-1"><x-error>{{ $message }}</x-error></div>
+                            @enderror
 
-
-
-                            <div x-data x-init="$wire.on('showModal-delete', (e) => {
-
-                                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-                                myModal.show();
-                            })">
-
-
-                                <x-modal id="view-delete-modal" title="Delete record">
-                                    <form>
-
-                                        <p class="mb-0 text-center">Are you sure you want to delete this record?
-                                        </p>
-                                        <p class="text-center ">ID: {{ $this->rowId }}</p>
-                                        <div class="gap-1 mt-3 d-flex justify-content-center">
-                                            <button type="button" class="px-5 btn btn-secondary"
-                                                data-bs-dismiss="modal">No</button>
-                                            <button type="button" class="px-5 btn btn-theme-red"
-                                                wire:click='deleteUser'>Yes</button>
-
-                                        </div>
-                                    </form>
-                                </x-modal>
-
+                            {{-- Quick add by role --}}
+                            <div class="ol-roles">
+                                <span>Add everyone in:</span>
+                                <template x-for="role in availableRoles" :key="role">
+                                    <button type="button" class="btn btn-sm py-0 px-2"
+                                        :class="isRoleSelected(role) ? 'btn-primary' : 'btn-outline-primary'"
+                                        @click="toggleRole(role)" x-text="formatRole(role)"></button>
+                                </template>
                             </div>
 
-                            <div x-data x-init="$wire.on('showModal-restore', (e) => {
-
-                                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-                                myModal.show();
-                            })
-
-
-                            $wire.on('refresh', (e) => {
-                                const modals = document.querySelectorAll('.modal.show');
-
-                                // Iterate over each modal and hide it using Bootstrap's modal hide method
-                                modals.forEach(modal => {
-                                    const modalInstance = bootstrap.Modal.getInstance(modal);
-                                    if (modalInstance) {
-                                        modalInstance.hide();
-                                    }
-                                });
-                            })">
-
-
-                                <x-modal id="view-restore-modal" title="Restore record">
-                                    <form>
-                                        <p class="mb-0 text-center">Are you sure you want to restore this record?
-                                        </p>
-                                        <p class="text-center ">ID: {{ $this->rowId }}</p>
-                                        <div class="gap-1 mt-3 d-flex justify-content-center">
-                                            <button type="button" class="px-5 btn btn-secondary"
-                                                data-bs-dismiss="modal">No</button>
-                                            <button type="button" class="px-5 btn btn-success"
-                                                wire:click='restoreUser'>Yes</button>
-
-                                        </div>
-                                    </form>
-                                </x-modal>
-
+                            {{-- Subject --}}
+                            <div class="ol-row">
+                                <div class="ol-label">Subject</div>
+                                <input type="text" class="ol-subject" wire:model="subject"
+                                    placeholder="Add a subject">
                             </div>
+                            @error('subject')
+                                <div class="px-3 pt-1"><x-error>{{ $message }}</x-error></div>
+                            @enderror
 
-
-
-                        </div>
-                    </div>
-                    <div wire:ignore.self class="tab-pane" id="send-email" role="tabpanel"
-                        aria-labelledby="email-tab">
-                        <!--Send Emails Tab-->
-                        <div class="row @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
-                            <div class="col-12">
-                                <div>
-
-                                    <div class="shadow-md card">
-                                        <div class="card-header card-title fw-bold border-bottom-0 ">
-                                            Send Emails
-                                        </div>
-                                        <div class="card-body">
-
-
-                                            <form wire:submit="sendEmails">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Subject</label>
-                                                    <input type="text" wire:model="subject"
-                                                        class="form-control @error('subject') is-invalid @enderror"
-                                                        placeholder="Enter email subject">
-                                                    @error('subject')
-                                                        <x-error>{{ $message }}</x-error>
-                                                    @enderror
-                                                </div>
-
-                                                <div class="mb-3" wire:ignore>
-                                                    <label class="form-label">Message</label>
-                                                    <p class="p-1 fs-6 bg-info-subtle">Use <span
-                                                            class="fw-bold">_email_name_</span>
-                                                        to display the user's name when sending the email
-                                                        [<em>example: Hello _email_name_</em>] and it will display
-                                                        like
-                                                        this: <span class="fw-bold">Hello John Doe</span>
-                                                    </p>
-                                                    <div id="editor" style="height: 250px;"></div>
-                                                </div>
-
-                                                @error('message')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-
-                                                <div class="mb-3">
-                                                    <div x-data="{
-                                                        usersByRole: @entangle('usersByRole'),
-                                                        searchTerms: {}, // Store search terms for each role
-                                                        filteredUsers(role) {
-                                                            return this.usersByRole[role].filter(user => {
-                                                                const term = this.searchTerms[role]?.toLowerCase() || '';
-                                                                return user.name.toLowerCase().includes(term) || user.organisation.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
-                                                            });
-                                                        },
-                                                        removeUser(role, userId) {
-                                                            this.usersByRole[role] = this.usersByRole[role].filter(u => u.id !== userId);
-                                                            // Clear the filter for the role when a user is removed
-                                                            this.searchTerms[role] = '';
-                                                        }
-                                                    }" x-init="$watch('usersByRole', (v) => {})"
-                                                        class="space-y-4">
-                                                        <!-- Role Checkboxes -->
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Select Roles</label>
-                                                            <div class="flex-wrap gap-3 d-flex"
-                                                                wire:loading.class='opacity-50 pe-none'>
-                                                                @foreach ($allRoles as $role)
-                                                                    <div class="form-check">
-                                                                        <input
-                                                                            class="form-check-input @error('selectedRoles') is-invalid @enderror"
-                                                                            type="checkbox"
-                                                                            wire:model.live="selectedRoles"
-                                                                            value="{{ $role }}">
-                                                                        <label class="form-check-label">
-                                                                            {{ $role === 'project-manager' ? 'Project Manager' : ucfirst($role) }}
-                                                                        </label>
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                            @error('selectedRoles')
-                                                                <x-error>{{ $message }}</x-error>
-                                                            @enderror
-
-
-                                                        </div>
-                                                        <div wire:target='selectedRoles'
-                                                            wire:loading.class='opacity-25 pe-none'>
-                                                            <!-- User Filter for Each Role -->
-                                                            <template
-                                                                x-for="[role, users] in Object.entries(usersByRole)"
-                                                                :key="role">
-                                                                <div class="role-group">
-                                                                    <h4
-                                                                        x-text="role.charAt(0).toUpperCase() + role.slice(1)">
-                                                                    </h4>
-
-                                                                    <!-- Filter Input per Role -->
-                                                                    <div class="mb-3">
-                                                                        <input type="text"
-                                                                            x-model="searchTerms[role]"
-                                                                            class="rounded form-control w-25"
-                                                                            :placeholder="'Filter ' + role.charAt(0)
-                                                                                .toUpperCase() + role.slice(1)">
-                                                                    </div>
-
-                                                                    <div class="user-chips">
-                                                                        <!-- Display filtered users for each role -->
-                                                                        <template x-for="user in filteredUsers(role)"
-                                                                            :key="user.id">
-                                                                            <button class="chip"
-                                                                                @click.prevent="removeUser(role, user.id)"
-                                                                                x-text="`${user.name} (${user.organisation})  <${user.email}> ✕`"></button>
-                                                                        </template>
-                                                                    </div>
-                                                                </div>
-                                                            </template>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="d-flex justify-content-between">
-                                                    <button type="submit" class="px-4 btn btn-warning">Send
-                                                        Emails</button>
-                                                </div>
-                                            </form>
-
-                                        </div>
-                                    </div>
+                            {{-- Toolbar + editor (Quill owns this DOM, so Livewire must not touch it) --}}
+                            <div wire:ignore>
+                                <div class="ol-toolbar" x-ref="toolbar">
+                                    <span class="ql-formats">
+                                        <button class="ql-bold"></button>
+                                        <button class="ql-italic"></button>
+                                        <button class="ql-underline"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered"></button>
+                                        <button class="ql-list" value="bullet"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link"></button>
+                                        <button class="ql-blockquote"></button>
+                                        <button class="ql-code-block"></button>
+                                    </span>
                                 </div>
-
+                                <div x-ref="editor" class="ol-editor"></div>
                             </div>
-                        </div>
-                    </div>
+                            @error('message')
+                                <div class="px-3 py-1"><x-error>{{ $message }}</x-error></div>
+                            @enderror
 
+                            <div class="ol-hint">
+                                Please note that salutations are automatically added to the message. Do not include them
+                                in the message body.
+                            </div>
+
+                            {{-- Shared @ popup (used by the To field and the message body) --}}
+                            <div class="ol-menu" x-show="menuOpen" x-cloak x-transition.opacity.duration.100ms
+                                :style="`top:${menuPos.top}px; left:${menuPos.left}px`">
+                                <div class="ol-menu-head"
+                                    x-text="menuQuery ? 'People matching ' + menuQuery : 'Suggested people'"></div>
+
+                                <template x-for="(person, index) in matches" :key="person.id">
+                                    <div class="ol-item" :class="{ active: index === activeIndex }"
+                                        @mousedown.prevent="handleSelectPerson(person)"
+                                        @mouseenter="activeIndex = index">
+                                        <span class="ol-avatar" :style="getAvatarStyle(person)"
+                                            x-text="getInitials(person)"></span>
+                                        <div class="ol-meta">
+                                            <div class="ol-name" x-text="person.name"></div>
+                                            <div class="ol-sub"
+                                                x-text="person.email + (person.organisation ? ' · ' + person.organisation : '')">
+                                            </div>
+                                        </div>
+                                        <span class="ol-role" x-text="person.role"></span>
+                                    </div>
+                                </template>
+
+                                <div class="ol-empty" x-show="!matches.length">No people found</div>
+                            </div>
+                        </form>
+                    </x-table-card>
                 </div>
-
             </div>
         </div>
     </div>
-    <!-- end page title -->
 
+    {{-- ============================ Add / edit user modal ============================ --}}
+    <div wire:ignore.self class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">{{ $rowId ? 'Edit User' : 'Add New User' }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form wire:submit="save">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                id="name" wire:model="name">
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                id="email" wire:model="email">
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control @error('phone') is-invalid @enderror"
+                                id="phone" wire:model="phone">
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
+                        {{-- Role + organisation (organisation list depends on the role) --}}
+                        <div x-data="organisationData">
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                <select id="role" class="form-select @error('role') is-invalid @enderror"
+                                    x-model="role" @change="handleRoleChange($event)">
+                                    <option value="">Select a role</option>
+                                    <template x-for="roleName in roles" :key="roleName">
+                                        <option :value="roleName" :selected="roleName === role"
+                                            x-text="formatRole(roleName)"></option>
+                                    </template>
+                                </select>
+                                @error('role')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="organisation" class="form-label">Organisation</label>
+                                <select id="organisation"
+                                    class="form-select @error('organisation') is-invalid @enderror"
+                                    x-model="organisation">
+                                    <option value="">Select an organisation</option>
+                                    <template x-for="record in organisations" :key="record.id">
+                                        <option :value="record.id"
+                                            :selected="String(record.id) === String(organisation)"
+                                            x-text="record.name"></option>
+                                    </template>
+                                </select>
+                                @error('organisation')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Password (when editing, it is locked until "Change password" is clicked) --}}
+                        <div x-data="passwordData">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <label for="password" class="form-label">Password</label>
+                                    <span x-show="edit" x-cloak>
+                                        <a href="#" x-show="!changePassword"
+                                            @click.prevent="changePassword = true">Change password</a>
+                                        <a href="#" x-show="changePassword" class="text-danger"
+                                            @click.prevent="changePassword = false">Cancel</a>
+                                    </span>
+                                </div>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                    id="password" wire:model="password" :disabled="!changePassword"
+                                    :class="{ 'bg-light': !changePassword }">
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="password_confirmation"
+                                    wire:model="password_confirmation" :disabled="!changePassword"
+                                    :class="{ 'bg-light': !changePassword }">
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-center gap-1">
+                            <x-button type="button" :variant="'secondary'" :padding="true"
+                                data-bs-dismiss="modal">Close</x-button>
+                            <x-button type="submit" icon="fas fa-save" target="save" :padding="true">
+                                {{ $rowId ? 'Update' : 'Submit' }}
+                            </x-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================ Import users modal ============================ --}}
+    <div wire:ignore.self class="modal fade" id="importUsersModal" tabindex="-1"
+        aria-labelledby="importUsersModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importUsersModalLabel">Import Users</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" x-data="uploadUsers">
+                    <form @submit.prevent="handleUploadData()">
+                        <div class="mb-3">
+                            <x-button type="button" @click="handleDownloadTemplate()"
+                                class="btn btn-success btn-sm">Download Template</x-button>
+                        </div>
+
+                        <hr>
+
+                        <div class="mb-3">
+                            <label for="fileInput" class="form-label">Upload Excel File</label>
+                            <input class="form-control" type="file" id="fileInput" x-ref="fileInput"
+                                accept=".xlsx, .xls">
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-center gap-1">
+                            <x-button type="button" :variant="'secondary'" :padding="true"
+                                data-bs-dismiss="modal">Close</x-button>
+                            <x-button type="submit" :variant="'warning'" :padding="true">Upload data</x-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ============================ Delete / restore modals ============================ --}}
+    <x-modal id="view-delete-modal" title="Delete record">
+        <form wire:submit="deleteUser">
+            <p class="mb-0 text-center">Are you sure you want to delete this record?</p>
+            <p class="text-center">ID: {{ $rowId }}</p>
+            <div class="gap-1 mt-3 d-flex justify-content-center">
+                <x-button type="button" size="md" variant="secondary" class="px-5" data-bs-dismiss="modal">
+                    No
+                </x-button>
+                <x-button type="submit" size="md" variant="theme-red" class="px-5">
+                    Yes
+                </x-button>
+            </div>
+        </form>
+    </x-modal>
+
+    <x-modal id="view-restore-modal" title="Restore record">
+        <form wire:submit="restoreUser">
+            <p class="mb-0 text-center">Are you sure you want to restore this record?</p>
+            <p class="text-center">ID: {{ $rowId }}</p>
+            <div class="gap-1 mt-3 d-flex justify-content-center">
+                <x-button type="button" size="md" variant="secondary" class="px-5" data-bs-dismiss="modal">
+                    No
+                </x-button>
+                <x-button type="submit" size="md" variant="success" class="px-5">
+                    Yes
+                </x-button>
+            </div>
+        </form>
+    </x-modal>
 </div>
 
-
-@push('scripts')
+{{-- @assets loads exactly once and survives wire:navigate --}}
+@assets
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-@endpush
+@endassets
+
+
 @script
     <script>
-        const quill = new Quill('#editor', {
-            theme: 'snow',
-            placeholder: 'Type your message...',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    [{
-                        'list': 'ordered'
-                    }, {
-                        'list': 'bullet'
-                    }],
-                    ['link', 'blockquote', 'code-block']
-                ]
-            }
+        // "project-manager" -> "Project Manager"
+        formatRole = (role) => // "project-manager" -> "Project Manager"
+            (role || '').replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+        openModal = (id) =>
+            bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
+
+        // The table asks us to open a modal: { name: '<modal element id>' }
+        ['edit', 'delete', 'restore'].forEach((action) => {
+            $wire.on(`showModal-${action}`, ({
+                name
+            }) => openModal(name));
         });
 
-        quill.on('text-change', function(delta, oldDelta, source) {
-            const textContent = quill.getText().trim();
-
-            const htmlContent = quill.root.innerHTML;
-            if (textContent.length > 0) {
-                $wire.message = htmlContent;
-            } else {
-                $wire.message = null;
-
-
-            }
-
-        });
-        $wire.on('edit', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            })
+        // After any change, close whatever modal is open
+        $wire.on('refresh', () => {
+            document.querySelectorAll('.modal.show').forEach((element) => {
+                bootstrap.Modal.getInstance(element)?.hide();
+            });
         });
 
+        $wire.on('edit', () => window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        }));
+
+
+
+        Alpine.data('modalData', () => ({
+            handleShowAddUserModal() {
+                $wire.resetForm();
+                openModal('addUserModal');
+            },
+        }));
+
+        // ---------- Import users from Excel ----------
         Alpine.data('uploadUsers', () => ({
-            open: false,
-            uploading: false,
-            downloadTemplate() {
-                const templateData = [
-                    ['email', 'name', 'organisation', 'role'], // Header row
-                    //     ['user1@example.com', 'John Doe', 'pass123', 'Org A', 'Admin'], // Example row
-                    //  ['user2@example.com', 'Jane Smith', 'pass456', 'Org B', 'User'], // Example row
-                ];
-
-                const worksheet = XLSX.utils.aoa_to_sheet(templateData);
-
-                // Create a workbook and add the worksheet
+            handleDownloadTemplate() {
+                const worksheet = XLSX.utils.aoa_to_sheet([
+                    ['email', 'name', 'organisation', 'role']
+                ]);
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
-
-                // Generate Excel file and trigger download
                 XLSX.writeFile(workbook, 'user_template.xlsx');
             },
-            uploadData() {
-                const fileInput = document.getElementById('fileInput');
-                const file = fileInput.files[0];
-                this.uploading = true;
-                if (!file) {
-                    setTimeout(() => {
-                        this.uploading = false;
-                        $wire.call('noFile');
-                        return;
-                    }, 5000);
 
+            async handleUploadData() {
+                const fileInput = this.$refs.fileInput;
+                const file = fileInput.files[0];
+
+                if (!file) {
+                    $wire.noFile();
+                    return;
                 }
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {
-                        type: 'array'
+                const workbook = XLSX.read(await file.arrayBuffer(), {
+                    type: 'array'
+                });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, {
+                    defval: null
+                });
+
+                await $wire.importUsers(
+                    rows.map(({
+                        email,
+                        name,
+                        organisation,
+                        role
+                    }) => ({
+                        email,
+                        name,
+                        organisation,
+                        role
+                    }))
+                );
+
+                fileInput.value = '';
+            },
+        }));
+
+        // ---------- Role + organisation selects ----------
+        Alpine.data('organisationData', () => ({
+            role: $wire.entangle('role'),
+            organisation: $wire.entangle('organisation'),
+            formatRole,
+
+            get roles() {
+                return $wire.roles || [];
+            },
+
+            // Business rule: "external" users belong to any organisation except CIP, everyone else to CIP
+            organisationsFor(role) {
+                const all = $wire.organisations || [];
+                if (!role) return all;
+                return all.filter((record) => (role === 'external' ? record.name !== 'CIP' : record.name ===
+                    'CIP'));
+            },
+
+            get organisations() {
+                return this.organisationsFor(this.role);
+            },
+
+            // Only runs when the person changes the role, not when the server fills the form for editing
+            handleRoleChange(event) {
+                const stillValid = this.organisationsFor(event.target.value)
+                    .some((record) => String(record.id) === String(this.organisation));
+                if (!stillValid) this.organisation = '';
+            },
+        }));
+
+        Alpine.data('passwordData', () => ({
+            changePassword: $wire.entangle('changePassword'),
+            edit: $wire.entangle('rowId'),
+        }));
+
+        // ---------- Email composer ----------
+        Alpine.data('composer', () => {
+            // Keep Quill OUT of Alpine's reactive proxy
+            let quill = null;
+
+            return {
+                recipientIds: $wire.entangle('recipientIds'),
+                formatRole,
+
+                toQuery: '',
+                menuOpen: false,
+                menuQuery: '',
+                menuPos: {
+                    top: 0,
+                    left: 0
+                },
+                activeIndex: 0,
+                mention: null, // { index, length } of the "@text" being typed in the editor
+
+                init() {
+                    quill = new Quill(this.$refs.editor, {
+                        theme: 'snow',
+                        placeholder: 'Type your message...',
+                        modules: {
+                            toolbar: this.$refs.toolbar
+                        },
                     });
-                    const sheetName = workbook.SheetNames[0]; // Get the first sheet
-                    const sheet = workbook.Sheets[sheetName];
 
-                    // Convert the sheet to JSON
-                    const jsonData = XLSX.utils.sheet_to_json(sheet, {
-                        defval: null,
-                        blankrows: true
+                    quill.on('text-change', () => {
+                        const isEmpty = quill.getText().trim().length === 0;
+                        // 3rd arg false = don't send a network request on every keystroke
+                        $wire.set('message', isEmpty ? null : quill.root.innerHTML, false);
                     });
 
-                    // Map the data to the desired format
-                    const users = jsonData.map(row => ({
-                        email: row.email,
-                        name: row.name,
-                        organisation: row.organisation,
-                        role: row.role,
-                    }));
-
-
-
-                    $wire.dispatch('send-users', {
-                        users: users
+                    $wire.on('emails-sent', () => {
+                        quill.setText('');
+                        this.toQuery = '';
                     });
-                };
+                },
+                // ---------- data ----------
+                get allUsers() {
+                    return $wire.allUsers || [];
+                },
 
-                reader.readAsArrayBuffer(file);
+                get recipients() {
+                    const usersById = new Map(this.allUsers.map((user) => [user.id, user]));
+                    return this.recipientIds.map((id) => usersById.get(id)).filter(Boolean);
+                },
 
+                get availableRoles() {
+                    return ($wire.roles || [])
+                        .filter((role) => this.allUsers.some((user) => user.role === role));
+                },
 
-            }
-        }))
+                // ---------- recipients ----------
+                handleAddUser(user) {
+                    if (!this.recipientIds.includes(user.id)) {
+                        this.recipientIds = [...this.recipientIds, user.id];
+                    }
+                },
+
+                handleRemoveUser(userId) {
+                    this.recipientIds = this.recipientIds.filter((id) => id !== userId);
+                },
+
+                handleClearAll() {
+                    this.recipientIds = [];
+                },
+
+                handleBackspace() {
+                    // Backspace in an empty input removes the last recipient
+                    if (this.toQuery || !this.recipientIds.length) return;
+                    this.recipientIds = this.recipientIds.slice(0, -1);
+                },
+
+                // ---------- "add everyone in role" buttons ----------
+                idsInRole(role) {
+                    return this.allUsers.filter((user) => user.role === role).map((user) => user.id);
+                },
+
+                isRoleSelected(role) {
+                    const ids = this.idsInRole(role);
+                    return ids.length > 0 && ids.every((id) => this.recipientIds.includes(id));
+                },
+
+                toggleRole(role) {
+                    const ids = this.idsInRole(role);
+                    this.recipientIds = this.isRoleSelected(role) ?
+                        this.recipientIds.filter((id) => !ids.includes(id)) : [...new Set([...this.recipientIds, ...
+                            ids
+                        ])];
+                },
+
+                // ---------- popup ----------
+                get matches() {
+                    const search = this.menuQuery.toLowerCase();
+
+                    return this.allUsers
+                        .filter((user) => !this.recipientIds.includes(user.id))
+                        .filter((user) =>
+                            `${user.name} ${user.email} ${user.organisation ?? ''}`.toLowerCase().includes(
+                                search)
+                        )
+                        .slice(0, 8);
+                },
+
+                openPeopleMenu(query) {
+                    if (query !== this.menuQuery) this.activeIndex = 0;
+                    this.menuQuery = query;
+                    this.menuOpen = true;
+                },
+
+                closePeopleMenu() {
+                    this.menuOpen = false;
+                    this.menuQuery = '';
+                },
+
+                positionPeopleMenu(anchorRect) {
+                    const rootRect = this.$root.getBoundingClientRect();
+                    const menuWidth = 340;
+                    const left = anchorRect.left - rootRect.left;
+
+                    this.menuPos = {
+                        top: anchorRect.bottom - rootRect.top + 4,
+                        left: Math.max(0, Math.min(left, rootRect.width - menuWidth - 8)),
+                    };
+                },
+
+                handleRecipientSearch() {
+                    const query = this.toQuery.trim();
+                    if (!query) {
+                        this.closePeopleMenu();
+                        return;
+                    }
+                    this.openPeopleMenu(query.replace(/^@/, ''));
+                    this.positionPeopleMenu(this.$refs.toInput.getBoundingClientRect());
+                },
+
+                // Show the popup when the caret is right after "@something" in the editor
+
+                // ---------- keyboard ----------
+                // Returns true when the key was used by the popup
+                handleMenuKeydown(event) {
+                    if (!this.menuOpen) return false;
+
+                    const count = this.matches.length;
+
+                    if (event.key === 'Escape') {
+                        event.preventDefault();
+                        this.closePeopleMenu();
+                        return true;
+                    }
+
+                    if (!count) return false;
+
+                    if (event.key === 'ArrowDown') {
+                        this.activeIndex = (this.activeIndex + 1) % count;
+                    } else if (event.key === 'ArrowUp') {
+                        this.activeIndex = (this.activeIndex - 1 + count) % count;
+                    } else if (event.key === 'Enter' || event.key === 'Tab') {
+                        this.handleSelectPerson(this.matches[this.activeIndex]);
+                    } else {
+                        return false;
+                    }
+
+                    event.preventDefault();
+                    return true;
+                },
+
+                // ---------- select ----------
+                handleSelectPerson(person) {
+                    this.handleAddUser(person);
+                    this.toQuery = '';
+                    this.closePeopleMenu();
+                    this.$nextTick(() => this.$refs.toInput?.focus());
+                },
+
+                // ---------- avatars ----------
+                getInitials(user) {
+                    return (user.name || '?')
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map((word) => word[0]?.toUpperCase())
+                        .join('');
+                },
+
+                getAvatarStyle(user) {
+                    let hash = 0;
+                    for (const character of user.name || '') {
+                        hash = (hash * 31 + character.charCodeAt(0)) % 360;
+                    }
+                    return `background:hsl(${hash}, 55%, 45%)`;
+                },
+            };
+        });
     </script>
 @endscript

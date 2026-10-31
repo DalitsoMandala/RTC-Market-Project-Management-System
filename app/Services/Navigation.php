@@ -31,21 +31,31 @@ class Navigation
         return [];
     }
 
-    protected static function resolveActive(array $items): array
-    {
-        foreach ($items as &$item) {
-            if (! empty($item['children'])) {
-                $item['children'] = self::resolveActive($item['children']);
-                $item['active']   = collect($item['children'])->contains('active', true);
-            } else {
-                $route = $item['route'] ?? null;
-                $item['active'] = $route
-                    ? request()->routeIs($route, $route . '.*')
-                    : false;
-            }
+protected static function resolveActive(array $items): array
+{
+    foreach ($items as &$item) {
+
+        if (!empty($item['children'])) {
+
+            $item['children'] = self::resolveActive($item['children']);
+
+            $item['active'] = collect($item['children'])
+                ->contains(fn ($child) => $child['active'] ?? false);
+
+        } else {
+
+            $route = $item['route'] ?? null;
+
+            $item['active'] = $route
+                ? request()->routeIs($route, $route . '.*')
+                : false;
         }
-        return $items;
     }
+
+    unset($item);
+
+    return $items;
+}
 
     /**
      * The role that "owns" the user's menu — first match in config priority.

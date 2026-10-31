@@ -3,179 +3,194 @@
 namespace App\Livewire\Admin\Users;
 
 use App\Mail\SendEmails;
-use App\Models\User;
-use Livewire\Component;
-use Illuminate\Support\Str;
-use Livewire\Attributes\On;
 use App\Models\Organisation;
-use Livewire\WithFileUploads;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
-use Livewire\Attributes\Validate;
+use App\Models\User;
+use App\Notifications\NewUserNotification;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use App\Notifications\NewUserNotification;
-use App\Notifications\BulkEmailNotification;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Spatie\Permission\Models\Role;
 
 class ListUsers extends Component
 {
-    use LivewireAlert;
-    use WithFileUploads;
+    // ---------------------------------------------------------------------
+    // Add / edit user form
+    // ---------------------------------------------------------------------
     public $name;
     public $email;
     public $phone;
     public $organisation;
-    public $file;
-    public $organisations = [];
     public $role;
     public $rowId;
-    public $roles = [];
     public $password;
     public $password_confirmation;
-    public $changePassword = false;
-    public $disableValue;
-    public $disableAll = false;
+    public $changePassword = true;
+
+    // Read-only data for the browser (cannot be tampered with from the client)
+    #[Locked]
+    public array $roles = [];
+    #[Locked]
+    public array $organisations = [];
+
+    // ---------------------------------------------------------------------
+    // Send-email composer
+    // ---------------------------------------------------------------------
     public $subject;
     public $message;
-    public $excludedRoles = [];
-    public $selectedRoles = [];
-    public $allRoles = [];
-    public $usersByRole = [];
+
+    /** IDs of the users who will receive the email (managed by the browser). */
+    public array $recipientIds = [];
+
+    /** Every active user, used by the browser for the @-mention / role pickers. */
+    #[Locked]
+    public array $allUsers = [];
+
+    // =====================================================================
+    // Setup
+    // =====================================================================
+
+    public function mount()
+    {
+        $this->roles = Role::pluck('name')->toArray();
+        $this->organisations = Organisation::get(['id', 'name'])->toArray();
+        $this->loadUsers();
+    }
+
+    public function render()
+    {
+        return view('livewire.admin.users.list-users');
+    }
+
+    private function loadUsers(): void
+    {
+        $this->allUsers = User::with(['roles', 'organisation'])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(fn($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->roles->first()?->name,
+                'organisation' => $user->organisation?->name,
+            ])
+            ->all();
+    }
+
+    /** Call after anything that changes users: reloads the picker list and refreshes the table/modals. */
+    private function refreshAll(): void
+    {
+        $this->loadUsers();
+        $this->dispatch('refresh');
+    }
+
+    // =====================================================================
+    // Add / edit / delete / restore a single user
+    // =====================================================================
+
     public function rules()
     {
         $rules = [
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique(User::class)->ignore($this->rowId)],
             'phone' => 'nullable|string|max:40',
-            'organisation' => 'required',
-            'role' => 'required',
-
+            'organisation' => 'required|exists:organisations,id',
+            'role' => ['required', Rule::in($this->roles)],
         ];
 
         if ($this->changePassword) {
-            $rules['password'] = ['required', 'confirmed', Rules\Password::defaults()];
+            $rules['password'] = ['required', 'confirmed', Password::defaults()];
         }
 
         return $rules;
     }
 
-
-    public function noFile()
+    #[On('resetForm')]
+    public function resetForm()
     {
-        session()->flash('error', 'File is required');
-        $this->validate([
-            'file' => 'required',
+        $this->reset([
+            'name',
+            'email',
+            'phone',
+            'organisation',
+            'role',
+            'rowId',
+            'password',
+            'password_confirmation',
         ]);
+        $this->changePassword = true;
+        $this->resetErrorBag();
     }
 
-    public function mount()
-    {
-        $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
-        $this->organisations = Organisation::all()->toArray();
-        $this->allRoles = Role::pluck('name')->toArray();
-    }
-
-    #[On('edit')]
-    public function editForm($rowId)
+    #[On('showModal-edit')]
+    public function edit($rowId)
     {
         $this->resetForm();
-        $this->rowId = $rowId;
-        $user = User::find($rowId);
 
+        $user = User::with(['roles', 'organisation'])->findOrFail($rowId);
+
+        $this->rowId = $user->id;
         $this->name = $user->name;
         $this->email = $user->email;
         $this->phone = $user->phone_number;
+        $this->organisation = $user->organisation_id;
+        $this->role = $user->roles->first()?->name;
         $this->changePassword = false;
-        $this->organisation = null;
-        $this->role = null;
-        // Set role — this triggers updatedRole() automatically
-        $role = $user->roles[0]->name;
-        $this->dispatch('update-org', role: $role, organisation: $user->organisation->id);
     }
 
-    public $restrictedPhrase = '';
-    public $hasRestrictedContent = false;
-
-    protected $restrictedPhrases = [
-        // Greetings
-        'hello',
-        'dear',
-        'hi ',
-        'hie ',
-        'greetings',
-        'good morning',
-        'good afternoon',
-        'good evening',
-        'hey',
-        'hi there',
-        'to whom it may concern',
-
-        // Closings
-        'regards',
-        'best regards',
-        'kind regards',
-        'sincerely',
-
-    ];
-
-    public function clearAllRoles(){
-        $this->selectedRoles = [];
-        $this->usersByRole = [];
-    }
-
-    public function checkContent()
+    public function save()
     {
-        $this->hasRestrictedContent = false;
-        $this->restrictedPhrase = '';
+        $this->validate();
 
-        $cleanContent = strtolower(strip_tags($this->message));
+        $isNew = ! $this->rowId;
 
-        foreach ($this->restrictedPhrases as $phrase) {
-            if (str_contains($cleanContent, $phrase)) {
-                $this->hasRestrictedContent = true;
-                $this->restrictedPhrase = $phrase;
-                break;
-            }
-        }
-    }
-    public function sendEmails()
-    {
         try {
-            $this->validate([
-                'subject' => 'required|string|max:255',
-                'message' => 'required|string',
-                'selectedRoles' => 'required|array|min:1',
-            ]);
-        } catch (\Throwable $th) {
-            session()->flash('validation_error', 'There are errors in the form.');
-            throw $th;
-        }
+            $user = DB::transaction(function () {
+                $data = [
+                    'name' => $this->name,
+                    'email' => strtolower(trim($this->email)),
+                    'phone_number' => $this->phone,
+                    'organisation_id' => $this->organisation,
+                ];
 
-
-
-
-        foreach ($this->usersByRole as $userGroup) {
-
-
-            foreach ($userGroup as $user) {
-
-                // User::find($user['id'])->notify(new BulkEmailNotification($this->subject, $this->message));
-                try {
-                    Mail::to($user['email'])->bcc(config('app.debug_email'))->send(new SendEmails($this->subject, $this->message, $user['name']));
-                } catch (\Throwable $th) {
-                    Log::error($th);
+                if ($this->changePassword && $this->password) {
+                    $data['password'] = Hash::make($this->password);
                 }
-            }
+
+                if ($this->rowId) {
+                    $user = User::findOrFail($this->rowId);
+                    $user->update($data);
+                } else {
+                    $user = User::create($data);
+                }
+
+                $user->syncRoles($this->role);
+
+                return $user;
+            });
+        } catch (\Throwable $e) {
+            Log::error($e);
+            session()->flash('error', 'An error occurred while saving the user.');
+            return;
         }
 
+        // Notify only after the transaction has been committed.
+        if ($isNew) {
+            $this->notifyNewUser($user, $this->password, $this->role);
+        }
 
-        session()->flash('success', 'Emails successfully sent to users.');
-        $this->redirect(url()->previous());
+        session()->flash('success', $isNew ? 'User successfully added!' : 'User successfully updated!');
+        $this->resetForm();
+        $this->refreshAll();
     }
 
     #[On('showModal-delete')]
@@ -186,213 +201,179 @@ class ListUsers extends Component
 
     public function deleteUser()
     {
-      $user =  User::find($this->rowId)->update(['is_active' => false]);
+        User::where('id', $this->rowId)->update(['is_active' => false]);
 
-        $this->alert('success', 'User successfully deleted!');
-        $this->dispatch('refresh');
+        session()->flash('success', 'User successfully deleted!');
+        $this->rowId = null;
+        $this->refreshAll();
     }
 
-    public function restoreUser()
-    {
-        User::find($this->rowId)->update(['is_active' => true]);
-        $this->alert('success', 'User successfully restored!');
-        $this->dispatch('refresh');
-    }
     #[On('showModal-restore')]
     public function restore($rowId)
     {
         $this->rowId = $rowId;
     }
 
-    #[On('resetForm')]
-    public function resetForm()
+    public function restoreUser()
     {
-        $this->name = null;
-        $this->email = null;
-        $this->phone = null;
+        User::where('id', $this->rowId)->update(['is_active' => true]);
+
+        session()->flash('success', 'User successfully restored!');
         $this->rowId = null;
-        $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
-        $this->organisation = null;
-        $this->role = null;
-        $this->password = null;
-        $this->password_confirmation = null;
-        $this->changePassword = true;
-        $this->file = null;
-        $this->setErrorBag([]);
+        $this->refreshAll();
     }
 
-
-    #[On('send-users')]
-    public function usersData($users)
+    private function notifyNewUser(User $user, string $password, string $role): void
     {
-        $rules = [
-            '*.email' => 'required|email|unique:users,email',
+        try {
+            $user->notify(new NewUserNotification($user->email, $password, $role));
+        } catch (\Throwable $e) {
+            Log::error($e);
+        }
+    }
+
+    // =====================================================================
+    // Import users from Excel
+    // =====================================================================
+
+    public function noFile()
+    {
+        session()->flash('error', 'Please choose a file to upload.');
+    }
+
+    /** Called from the browser with the rows read from the spreadsheet. */
+    public function importUsers(array $rows)
+    {
+        if (empty($rows)) {
+            session()->flash('error', 'No data found in the file.');
+            $this->dispatch('refresh');
+            return;
+        }
+
+        $rows = array_map(fn($row) => [
+            'email' => strtolower(trim((string) ($row['email'] ?? ''))),
+            'name' => trim((string) ($row['name'] ?? '')),
+            'organisation' => trim((string) ($row['organisation'] ?? '')),
+            'role' => trim((string) ($row['role'] ?? '')),
+        ], $rows);
+
+        $validator = Validator::make($rows, [
+            '*.email' => 'required|email|distinct|unique:users,email',
             '*.name' => 'required|string|max:255',
-            '*.organisation' => 'required|string|max:255',
-            '*.role' => 'required|string',
-
-        ];
-
-        DB::beginTransaction();
-
-        $validator = Validator::make($users, $rules);
+            '*.organisation' => 'required|exists:organisations,name',
+            '*.role' => ['required', Rule::in($this->roles)],
+        ]);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
+            $lines = [];
 
-            $messages = [];
-
-            foreach ($errors as $field => $fieldErrors) {
-                // Extract row number from field like "0.email"
-                [$row] = explode('.', $field);
-                $rowNumber = $row + 1;
-
-                foreach ($fieldErrors as $error) {
-                    $cleanError = preg_replace('/\b\d+\./', '', $error);
-                    $messages[$rowNumber][] = $cleanError;
-                }
+            foreach ($validator->errors()->messages() as $field => $errors) {
+                // "3.email" => spreadsheet row 5 (index starts at 0, row 1 is the header)
+                $spreadsheetRow = (int) explode('.', $field)[0] + 2;
+                $cleanErrors = preg_replace('/\b\d+\./', '', implode(' ', $errors));
+                $lines[] = "Row {$spreadsheetRow}: {$cleanErrors}";
             }
 
-            $finalMessages = [];
-            foreach ($messages as $rowNumber => $rowErrors) {
-                $rowNumber++;
-                $finalMessages[] = "Row {$rowNumber}: " . implode(' ', $rowErrors);
-            }
-
-            session()->flash('error', implode("<br>", $finalMessages));
-            DB::rollBack();
-            $this->dispatch('able-button');
+            session()->flash('error', implode('<br>', $lines));
+            $this->dispatch('refresh');
             return;
         }
 
         try {
-            if (count($users) == 0) {
-                session()->flash('error', 'No data found');
-                $this->dispatch('able-button');
-                return;
-            }
+            $organisationIds = Organisation::pluck('id', 'name');
 
-            foreach ($users as $user) {
-                $organisation = Organisation::where('name', $user['organisation'])->first();
-                $password = Str::random(10);
+            $created = DB::transaction(function () use ($rows, $organisationIds) {
+                return collect($rows)->map(function ($row) use ($organisationIds) {
+                    $password = Str::random(10);
 
-                $addedUser = User::create([
-                    'name' => $user['name'],
-                    'email' => strtolower(trim($user['email'])),
-                    'phone_number' => '+9999999999',
-                    'organisation_id' =>  $organisation->id,
-                    'password' => Hash::make($password),
-                ])->assignRole($user['role']);
-
-                $addedUser->notify(new NewUserNotification($addedUser->email, $password, $user['role']));
-            }
-
-            $this->dispatch('refresh');
-            session()->flash('success', 'All users have been validated successfully!');
-            $this->dispatch('able-button');
-            DB::commit();
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            session()->flash('error', 'An error occurred while processing your request.');
-        }
-    }
-
-
-    public function save()
-    {
-        $this->validate();
-        DB::beginTransaction();
-        // Handle form submission logic, e.g., saving to database or sending an email
-        $organisationId = $this->organisation;
-
-        try {
-
-            if ($this->rowId) {
-                if ($this->changePassword) {
-                    User::find($this->rowId)->update([
-                        'name' => $this->name,
-                        'email' => strtolower(trim($this->email)),
-                        'phone_number' => $this->phone,
-                        'organisation_id' => $organisationId,
-                        'password' => Hash::make($this->password),
+                    $user = User::create([
+                        'name' => $row['name'],
+                        'email' => $row['email'],
+                        'phone_number' => '+9999999999', // placeholder: the template has no phone column
+                        'organisation_id' => $organisationIds[$row['organisation']],
+                        'password' => Hash::make($password),
                     ]);
+                    $user->assignRole($row['role']);
+
+                    return [$user, $password, $row['role']];
+                });
+            });
+        } catch (\Throwable $e) {
+            Log::error($e);
+            session()->flash('error', 'An error occurred while importing users.');
+            $this->dispatch('refresh');
+            return;
+        }
+
+        foreach ($created as [$user, $password, $role]) {
+            $this->notifyNewUser($user, $password, $role);
+        }
+
+        session()->flash('success', $created->count() . ' user(s) imported successfully!');
+        $this->refreshAll();
+    }
+
+    // =====================================================================
+    // Send email
+    // =====================================================================
+
+    public function sendEmails()
+    {
+        try {
+            $this->validate(
+                [
+                    'subject' => 'required|string|max:255',
+                    'message' => 'required|string',
+                    'recipientIds' => 'required|array|min:1',
+                    'recipientIds.*' => 'integer',
+                ],
+                [],
+                ['recipientIds' => 'recipients'],
+            );
+        } catch (ValidationException $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
+
+        // Never trust names/emails from the browser: load them from the database.
+        $users = User::whereIn('id', $this->recipientIds)
+            ->where('is_active', true)
+            ->get();
+
+        $failed = 0;
+
+
+
+        foreach ($users as $user) {
+            try {
+                $mail = Mail::to($user->email);
+
+                if ($debugEmail = config('app.debug_email')) {
+                    $mail->bcc($debugEmail);
                 }
-                User::find($this->rowId)->update([
-                    'name' => $this->name,
-                    'email' => strtolower(trim($this->email)),
-                    'phone_number' => $this->phone,
-                    'organisation_id' => $organisationId,
 
-                ]);
-
-
-
-
-                User::find($this->rowId)->syncRoles($this->role);
-
-
-                $this->dispatch('refresh');
-                session()->flash('success', 'User successfully updated!');
-                $this->resetForm();
-            } else {
-                $this->password = $this->password ?? Str::random(10); // Generate a random password if not provided
-                $user = User::create([
-                    'name' => $this->name,
-                    'email' => strtolower(trim($this->email)),
-                    'phone_number' => $this->phone,
-                    'organisation_id' => $organisationId,
-                    'password' => Hash::make($this->password),
-
-                ])->assignRole($this->role);
-
-
-                $this->dispatch('refresh');
-                session()->flash('success', 'User successfully added!');
-                $user->notify(new NewUserNotification(strtolower(trim($this->email)), $this->password, $this->role));
-                $this->resetForm();
+                $mail->send(new SendEmails($this->subject, $this->message, $user->name));
+            } catch (\Throwable $e) {
+                $failed++;
+                Log::error($e);
             }
-
-            DB::commit();
-        } catch (\Throwable $th) {
-
-            session()->flash('error', 'An error occurred while adding the user.');
-            DB::rollBack();
-            throw $th;
         }
-    }
 
-    public function updatedSelectedRoles()
-    {
-        $this->usersByRole = [];
+        $sent = $users->count() - $failed;
 
-        foreach ($this->selectedRoles as $role) {
-            $this->usersByRole[$role] = User::with('roles')->where('is_active', 1)->with('organisation')->whereHas('roles', fn($q) => $q->where('name', $role))
-                ->get()
-                ->map(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->roles->first()->name,
-                        'organisation' => $user->organisation->name
-                    ];
-                })
-                ->toArray();
+        if ($sent === 0) {
+            session()->flash('error', 'No emails could be sent. Please check the logs.');
+            return;
         }
-    }
 
-    public function removeUser($role, $userId)
-    {
-        $this->usersByRole[$role] = array_filter(
-            $this->usersByRole[$role],
-            fn($u) => $u['id'] !== $userId
+        session()->flash(
+            'success',
+            $failed
+                ? "Email sent to {$sent} user(s); {$failed} failed (see logs)."
+                : "Email sent to {$sent} user(s)."
         );
-    }
 
-
-
-    public function render()
-    {
-        return view('livewire.admin.users.list-users');
+        $this->reset(['subject', 'message', 'recipientIds']);
+        $this->dispatch('emails-sent'); // lets the browser clear the editor
     }
 }

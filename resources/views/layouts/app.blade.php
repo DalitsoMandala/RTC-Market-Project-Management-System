@@ -44,6 +44,7 @@
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/keen-slider@6.8.6/keen-slider.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <!-- Scripts -->
         @vite(['resources/js/app.js', 'resources/css/app.css'])
     </head>
@@ -54,7 +55,13 @@
                 <div class="spinner-border text-warning spinner"></div>
             </div>
 
-
+<button type="button"
+        id="scrollTopBtn"
+        class="btn btn-warning rounded-circle shadow"
+        aria-label="Scroll to top"
+        title="Back to top">
+    <i class="bi bi-arrow-up"></i>
+</button>
             @include('layouts.navigation')
 
 
@@ -362,6 +369,8 @@
 
 
                 });
+
+
             </script>
 
             <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -388,7 +397,19 @@
                     }
                 });
             </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('scrollTopBtn');
 
+        window.addEventListener('scroll', function () {
+            btn.classList.toggle('show', window.scrollY > 200);
+        }, { passive: true });
+
+        btn.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
             @stack('scripts')
     </body>
 

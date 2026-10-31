@@ -1,9 +1,12 @@
 <?php
+
 namespace App\Livewire\admin;
 
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Database\Eloquent\Builder;
+use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Detail;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -14,6 +17,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class ReportingMonthsTable extends PowerGridComponent
 {
     use WithExport;
+    public $reportingPeriodId;
 
     public function setUp(): array
     {
@@ -21,16 +25,21 @@ final class ReportingMonthsTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
+            Header::make(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(10)
                 ->showRecordCount(),
+
+
+
+
         ];
     }
 
     public function datasource(): Builder
     {
-        return ReportingPeriodMonth::query()->with('reportingPeriod');
+
+        return ReportingPeriodMonth::query()->with('reportingPeriod')->where('reporting_period_id', $this->reportingPeriodId);
     }
 
     public function fields(): PowerGridFields
@@ -49,6 +58,7 @@ final class ReportingMonthsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+
             Column::make('#', 'id'),
             Column::make('Start month', 'start_month')
                 ->sortable()
@@ -61,6 +71,7 @@ final class ReportingMonthsTable extends PowerGridComponent
             Column::make('Period', 'period'),
 
             Column::make('Period Type', 'type'),
+
         ];
     }
 
@@ -78,11 +89,7 @@ final class ReportingMonthsTable extends PowerGridComponent
     // public function actions($row): array
     // {
     //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: '.$row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id])
+
     //     ];
     // }
 

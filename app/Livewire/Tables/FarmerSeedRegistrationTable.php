@@ -60,6 +60,7 @@ final class FarmerSeedRegistrationTable extends PowerGridComponent
             ->add('id')
             ->add('farmer_id')
             ->add('variety')
+            ->add('group_name', fn($model) => $model->productionFarmers->group_name)
             ->add('reg_date_formatted', fn($model) => Carbon::parse($model->reg_date)->format('d/m/Y'))
             ->add('reg_no')
             ->add('created_at')
@@ -72,6 +73,12 @@ final class FarmerSeedRegistrationTable extends PowerGridComponent
             Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
             Column::make('Farmer id', 'farmer_id')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
             Column::make('Variety', 'variety')
                 ->sortable()

@@ -14,49 +14,7 @@
     @endphp
     <div class="container-fluid">
         <!-- start page title -->
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-block align-items-center justify-content-between">
 
-
-                    <div class="page-title-left col-12" wire:ignore>
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item">
-                                <a href="/">Dashboard</a>
-                            </li>
-                            @role('admin')
-                                <li class="breadcrumb-item">
-                                    <a href="/admin/submission-period">Submission Periods</a>
-                                </li>
-                            @endrole
-                            @role('manager')
-                                <li class="breadcrumb-item">
-                                    <a href="/cip/submission-period">Submission Periods</a>
-                                </li>
-                            @endrole
-
-                            @role('external')
-                                <li class="breadcrumb-item"></li>
-                                <a href="/external/submission-period">Submission Periods</a>
-                                </li>
-                            @endrole
-
-                            <li class="breadcrumb-item active">
-                                {{ isset(Route::current()->parameters()['id']) ? 'Edit' : 'Add' }} Data</li>
-                            <li
-                                class="breadcrumb-item {{ isset(Route::current()->parameters()['id']) ? 'd-none' : '' }}">
-                                <a href="{{ $replaceUrl }}">Upload Data</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="{{ $routePrefix }}/forms/rtc-market/{{ $formRoute }}/view">
-                                    {{ ucwords(strtolower($formName)) }} Data
-                                </a>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- end page title -->
 
         <div class="row">
@@ -155,7 +113,7 @@
                                     <div x-data="{
                                         hideModal() {
                                             const modals = document.querySelectorAll('.modal.show');
-                                    
+
                                             // Iterate over each modal and hide it using Bootstrap's modal hide method
                                             modals.forEach(modal => {
                                                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -163,14 +121,14 @@
                                                     modalInstance.hide();
                                                 }
                                             });
-                                    
+
                                             setTimeout(() => {
                                                 window.scrollTo({
                                                     top: 0,
                                                     behavior: 'smooth'
                                                 });
                                             }, 500);
-                                    
+
                                             $wire.save();
                                         }
                                     }" class="modal fade" id="confirmingSave" tabindex="-1"

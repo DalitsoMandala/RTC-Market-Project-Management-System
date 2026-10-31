@@ -4,7 +4,7 @@
             'enabledFilters' => $enabledFilters,
         ])
     </div>
-    <div wire:loading.class="pe-none opacity-25" class="{{ data_get($theme, 'table.divClass') }} border rounded-3 "
+    <div wire:loading.class="pe-none opacity-25" class="{{ data_get($theme, 'table.divClass') }}   "
         style="{{ data_get($theme, 'table.divStyle') }}">
         @include($table)
     </div>

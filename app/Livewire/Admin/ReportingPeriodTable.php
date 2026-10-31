@@ -8,13 +8,14 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Detail;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ReportingPeriodTable extends PowerGridComponent
@@ -31,6 +32,9 @@ final class ReportingPeriodTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
+
+                 Detail::make()
+                ->view('components.powergrid-components.reporting-period-details')
         ];
     }
 
@@ -51,6 +55,8 @@ final class ReportingPeriodTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+             Column::action('')
+               ,
             Column::make('#', 'id'),
             Column::make('Name', 'name')
                 ->sortable()
@@ -72,16 +78,16 @@ final class ReportingPeriodTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: '.$row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id])
-    //     ];
-    // }
+    public function actions($row): array
+    {
+        return [
+     Button::add('detail')
+                ->slot('<i class="bx bx-show"></i>')
+                ->class('btn btn-warning btn-sm custom-tooltip')
+                ->tooltip('View Details')
+                ->toggleDetail($row),
+        ];
+    }
 
     /*
     public function actionRules($row): array

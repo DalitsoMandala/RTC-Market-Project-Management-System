@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\tables;
 
 use App\Helpers\TruncateText;
@@ -8,7 +9,6 @@ use App\Models\Organisation;
 use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
-use App\Models\SubmissionPeriod;
 use App\Models\User;
 use App\Traits\DownloadImportTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,398 +31,375 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class ManualSubmissionTable extends PowerGridComponent
 {
     use LivewireAlert;
-    //Batch Submission Table
     use DownloadImportTrait;
     use WithExport;
+
     public $filter;
+
     public $userId;
+
     public bool $showFilters = true;
+
     public $batch;
-    public $row                  = 1;
-    public string $sortField     = 'submission_id';
-    public string $primaryKey    = 'submission_id';
+
+    public string $sortField = 'submission_id';
+
+    public string $primaryKey = 'submission_id';
+
     public string $sortDirection = 'desc';
+
     public $routePrefix;
+
+    /**
+     * Configure the PowerGrid table.
+     */
     public function setUp(): array
     {
-        // $this->showCheckBox();
-        $route      = Route::current();
-        $parameters = $route->parameters();
-        $collection = collect($parameters);
-        if ($collection->has('manual')) {
-            $this->batch = $collection->get('manual');
-        }
+        $parameters = Route::current()?->parameters() ?? [];
+
+        $this->batch = $parameters['manual'] ?? null;
+
         return [
-            // Exportable::make('export')
-            //     ->striped()
-            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput()->showToggleColumns(),
+            Header::make()
+                ->showSearchInput()
+                ->showToggleColumns(),
+
             Footer::make()
-                ->showPerPage()->pageName('manualSubmissionPage')
+                ->showPerPage()
+                ->pageName('manualSubmissionPage')
                 ->showRecordCount(),
         ];
     }
 
+    /**
+     * Build the table query.
+     */
     public function datasource(): Builder
     {
+        $user = auth()->user();
+
         $query = Submission::query()
-            ->join('forms', 'forms.id', '=', 'submissions.form_id')
-            ->join('submission_periods', 'submissions.submission_period_new_id', '=', 'submission_periods_new.id')
-            ->leftJoin('users', 'users.id', '=', 'submissions.user_id')
-            ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
+            ->where('submissions.batch_type', 'manual')
+            ->leftJoin(
+                'forms',
+                'forms.id',
+                '=',
+                'submissions.form_id'
+            )
+            ->leftJoin(
+                'submission_periods_new',
+                'submission_periods_new.id',
+                '=',
+                'submissions.submission_period_new_id'
+            )
+            ->leftJoin(
+                'users',
+                'users.id',
+                '=',
+                'submissions.user_id'
+            )
+            ->leftJoin(
+                'organisations',
+                'organisations.id',
+                '=',
+                'users.organisation_id'
+            )
             ->with([
-                'period.indicator',
-                'user' => fn($q) => $q->withTrashed(),
-                'user.organisation',
+
                 'period.reportingMonths',
-                'form',
                 'period.financialYears',
+                'form',
+                'user' => fn($query) => $query->withTrashed(),
+                'user.organisation',
             ])
-            ->where('batch_type', 'manual')->select([
-            'submissions.*',
-            'submissions.id as submission_id',
-            'users.name as username',
-            'forms.name as form_name',
-            'organisations.name as organisation_name',
-            'organisations.id as organisation_id',
-            'submission_periods_new.id as submission_period_new_id',
-            'submission_periods_new.reporting_period_month_id as reporting_period_month_id',
+            ->select([
+                'submissions.*',
+                'submissions.id as submission_id',
+                'users.name as username',
+                'forms.name as form_name',
+                'organisations.name as organisation_name',
+                'organisations.id as organisation_id',
+                'submission_periods_new.reporting_period_month_id',
+                'submission_periods_new.financial_year_id',
+                DB::raw(
+                    'ROW_NUMBER() OVER (ORDER BY submissions.id DESC) AS rn'
+                ),
+            ]);
 
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-        ]);
-
-        $user            = User::find(auth()->user()->id);
-        $organisation_id = $user->organisation->id;
-
-        if ($user->hasAnyRole('external')) {
-
-            return $query->where('users.id', $user->id);
+        /*
+         * External users can only see their own submissions.
+         */
+        if ($user?->hasRole('external')) {
+            $query->where('submissions.user_id', $user->id);
         }
 
         return $query;
     }
 
+    /**
+     * Configure table filters.
+     */
     public function filters(): array
     {
         return [
             Filter::select('status_formatted', 'submissions.status')
                 ->dataSource(function () {
-                    $submission = Submission::select(['status'])->distinct();
-
-                    return $submission->get()->map(function ($submission) {
-
-                        return [
-                            'status' => $submission->status === 'denied' ? 'disapproved' : $submission->status,
-                            'value'  => $submission->status,
-                        ];
-                    });
+                    return Submission::query()
+                        ->where('batch_type', 'manual')
+                        ->select('status')
+                        ->distinct()
+                        ->get()
+                        ->map(fn($submission) => [
+                            'status' => $this->formatStatus(
+                                $submission->status
+                            ),
+                            'value' => $submission->status,
+                        ]);
                 })
                 ->optionLabel('status')
                 ->optionValue('value'),
 
             Filter::select('form_name', 'forms.id')
-                ->dataSource(function () {
-                    $submission = Form::select(['name', 'id'])->distinct();
-
-                    return $submission->get();
-                })
+                ->dataSource(
+                    fn() => Form::query()
+                        ->select(['name', 'id'])
+                        ->distinct()
+                        ->get()
+                )
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('organisation_formatted', 'organisations.id')
-                ->dataSource(function () {
-                    $submission = Organisation::select(['name', 'id'])->distinct();
-
-                    return $submission->get();
-                })
+            Filter::select(
+                'organisation_formatted',
+                'organisations.id'
+            )
+                ->dataSource(
+                    fn() => Organisation::query()
+                        ->select(['name', 'id'])
+                        ->distinct()
+                        ->get()
+                )
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('reporting_period', 'submission_periods_new.reporting_period_month_id')
-                ->dataSource(function () {
-                    $submission = ReportingPeriodMonth::select(['start_month', 'end_month', 'id'])->distinct();
-
-                    return $submission->get()->map(function ($submission) {
-
-                        return [
-                            'name' => $submission->start_month . ' - ' . $submission->end_month,
-                            'id'   => $submission->id,
-                        ];
-                    });
-                })
+            Filter::select(
+                'reporting_period',
+                'submission_periods_new.reporting_period_month_id'
+            )
+                ->dataSource(
+                    fn() => ReportingPeriodMonth::query()
+                        ->select(['start_month', 'end_month', 'id'])
+                        ->distinct()
+                        ->get()
+                        ->map(fn($period) => [
+                            'name' => "{$period->start_month} - {$period->end_month}",
+                            'id' => $period->id,
+                        ])
+                )
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('financial_year', 'submission_periods.financial_year_id')
-                ->dataSource(function () {
-                    $submission = FinancialYear::select(['id', 'number'])->distinct();
-
-                    return $submission->get()->map(function ($submission) {
-
-                        return [
-                            'number' => 'Year ' . $submission->number,
-                            'id'     => $submission->id,
-                        ];
-                    });
-                })
+            Filter::select(
+                'financial_year',
+                'submission_periods_new.financial_year_id'
+            )
+                ->dataSource(
+                    fn() => FinancialYear::query()
+                        ->select(['id', 'number'])
+                        ->distinct()
+                        ->get()
+                        ->map(fn($year) => [
+                            'number' => 'Year ' . $year->number,
+                            'id' => $year->id,
+                        ])
+                )
                 ->optionLabel('number')
                 ->optionValue('id'),
-
         ];
     }
+
+    /**
+     * Configure relationship searching.
+     */
     public function relationSearch(): array
     {
         return [
-            'period.indicator'       => [ // relationship on dishes model
-                'indicator_name',             // column enabled to search
-
+            'period.indicator' => [
+                'indicator_name',
             ],
-            'user.organisation'      => [
+
+            'user.organisation' => [
                 'name',
             ],
-            'user'                   => [
+
+            'user' => [
                 'name',
             ],
 
             'period.reportingMonths' => [
                 'start_month',
                 'end_month',
-
             ],
 
-            'period.financialYears'  => [
+            'period.financialYears' => [
                 'number',
             ],
-            'form'                   => [
+
+            'form' => [
                 'name',
             ],
-
         ];
     }
+
+    /**
+     * Define the fields displayed or used by the table.
+     */
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('row_num', function () {
-                return $this->row++;
-            })
+            ->add('rn')
             ->add('batch_no')
-            ->add('batch_no_formatted', function ($model) {
-
-                $text = $model->batch_no;
-
-                $html = '';
-
-                $html .= '
-
-<div>
-<div class="accordion accordion-flush" id="default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
-    <div class="border accordion-item custom-tooltip" title="show batch number">
-        <h2 class=" accordion-header" id="headingOne" >
-            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->batch_no . '_' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->batch_no . '_' . $model->id . '">
-<i class="bx bx-dots-horizontal-rounded"></i>
-            </button>
-        </h2>
-        <div id="collapse-' . $model->batch_no . '_' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
-            <div class="accordion-body">
-                ' . $text . '
-            </div>
-        </div>
-        </div>
-
-</div>
-</div>
-';
-                return $html;
-                // return $model->batch_no;
-            })
+            ->add(
+                'batch_no_formatted',
+                fn($model) => $this->expandableText(
+                    $model->batch_no,
+                    'batch-' . $model->id,
+                    'Show batch number'
+                )
+            )
             ->add('user_id')
-            ->add('username', function ($model) {
-
-                return $model->user?->name;
-            })
+            ->add('username', fn($model) => $model->username ?? $model->user?->name)
             ->add('form_id')
-            ->add('form_name', function ($model) {
-                $form = Form::find($model->form_id);
-
-                return $form->name;
-            })
-            ->add('organisation')
-            ->add('organisation_formatted', function ($model) {
-
-                return $model->user?->organisation?->name;
-            })
+            ->add('form_name', fn($model) => $model->form_name ?? $model->form?->name)
+            ->add('organisation_formatted', fn($model) => $model->organisation_name ?? $model->user?->organisation?->name)
             ->add('status')
+            ->add('status_formatted', fn($model) => $this->statusBadge($model->status))
             ->add('batch_type')
-            ->add('record_filter', function ($model) {})
-            ->add('status_formatted', function ($model) {
-                $model->status = $model->status === 'denied' ? 'disapproved' : $model->status;
-                if ($model->status === 'approved') {
-                    return '<span class="badge bg-success-subtle text-success">' . $model->status . '</span>';
-                } else if ($model->status === 'pending') {
-                    return '<span class="badge bg-warning-subtle text-warning">' . $model->status . '</span>';
-                } else {
-                    return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
-                }
-            })
-
             ->add('reporting_period_month_id')
-            ->add('reporting_period', function ($model) {
-
-                $period = SubmissionPeriod::find($model->reporting_period_month_id);
-                if ($period) {
-                    return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
-                } else {
-                    return 'N/A';
-                }
-            })
+            ->add('reporting_period', fn($model) => $this->formatReportingPeriod($model))
+            ->add('month_range', fn($model) => $this->formatMonthRange($model))
+            ->add('financial_year', fn($model) => $model->period?->financialYears?->number
+                ? 'Year ' . $model->period->financialYears->number
+                : 'N/A')
             ->add('comments')
-            ->add('comments_truncated', function ($model) {
-
-                $text      = $model->comments;
-                $trunc     = new TruncateText($text, 30);
-                $html      = '';
-                $disabled  = ! $model->comments ? 'pe-none opacity-25' : '';
-                $html     .= '
-
-<div class="' . $disabled . '">
-<div class="accordion accordion-flush" id="default-accordion-example-' . $model->id . '">
-    <div class="border accordion-item custom-tooltip " title="show comments">
-        <h2 class=" accordion-header" id="headingOne" >
-            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->id . '">
-<i class="bx bx-dots-horizontal-rounded"></i>
-            </button>
-        </h2>
-        <div id="collapse-' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->id . '">
-            <div class="accordion-body">
-                ' . $text . '
-            </div>
-        </div>
-        </div>
-
-</div>
-</div>
-';
-                return $html;
-            })
-
-            ->add('financial_year', function ($model) {
-
-                $model = SubmissionPeriod::find($model->reporting_period_month_id);
-
-                return $model->financialYears->number;
-                //   ReportingPeriodMonth::find($model->reporting_period_month_id)->;
-            })
-
-            ->add('month_range', function ($model) {
-                $model = SubmissionPeriod::find($model->reporting_period_month_id);
-
-                return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
-                //
-            })
+            ->add(
+                'comments_truncated',
+                fn($model) => $this->expandableText(
+                    $model->comments,
+                    'comments-' . $model->id,
+                    'Show comments'
+                )
+            )
+            ->add('description')
+            ->add('file_link', fn($model) => $this->fileLink($model->file_link))
+            ->add(
+                'date_of_submission',
+                fn($model) => $model->created_at
+                    ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s')
+                    : null
+            )
             ->add('created_at')
-            ->add('file_link', function ($model) {
-
-                if ($model->file_link) {
-                    $html = "
-                       <a class='text-success custom-tooltip' title='download file' download='{$model->file_link}' href='" . asset('/storage/imports/' . $model->file_link) . "'>
-
-                    <div class='d-flex align-items-center'>
-                        <div class='flex-shrink-0 me-2'>
-                            <div class='px-2 py-1 rounded-1 bg-success-subtle'>
-                                <i class='fas fa-file-excel text-success'></i>
-                            </div>
-                        </div>
-                        <div class='flex-grow-1 fw-bolder'>
-                           {$model->file_link}
-
-                        </div>
-                    </div>
-
-                        </a>";
-
-                    return $html;
-                }
-
-                return null;
-            })
-            ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');
     }
 
+    /**
+     * Define table columns.
+     */
     public function columns(): array
     {
-
         return [
-            Column::make('#', 'rn')->sortable()->hidden(),
-            Column::make('File', 'file_link')->hidden(),
-            Column::make('Batch no', 'batch_no_formatted', 'submissions.batch_no')
+            Column::make('#', 'rn')
+                ->sortable()
+                ->hidden(),
 
+            Column::make('File', 'file_link')
+                ->hidden(),
+
+            Column::make(
+                'Batch no',
+                'batch_no_formatted',
+                'submissions.batch_no'
+            )
                 ->searchable(),
-            Column::make('Form name', 'form_name')->searchable(),
 
-            Column::make('SUBMITTED BY', 'username')->searchable(),
+            Column::make('Form name', 'form_name')
+                ->searchable()->headerAttribute(styleAttr: 'min-width:350px;')
+                ->bodyAttribute(styleAttr: 'white-space:wrap'),
 
-            Column::make('Organisation', 'organisation_formatted')->searchable(),
+            Column::make('SUBMITTED BY', 'username')
+                ->searchable(),
 
-            Column::make('SUBMISSION PERIOD', 'month_range')->searchable(),
+            Column::make('Organisation', 'organisation_formatted')
+                ->searchable(),
 
-            Column::make('Project Year', 'financial_year')->searchable(),
+            Column::make('SUBMISSION PERIOD', 'month_range')
+                ->searchable(),
+
+            Column::make('Project Year', 'financial_year')
+                ->searchable(),
+
             Column::make('Status', 'status_formatted')
                 ->sortable()
-                ->hidden()
-                ->searchable(),
+                ->searchable()
+                ->hidden(),
 
-            // Column::make('Submission Period', 'reporting_period')
-            //     ->sortable()
-            //     ->searchable(),
+            Column::make('Comments', 'comments_truncated')
+                ->hidden(),
 
-            Column::make('Comments', 'comments_truncated')->hidden(),
-            Column::make('Description', 'description')->hidden(),
-            Column::make('Date of submission', 'date_of_submission', 'created_at')
+            Column::make('Description', 'description')
+                ->hidden(),
+
+            Column::make(
+                'Date of submission',
+                'date_of_submission',
+                'submissions.created_at'
+            )
                 ->sortable(),
 
             Column::action('Action'),
-            // Column::make('Created at', 'created_at')
-            //     ->sortable()
-            //     ->searchable(),
-
         ];
     }
 
-    #[\Livewire\Attributes\On('refresh')]
+    /**
+     * Refresh the table after an event.
+     */
+    #[On('refresh')]
     public function refreshData(): void
     {
         $this->refresh();
     }
 
+    /**
+     * Define row actions.
+     */
     public function actions($row): array
     {
+        $canManage = auth()->user()?->hasAnyRole([
+            'manager',
+            'admin',
+        ]) ?? false;
 
         return [
             Button::add('edit')
                 ->slot('<i class="bx bx-analyse"></i>')
                 ->id()
                 ->class('btn btn-warning my-1 custom-tooltip btn-sm')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can($canManage)
                 ->tooltip('Review Submission')
                 ->dispatch('showModal', [
-                    'id'   => $row->id,
+                    'id' => $row->id,
                     'name' => 'view-submission-modal',
-
                 ]),
 
             Button::add('delete')
                 ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
                 ->class('btn btn-theme-red my-1 custom-tooltip btn-sm')
-                ->can(
-                    allowed: (User::find(auth()->user()->id)->hasAnyRole('manager') ||
-                        User::find(auth()->user()->id)->hasAnyRole('admin'))
-                )
+                ->can($canManage)
                 ->tooltip('Delete Data')
                 ->dispatch('deleteBatch', [
-                    'id'   => $row->id,
+                    'id' => $row->id,
                     'name' => 'delete-batch-modal',
                 ]),
 
@@ -432,42 +409,62 @@ final class ManualSubmissionTable extends PowerGridComponent
                 ->class('btn btn-warning my-1 custom-tooltip btn-sm')
                 ->tooltip('View Data')
                 ->dispatch('view-data-manual', [
-                    'batch_no'  => $row->batch_no,
+                    'batch_no' => $row->batch_no,
                     'form_name' => $row->form_name,
-
                 ]),
         ];
     }
 
+    /**
+     * Redirect to the manual submission data page.
+     */
     #[On('view-data-manual')]
     public function viewData($batch_no, $form_name)
     {
         $routePrefix = $this->routePrefix;
-        $project     = Project::where('name', 'RTC MARKET')->first()->name;
+        $project = Project::query()
+            ->where('name', 'RTC MARKET')
+            ->value('name');
 
         if (! $routePrefix || ! $project || ! $form_name || ! $batch_no) {
             $this->alert('error', 'Missing parameters to view data', [
                 'position' => 'center',
-                'timer'    => 5000,
-                'toast'    => false,
+                'timer' => 5000,
+                'toast' => false,
             ]);
+
             return;
         }
-        $form_name = strtolower(str_replace(' ', '-', $form_name));
-        $project   = strtolower(str_replace(' ', '-', $project));
-        $route     = "{$routePrefix}/forms/{$project}/{$form_name}/view/{$batch_no}";
+
+        $formSlug = strtolower(str_replace(' ', '-', $form_name));
+        $projectSlug = strtolower(str_replace(' ', '-', $project));
+
+        $route = "{$routePrefix}/forms/{$projectSlug}/{$formSlug}/view/{$batch_no}";
+
         return $this->redirect($route);
     }
 
+    /**
+     * Configure conditional button and row rules.
+     */
     public function actionRules(): array
     {
-        $user = User::find(auth()->user()->id);
+        $user = auth()->user();
+
+        $canManage = $user?->hasAnyRole([
+            'manager',
+            'admin',
+        ]) ?? false;
 
         return [
-            //  Hide button edit for ID 1
-
             Rule::button('edit')
-                ->when(fn($row) => $row->status == 'denied' || $row->status == 'disapproved')
+                ->when(
+                    fn($row) => in_array(
+                        $row->status,
+                        ['denied', 'disapproved'],
+                        true
+                    )
+                )
                 ->disable(),
 
             Rule::button('delete')
@@ -475,18 +472,133 @@ final class ManualSubmissionTable extends PowerGridComponent
                 ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => ! $user->hasAnyRole('manager')
-                    || ! $user->hasAnyRole('admin'))
+                ->when(fn($row) => ! $canManage)
                 ->disable(),
 
             Rule::rows()
-                ->when(fn($row) => $row->batch_no === $this->batch)
+                ->when(
+                    fn($row) => (string) $row->batch_no === (string) $this->batch
+                )
                 ->setAttribute('class', 'table-secondary'),
 
             Rule::button('bulk-download')
                 ->when(fn() => true)
                 ->disable(),
-
         ];
+    }
+
+    /**
+     * Convert denied status to the label used in the table.
+     */
+    private function formatStatus(?string $status): string
+    {
+        return $status === 'denied'
+            ? 'disapproved'
+            : (string) $status;
+    }
+
+    /**
+     * Render the status badge.
+     */
+    private function statusBadge(?string $status): string
+    {
+        $label = $this->formatStatus($status);
+
+        $class = match ($label) {
+            'approved' => 'bg-success-subtle text-success',
+            'pending' => 'bg-warning-subtle text-warning',
+            default => 'bg-danger-subtle text-danger',
+        };
+
+        return '<span class="badge ' . $class . '">' . e($label) . '</span>';
+    }
+
+    /**
+     * Format the reporting-period date range.
+     */
+    private function formatReportingPeriod($model): string
+    {
+        $period = $model->period;
+
+        if (! $period?->date_established || ! $period?->date_ended) {
+            return 'N/A';
+        }
+
+        return Carbon::parse($period->date_established)->format('d F Y')
+            . ' - '
+            . Carbon::parse($period->date_ended)->format('d F Y');
+    }
+
+    /**
+     * Format the reporting month range.
+     */
+    private function formatMonthRange($model): string
+    {
+        $months = $model->period?->reportingMonths;
+
+        if (! $months) {
+            return 'N/A';
+        }
+
+        return $months->start_month . ' - ' . $months->end_month;
+    }
+
+    /**
+     * Render expandable text without inserting unescaped user content.
+     */
+    private function expandableText(
+        ?string $text,
+        string $id,
+        string $tooltip
+    ): string {
+        if (! $text) {
+            return '<span class="text-muted">N/A</span>';
+        }
+
+        $safeId = e($id);
+        $safeText = e($text);
+        $safeTooltip = e($tooltip);
+
+        return <<<HTML
+            <details class="custom-tooltip" title="{$safeTooltip}">
+                <summary class="btn btn-sm btn-light border">
+                    <i class="bx bx-dots-horizontal-rounded"></i>
+                </summary>
+                <div class="mt-2 text-wrap">{$safeText}</div>
+            </details>
+        HTML;
+    }
+
+    /**
+     * Render a downloadable file link.
+     */
+    private function fileLink(?string $fileName): ?string
+    {
+        if (! $fileName) {
+            return null;
+        }
+
+        $safeFileName = e($fileName);
+        $url = e(asset('storage/imports/' . $fileName));
+
+        return <<<HTML
+            <a
+                class="text-success custom-tooltip"
+                title="Download file"
+                download="{$safeFileName}"
+                href="{$url}"
+            >
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-2">
+                        <div class="px-2 py-1 rounded-1 bg-success-subtle">
+                            <i class="fas fa-file-excel text-success"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 fw-bolder">
+                        {$safeFileName}
+                    </div>
+                </div>
+            </a>
+        HTML;
     }
 }

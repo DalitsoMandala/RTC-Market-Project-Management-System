@@ -6,91 +6,31 @@
     <div class="container-fluid">
 
         <!-- start page title -->
-        <div class="my-2 row">
-            <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-
-
-                    <div class="page-title-left col-12">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Indicators</li>
-                        </ol>
-                    </div>
-
-                </div>
-            </div>
+        <div class="row">
+            <x-breadcrumbs />
         </div>
         <!-- end page title -->
         <div class="row animate__animated animate__fadeIn">
             <div class="col-12">
                 <x-alerts />
-                <div class="card">
-                    <div class="card-header card-title fw-bold border-bottom-0 ">
-                        Indicators
 
+                <x-table-card title="Indicators" subtitle="Manage project indicators" :isResponsive="false">
+                    <x-slot:actions>
                         @hasanyrole('admin')
-                            <div class="mb-2 d-flex justify-content-end">
-                                <button type="button" class="btn btn-warning"
-                                    onclick="Livewire.dispatch('openIndicatorModal')">
-                                    <i class="bx bx-plus"></i> Add Indicator
-                                </button>
-                            </div>
+                            <x-button type="button" wire:click="dispatch('openIndicatorModal')">
+                                <i class="bx bx-plus"></i> Add Indicator
+                            </x-button>
                         @endhasanyrole
+                    </x-slot:actions>
 
-                    </div>
-                    <div class="card-body">
-                        <!-- Nav tabs -->
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
-                                    data-bs-target="#home" type="button" role="tab" aria-controls="home"
-                                    aria-selected="true" wire:ignore.self>
-
-
-                                    Indicators List
-
-                                    @hasanyrole('admin')
-                                        <span class="badge bg-success-subtle text-success ms-1 me-1 ">{{ 'Active: ' }}
-                                            <b>{{ $is_active }}</b></span>
-                                        <span class="badge bg-danger-subtle text-danger ms-1 me-1 ">{{ 'Inactive: ' }}
-                                            <b>{{ $is_inactive }}</b></span>
-                                    @endhasanyrole
-                                </button>
-                            </li>
-                            @hasanyrole('admin|manager')
-                                <li class="nav-item d-none " role="presentation">
-                                    <button class="nav-link " id="profile-tab" data-bs-toggle="tab"
-                                        data-bs-target="#profile" type="button" role="tab" aria-controls="profile"
-                                        aria-selected="false" wire:ignore.self>
-                                        Indicator Disaggregations
-                                    </button>
-                                </li>
-                            @endhasanyrole
-                        </ul>
-
-                        <!-- Tab panes -->
-                        <div class="tab-content">
-                            <div class="tab-pane active" wire:ignore.self id="home" role="tabpanel"
-                                aria-labelledby="home-tab">
-
-
-                                <livewire:tables.indicatorTable :userId="auth()->user()->id" />
-
-                            </div>
-
-
-
-
-
-
-                        </div>
-
-                    </div>
-
-
-
-                </div>
+                    @hasanyrole('admin')
+                        <span class="badge bg-success-subtle text-success my-2 ms-3 me-1 ">{{ 'Active: ' }}
+                            <b>{{ $is_active }}</b></span>
+                        <span class="badge bg-danger-subtle text-danger my-2 ms-1 me-1 ">{{ 'Inactive: ' }}
+                            <b>{{ $is_inactive }}</b></span>
+                    @endhasanyrole
+                    <livewire:tables.indicatorTable :userId="auth()->user()->id" />
+                </x-table-card>
             </div>
         </div>
 
