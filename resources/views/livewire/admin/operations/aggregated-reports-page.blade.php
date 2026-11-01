@@ -451,7 +451,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            {{ $row->systemReport->reportingPeriod ? $row->systemReport->reportingPeriod->start_month . '–' . $row->systemReport->reportingPeriod->end_month : '—' }}
+                                            {{ $row->systemReport->reportingPeriodMonth ? $row->systemReport->reportingPeriodMonth->start_month . '–' . $row->systemReport->reportingPeriodMonth->end_month : '—' }}
                                         </td>
                                         <td>{{ $row->systemReport->crop ?? 'All crops' }}</td>
 
@@ -540,7 +540,7 @@
              MODALS — bootstrap.Modal JS via showModal Livewire event
         ════════════════════════════════════════════════════════════════════ --}}
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const el = document.getElementById(e.name)
             if (el) bootstrap.Modal.getOrCreateInstance(el).show()
         });

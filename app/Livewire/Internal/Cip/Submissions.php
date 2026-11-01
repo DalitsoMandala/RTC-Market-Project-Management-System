@@ -592,7 +592,7 @@ class Submissions extends Component
             ->where('status', 'pending');
 
         $manual = Submission::where('batch_type', 'manual')
-            ->whereIn('reporting_period_month_id', $subPeriods)
+            ->whereIn('submission_period_new_id', $subPeriods)
             ->where('status', 'approved');
 
         $aggregate = Submission::where('batch_type', 'aggregate')

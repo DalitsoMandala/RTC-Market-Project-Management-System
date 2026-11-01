@@ -27,13 +27,16 @@ final class RpmFarmerCertified extends PowerGridComponent
 
     use WithExport;
     use ExportTrait;
+    public $rowId;
     public function datasource(): Builder
     {
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
-        $query = RpmFarmerCertifiedSeed::query()->with('farmers')->select([
+        $query = RpmFarmerCertifiedSeed::query()->when($this->rowId, function ($query) {
+            $query->where('rpmf_id', $this->rowId);
+        })->with('farmers')->select([
             'rpmf_certified_seed.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);

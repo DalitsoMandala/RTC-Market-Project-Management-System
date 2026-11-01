@@ -25,11 +25,14 @@ final class RpmProcessorAggCenters extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
+    public $rowId;
     public function datasource(): Builder
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmProcessorAggregationCenter::query()->with('processors')->select([
+        $query = RpmProcessorAggregationCenter::query()->when($this->rowId, function ($query) {
+            $query->where('rpmp_aggregation_centers.rpmp_id', $this->rowId);
+        })->with('processors')->select([
             'rpmp_aggregation_centers.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);

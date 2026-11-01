@@ -1,20 +1,6 @@
-<div>
+<x-detail-wrapper>
 
-    <!-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger -->
-    <div class="row bg-soft-secondary">
-        <div class="col-12 ">
-
-
-
-            <div class="">
-                <livewire:tables.submission-period-form-table :wire:key="'form-table-'.$row->rn" :submissionPeriodRow="$row->toArray()['model_data']" :currentRoutePrefix="Route::current()->getPrefix()" />
-
-            </div>
-
-        </div>
-    </div>
-
-
-
-
-</div>
+      <livewire:tables.submission-period-form-table :wire:key="'submission-period-data-table-'.$row->id"
+        :submissionPeriodRow="$row->id"
+         :currentRoutePrefix="Route::current()->getPrefix()" />
+</x-detail-wrapper>

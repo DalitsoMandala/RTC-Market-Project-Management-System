@@ -18,7 +18,7 @@ class AggregatedReport extends Model
     {
         return $this->hasMany(AggregatedReportData::class, 'aggregated_report_id');
     }
-    public function reportingPeriod()
+    public function reportingPeriodMonth()
     {
         return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }

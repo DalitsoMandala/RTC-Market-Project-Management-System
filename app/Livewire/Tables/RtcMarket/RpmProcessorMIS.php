@@ -24,12 +24,15 @@ final class RpmProcessorMIS extends PowerGridComponent
 {
     use WithExport;
     use \App\Traits\ExportTrait;
+    public $rowId;
     public function datasource(): Builder
     {
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmProcessorMarketInformationSystem::query()->with('processors')->select([
+        $query = RpmProcessorMarketInformationSystem::query()->when($this->rowId, function ($query) {
+            $query->where('rpmp_mis.rpmp_id', $this->rowId);
+        })->with('processors')->select([
             'rpmp_mis.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);

@@ -28,12 +28,15 @@ final class RpmFarmerBasic extends PowerGridComponent
 
     use WithExport;
     use ExportTrait;
+    public $rowId;
     public function datasource(): Builder
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
-        $query = RpmFarmerBasicSeed::query()->with('farmers')->select([
+        $query = RpmFarmerBasicSeed::query()->when($this->rowId, function ($query) {
+            $query->where('rpmf_id', $this->rowId);
+        })->with('farmers')->select([
             'rpmf_basic_seed.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);

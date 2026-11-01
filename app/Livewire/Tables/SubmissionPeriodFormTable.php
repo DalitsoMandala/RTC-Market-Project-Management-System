@@ -1,82 +1,104 @@
 <?php
+
 namespace App\Livewire\tables;
 
 use App\Models\Form;
-use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
+;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Ramsey\Uuid\Uuid;
-
+use PowerComponents\LivewirePowerGrid\Footer;
 final class SubmissionPeriodFormTable extends PowerGridComponent
 {
     use WithExport;
-    public $indicatorIds = [];
-    public $formIds      = [];
-    public array $submissionPeriodRow;
+
+    public array $indicatorIds = [];
+
+    public array $formIds = [];
+
+    public ?int $submissionPeriodRow = null;
+
     public $currentRoutePrefix;
 
-    public $organisation_id;
+    public ?int $organisation_id = null;
 
+    /**
+     * Initialize the component.
+     */
     public function setUp(): array
     {
+        $this->organisation_id = auth()
+            ->user()
+            ->organisation
+            ->id;
 
-        $data                  = $this->submissionPeriodRow;
-        $user                  = User::find(auth()->user()->id);
-        $this->organisation_id = $user->organisation->id;
+        return [
 
-        $submissionPeriods = SubmissionPeriod::where('date_established', $data['date_established'])
-            ->where('date_ending', $data['date_ending'])
-            ->where('is_expired', $data['is_expired'])
-            ->where('is_open', $data['is_open'])
-            ->where('financial_year_id', $data['financial_year_id'])
-            ->where('reporting_period_month_id', $data['reporting_period_month_id'])
-            ->join('forms', 'submission_periods.form_id', '=', 'forms.id')
-            ->where('forms.is_active', true)
-
-            ->pluck('form_id')
-            ->unique()
-            ->values()->toArray();
-
-        $this->formIds = $submissionPeriods;
-
-        return [];
+               Footer::make()
+                ->showPerPage()
+                ->showRecordCount(),
+        ];
     }
 
+    /**
+     * Get active forms assigned to the current organisation.
+     */
     public function datasource(): Builder
     {
-        $user            = User::find(auth()->user()->id);
-        $organisation_id = $user->organisation->id;
-        $myIndicators    = ResponsiblePerson::where('organisation_id', $organisation_id)
-        // Ensure that the relationship 'sources' exists
-            ->pluck('indicator_id')
-            ->toArray();
+        $organisationId = $this->organisation_id
+            ?? auth()->user()->organisation->id;
 
-        $query = Form::query()->with('indicators')
-            ->whereHas('indicators', function ($query) use ($myIndicators) {
-                $query->whereIn('indicators.id', $myIndicators);
+        $myIndicators = ResponsiblePerson::query()
+            ->where('organisation_id', $organisationId)
+            ->pluck('indicator_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        return Form::query()
+            ->with([
+                'indicators' => function ($query) {
+                    $query->where('indicators.is_active', true);
+                },
+            ])
+            ->where('forms.is_active', true)
+            ->whereHas('indicators', function (Builder $query) use ($myIndicators) {
+                $query
+                    ->whereIn('indicators.id', $myIndicators)
+                    ->where('indicators.is_active', true);
             })
-            ->whereIn('id', $this->formIds)->select([
-            '*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-        ]);
-        return $query;
+            ->select([
+                'forms.*',
+                DB::raw(
+                    'ROW_NUMBER() OVER (ORDER BY forms.id) AS rn'
+                ),
+            ]);
     }
 
+    /**
+     * Get the selected submission period ID.
+     */
+    private function getCurrentSubmissionPeriodId(): ?int
+    {
+        return $this->submissionPeriodRow;
+    }
+
+    /**
+     * PowerGrid fields.
+     */
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
@@ -84,75 +106,115 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             ->add('name')
             ->add('type')
             ->add('slug')
+
             ->add('indicators', function ($model) {
+                $indicators = $model->indicators
+                    ->pluck('indicator_name')
+                    ->toArray();
 
-                $indicators = $model->indicators->pluck('indicator_name')->toArray();
-                return Str::limit(implode(', ', $indicators), 50);
+                return Str::limit(
+                    implode(', ', $indicators),
+                    50
+                );
             })
+
             ->add('submisssions', function ($model) {
-                $data            = $this->submissionPeriodRow;
-                $organisation_id = auth()->user()->organisation->id;
-                $submissions     = Submission::with(['form', 'period', 'user.organisation'])->whereHas(
-                    'form',
-                    function (Builder $query) use ($model) {
-                        $query->where('id', $model->id);
-                    }
-                )->whereHas('period', function ($query) use ($data) {
-                    $query->where('date_established', $data['date_established'])
-                        ->where('date_ending', $data['date_ending'])
-                        ->where('is_expired', $data['is_expired'])
-                        ->where('is_open', $data['is_open'])
-                        ->where('financial_year_id', $data['financial_year_id'])
-                        ->where('reporting_period_month_id', $data['reporting_period_month_id']);
-                })
-                    ->whereHas('user.organisation', function ($query) use ($organisation_id) {
-                        $query->where('id', $organisation_id);
+                $organisationId = $this->organisation_id
+                    ?? auth()->user()->organisation->id;
+
+                $periodId = $this->getCurrentSubmissionPeriodId();
+
+                if (!$periodId) {
+                    return 'No submissions';
+                }
+
+                $counts = Submission::query()
+                    ->where('form_id', $model->id)
+
+                    ->whereHas('period', function (Builder $query) use ($periodId) {
+                        $query->where(
+                            'submission_period_new_id',
+                            $periodId
+                        );
                     })
-                    ->get();
 
-                $counts = $submissions->groupBy('batch_type')->map->count();
+                    ->whereHas('user.organisation', function (Builder $query) use ($organisationId) {
+                        $query->where(
+                            'organisations.id',
+                            $organisationId
+                        );
+                    })
 
-                $batch     = $counts['batch'] ?? 0;
-                $manual    = $counts['manual'] ?? 0;
-                $aggregate = $counts['aggregate'] ?? 0;
+                    ->select('batch_type')
+                    ->selectRaw('COUNT(*) AS total')
+                    ->groupBy('batch_type')
+                    ->pluck('total', 'batch_type');
 
-                if ($model->name == 'REPORT FORM') {
+                $batch = $counts->get('batch', 0);
+
+                $manual = $counts->get('manual', 0);
+
+                $aggregate = $counts->get('aggregate', 0);
+
+                if ($model->name === 'REPORT FORM') {
                     return <<<HTML
-                      <span class=" me-1">Aggregate: <b>$aggregate</b></span>
+                        <span class="me-1">
+                            Aggregate: <b>{$aggregate}</b>
+                        </span>
                     HTML;
                 }
 
                 return <<<HTML
-        <span class=" me-1">Batch: <b>$batch</b></span> |
-        <span class=" me-1">Manual: <b>$manual</b> </span>
-
-    HTML;
+                    <span class="me-1">
+                        Batch: <b>{$batch}</b>
+                    </span>
+                    |
+                    <span class="me-1">
+                        Manual: <b>{$manual}</b>
+                    </span>
+                HTML;
             })
+
             ->add('status', function ($model) {
-                $data                     = $this->submissionPeriodRow;
-                $userId                   = auth()->id(); // Or pass in if needed
-                $userOrganisation         = User::find($userId)->organisation->id;
-                $usersForTHisOrganisation = Organisation::with('users')->find($userOrganisation);
-                $users                    = $usersForTHisOrganisation->users->pluck('id')->toArray();
-                $hasSubmission            = Submission::whereIn('user_id', $users)
-                    ->whereHas('form', function (Builder $query) use ($model) {
-                        $query->where('id', $model->id);
+                $periodId = $this->getCurrentSubmissionPeriodId();
+
+                if (!$periodId) {
+                    return '<span class="badge text-danger bg-soft-danger">
+                        Not Submitted
+                    </span>';
+                }
+
+                $organisationId = $this->organisation_id
+                    ?? auth()->user()->organisation->id;
+
+                $hasSubmission = Submission::query()
+                    ->where('form_id', $model->id)
+
+                    ->whereHas('period', function (Builder $query) use ($periodId) {
+                        $query->where(
+                            'submission_period_new_id',
+                            $periodId
+                        );
                     })
-                    ->whereHas('period', function (Builder $query) use ($data) {
-                        $query->where('date_established', $data['date_established'])
-                            ->where('date_ending', $data['date_ending'])
-                            ->where('is_expired', $data['is_expired'])
-                            ->where('is_open', $data['is_open'])
-                            ->where('financial_year_id', $data['financial_year_id'])
-                            ->where('reporting_period_month_id', $data['reporting_period_month_id']);
+
+                    ->whereHas('user.organisation', function (Builder $query) use ($organisationId) {
+                        $query->where(
+                            'organisations.id',
+                            $organisationId
+                        );
                     })
+
                     ->exists();
 
                 if ($hasSubmission) {
-                    return '<span class="badge text-success bg-soft-success">Submitted</span>';
+                    return '<span class="badge text-success bg-soft-success">
+                        Submitted
+                    </span>';
                 }
 
-                return '<span class="badge text-danger bg-soft-danger">Not Submitted</span>';
+                return '<span class="badge text-danger bg-soft-danger">
+                    Not Submitted
+                </span>';
             })
 
             ->add('project_id')
@@ -160,39 +222,67 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             ->add('updated_at');
     }
 
+    /**
+     * Define table columns.
+     */
     public function columns(): array
     {
-        $user = User::find(auth()->user()->id);
+        $user = auth()->user();
+
         if ($user->hasAnyRole('external')) {
             return [
+                    Column::action(''),
                 Column::make('#', 'rn'),
+
                 Column::make('Name', 'name'),
+
                 Column::make('Submission Status', 'status'),
 
-                Column::action(''),
+
             ];
         }
+
         return [
-            Column::make('#', 'rn')->headerAttribute('table-secondary table-bordered'),
-            Column::make('Name', 'name')->headerAttribute('table-secondary table-bordered'),
-            Column::make('Submission Status', 'status')->headerAttribute('table-secondary table-bordered'),
-            Column::make('Submissions (Per Organisation)', 'submisssions')->headerAttribute('table-secondary table-bordered'),
-            Column::action('')->headerAttribute('table-secondary table-bordered'),
+            Column::action('')
+                ->headerAttribute('table-secondary table-bordered'),
+            Column::make('#', 'rn')
+                ->headerAttribute('table-secondary table-bordered'),
+
+            Column::make('Name', 'name')
+                ->headerAttribute('table-secondary table-bordered'),
+
+            Column::make('Submission Status', 'status')
+                ->headerAttribute('table-secondary table-bordered'),
+
+            Column::make(
+                'Submissions (Per Organisation)',
+                'submisssions'
+            )->headerAttribute('table-secondary table-bordered'),
+
 
         ];
     }
 
+    /**
+     * Table filters.
+     */
     public function filters(): array
     {
         return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
+    /**
+     * Edit event.
+     */
+    #[On('edit')]
     public function edit($rowId): void
     {
-        $this->js('alert(' . $rowId . ')');
+        $this->js('alert(' . (int) $rowId . ')');
     }
 
+    /**
+     * Define row actions.
+     */
     public function actions($row): array
     {
         return [
@@ -201,113 +291,170 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Add Data')
-                ->dispatch('sendData', ['model' => $row]),
+                ->dispatch('sendData', [
+                    'model' => $row,
+                ]),
 
             Button::add('upload')
                 ->slot('<i class="bx bx-upload"></i>')
                 ->id()
                 ->tooltip('Upload Your Data')
                 ->class('btn btn-warning my-1 btn-sm custom-tooltip')
-                ->dispatch('sendData', ['model' => $row, 'upload' => true]),
+                ->dispatch('sendData', [
+                    'model' => $row,
+                    'upload' => true,
+                ]),
         ];
     }
 
+    /**
+     * Handle Add Data / Upload Data actions.
+     */
     #[On('sendData')]
     public function sendData($model, $upload = false)
     {
-        $model = (object) $model;
-        $data  = $this->submissionPeriodRow;
+        $model = (array) $model;
 
-        $form = Form::findOrFail($model->id);
+        $formId = (int) ($model['id'] ?? 0);
 
-        $submissionPeriodId = $this->getSubmissionPeriodId($data, $model->id);
+        $form = Form::with('project')
+            ->findOrFail($formId);
+
+        $submissionPeriodId = $this->getCurrentSubmissionPeriodId();
+
+        if (!$submissionPeriodId) {
+            throw new \RuntimeException(
+                'The selected submission period could not be found.'
+            );
+        }
 
         $route = $this->buildRoute(
             form: $form,
-            modelId: $model->id,
-            data: $data,
+            modelId: $formId,
             submissionPeriodId: $submissionPeriodId,
-            upload: $upload
+            upload: (bool) $upload
         );
 
         return redirect($route);
     }
 
-    private function getSubmissionPeriodId(array $data, int $formId): ?int
-    {
-        return SubmissionPeriod::where([
-            'date_established'          => $data['date_established'],
-            'date_ending'               => $data['date_ending'],
-            'is_expired'                => $data['is_expired'],
-            'is_open'                   => $data['is_open'],
-            'financial_year_id'         => $data['financial_year_id'],
-            'reporting_period_month_id' => $data['reporting_period_month_id'],
-            'form_id'                   => $formId,
-        ])->inRandomOrder()->value('id');
-    }
+    /**
+     * Build the correct route for the selected form.
+     */
+    private function buildRoute(
+        Form $form,
+        int $modelId,
+        int $submissionPeriodId,
+        bool $upload
+    ): string {
+        $period = SubmissionPeriod::findOrFail(
+            $submissionPeriodId
+        );
 
-    private function buildRoute($form, int $modelId, array $data, $submissionPeriodId, bool $upload): string
-    {
-        $financialYearId    = $data['financial_year_id'];
-        $monthRangePeriodId = $data['reporting_period_month_id'];
-        $routePrefix        = $data['routePrefix'];
+        $financialYearId = $period->financial_year_id;
+
+        $monthRangePeriodId = $period->reporting_period_month_id;
+
+        $routePrefix = $this->currentRoutePrefix ?? '';
 
         $formName = $this->slug($form->name);
-        $project  = $this->slug($form->project->name);
+
+        $project = $this->slug(
+            $form->project->name
+        );
 
         if ($upload) {
-            return "{$routePrefix}/forms/{$project}/{$formName}/upload/{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}/" . Uuid::uuid4();
+            return "{$routePrefix}/forms/{$project}/{$formName}/upload/"
+                . "{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/"
+                . "{$submissionPeriodId}/"
+                . Uuid::uuid4()->toString();
         }
 
         if ($form->name === 'REPORT FORM') {
-            return "{$routePrefix}/forms/{$project}/aggregate/{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
+            return "{$routePrefix}/forms/{$project}/aggregate/"
+                . "{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/"
+                . "{$submissionPeriodId}";
         }
 
-        return "{$routePrefix}/forms/{$project}/{$formName}/add/{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
+        return "{$routePrefix}/forms/{$project}/{$formName}/add/"
+            . "{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/"
+            . "{$submissionPeriodId}";
     }
 
+    /**
+     * Generate a route slug.
+     */
     private function slug(string $value): string
     {
-        return str($value)->lower()->replace(' ', '-');
+        return Str::slug($value);
     }
 
+    /**
+     * Handle the separate upload event.
+     */
     #[On('sendUploadData')]
     public function sendUploadData($model)
     {
-        $model       = (object) $model;
-        $form        = Form::find($model->form_id);
-        $data        = $this->submissionPeriodRow;
-        $routePrefix = $data['routePrefix'];
-        $form_name   = str_replace(' ', '-', strtolower($form->name));
-        $project     = str_replace(' ', '-', strtolower($form->project->name));
+        $model = (array) $model;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->reporting_period_month_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
+        $formId = (int) ($model['form_id'] ?? 0);
 
-        $this->redirect($route);
+        $form = Form::with('project')
+            ->findOrFail($formId);
+
+        $periodId = $this->getCurrentSubmissionPeriodId();
+
+        if (!$periodId) {
+            throw new \RuntimeException(
+                'The selected submission period could not be found.'
+            );
+        }
+
+        $period = SubmissionPeriod::findOrFail($periodId);
+
+        $routePrefix = $this->currentRoutePrefix ?? '';
+
+        $formName = $this->slug($form->name);
+
+        $project = $this->slug(
+            $form->project->name
+        );
+
+        $financialYearId = $model['financial_year_id']
+            ?? $period->financial_year_id;
+
+        $monthRangePeriodId = $model['reporting_period_month_id']
+            ?? $period->reporting_period_month_id;
+
+        $indicatorId = $model['indicator_id'] ?? 0;
+
+        $submissionId = $model['id'] ?? 0;
+
+        $route = "{$routePrefix}/forms/{$project}/{$formName}/upload/"
+            . "{$formId}/{$indicatorId}/"
+            . "{$financialYearId}/{$monthRangePeriodId}/"
+            . "{$submissionId}/"
+            . Uuid::uuid4()->toString();
+
+        return redirect($route);
     }
 
+    /**
+     * Hide actions based on form type.
+     */
     public function actionRules($row): array
     {
-
-        $currentDate     = Carbon::now();
-        $establishedDate = $this->submissionPeriodRow['date_established'];
-        $endDate         = $this->submissionPeriodRow['date_ending'];
-
-        $startDate = Carbon::parse($establishedDate);
-        $endDate   = Carbon::parse($endDate);
-
-        $withinDateRange = $currentDate->between($startDate, $endDate);
-
         return [
 
-            // Rules for adding data
-            Rule::button('add-data')
-                ->when(fn() => ! ($row->id && in_array(Form::find($row->id)->name, ['REPORT FORM'])))
+     Rule::button('add-data')
+                ->when(
+                    fn ($row) => $row->name !== 'REPORT FORM'
+                )
                 ->hide(),
-
-            // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => ($row->id && in_array(Form::find($row->id)->name, ['REPORT FORM'])))
+                ->when(
+                    fn ($row) => $row->name === 'REPORT FORM'
+                )
                 ->hide(),
         ];
     }

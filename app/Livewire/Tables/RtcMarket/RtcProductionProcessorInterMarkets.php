@@ -27,6 +27,7 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     use WithExport;
     use \App\Traits\ExportTrait;
     public bool $deferLoading = false;
+    public $rowId;
     public function setUp(): array
     {
 
@@ -47,7 +48,9 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmProcessorInterMarket::query()->with('processors')->select([
+        $query = RpmProcessorInterMarket::query()->when($this->rowId, function ($query) {
+            $query->where('rpm_processor_id', $this->rowId);
+        })->with('processors')->select([
             'rpm_processor_inter_markets.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);

@@ -28,6 +28,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
     use WithExport;
     use ExportTrait;
     public bool $deferLoading = false;
+    public $rowId;
     public function setUp(): array
     {
 
@@ -49,7 +50,9 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmFarmerConcAgreement::query()->with('farmers')->select([
+        $query = RpmFarmerConcAgreement::query()->when($this->rowId, function ($query) {
+            $query->where('rpm_farmer_id', $this->rowId);
+        })->with('farmers')->select([
             'rpm_farmer_conc_agreements.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);

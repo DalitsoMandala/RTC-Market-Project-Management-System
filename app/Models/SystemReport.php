@@ -21,7 +21,7 @@ class SystemReport extends Model
         return $this->belongsTo(FinancialYear::class);
     }
 
-    public function reportingPeriod()
+    public function reportingPeriodMonth()
     {
         return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }

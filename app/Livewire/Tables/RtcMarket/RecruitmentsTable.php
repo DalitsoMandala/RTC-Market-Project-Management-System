@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Detail;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -43,6 +44,9 @@ final class RecruitmentsTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
+
+            Detail::make()
+                ->view('components.powergrid-components.recruitments-detail')->collapseOthers(),
         ];
     }
     public $namedExport = 'recruits';
@@ -185,6 +189,13 @@ final class RecruitmentsTable extends PowerGridComponent
                     // Using a simple return is faster than compiling a Blade view for a single button
                     return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
                 }),
+
+                      Button::add('detail')
+                ->slot('<i class="bx bx-show"></i>')
+                ->class('btn btn-warning btn-sm')
+                ->tooltip('View Details')
+                ->toggleDetail($row->id),
+
         ];
     }
     public function columns(): array

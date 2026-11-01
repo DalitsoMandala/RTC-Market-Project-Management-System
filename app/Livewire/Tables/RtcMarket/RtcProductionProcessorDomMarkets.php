@@ -28,7 +28,7 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
-
+public $rowId;
     public function setUp(): array
     {
 
@@ -50,7 +50,9 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmProcessorDomMarket::query()->with('processors')->select([
+        $query = RpmProcessorDomMarket::query()->when($this->rowId, function ($query) {
+            $query->where('rpm_processor_id', $this->rowId);
+        })->with('processors')->select([
             'rpm_processor_dom_markets.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);

@@ -6,7 +6,7 @@
 
         <!-- start page title -->
         <div class="row">
-           <x-breadcrumbs />
+            <x-breadcrumbs />
         </div>
         <!-- end page title -->
         <div class="row">
@@ -15,9 +15,9 @@
             <div class="col-12">
                 <x-alerts />
 
-                <x-table-card :title="'Forms List'" :subtitle="'Manage and track all project forms'" >
-<x-slot:actions>
-      <div class="flex-wrap gap-2 d-flex align-items-center">
+                <x-table-card :title="'Forms List'" :subtitle="'Manage and track all project forms'">
+                    <x-slot:actions>
+                        <div class="flex-wrap gap-2 d-flex align-items-center">
                             @hasanyrole('monitor|admin|manager')
                                 {{-- Add Form Button --}}
                                 <button type="button"
@@ -53,9 +53,9 @@
                                 @endif
                             @endhasanyrole
                         </div>
-</x-slot:actions>
+                    </x-slot:actions>
 
-       <livewire:tables.form-table />
+                    <livewire:tables.form-table />
                 </x-table-card>
 
 

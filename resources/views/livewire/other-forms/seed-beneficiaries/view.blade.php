@@ -8,12 +8,16 @@
         <div class="row">
             <div class="col-12">
 
-                @if (auth()->user()->organisation->name === 'CIP')
+                @if (auth()->user()->organisation->name !== 'IITA')
                     <x-table-card :title="'Seed Beneficiaries Table'" :subtitle="'Seed Beneficiaries Data (Potato)'">
                         <livewire:tables.seed-beneficiary-table :crop="'Potato'" />
                     </x-table-card>
                     <x-table-card :title="'Seed Beneficiaries Table'" :subtitle="'Seed Beneficiaries Data (OFSP)'">
                         <livewire:tables.seed-beneficiaries-o-f-s-p-table :crop="'OFSP'" />
+                    </x-table-card>
+
+                     <x-table-card :title="'Seed Beneficiaries Table'" :subtitle="'Seed Beneficiaries Data (Cassava)'">
+                        <livewire:tables.seed-beneficiaries-cassava-table :crop="'Cassava'" />
                     </x-table-card>
                 @endif
                 @if (auth()->user()->organisation->name === 'IITA' || auth()->user()->organisation->name === 'CIP')

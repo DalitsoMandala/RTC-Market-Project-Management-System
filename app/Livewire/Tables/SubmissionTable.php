@@ -607,6 +607,12 @@ final class SubmissionTable extends PowerGridComponent
             Rule::button('bulk-download')
                 ->when(fn () => true)
                 ->disable(),
+
+                  Rule::checkbox()
+              ->when(fn ($row) =>
+                    in_array($row->status, ['denied', 'disapproved'], true)
+                )
+                ->hide(),
         ];
     }
 }

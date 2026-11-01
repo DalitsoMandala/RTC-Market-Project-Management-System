@@ -195,7 +195,7 @@ class DashboardCharts extends Component
     private function  loadLastSubmissions()
     {
 
-        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])->take(5)->orderBy('created_at', 'desc')->get();
+        $this->lastSubmission = Submission::query()->with(['user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])->take(5)->orderBy('created_at', 'desc')->get();
     }
 
     private function loadAttendanceData()

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Admin\Operations;
 
 use App\Models\AggregatedReport;
@@ -9,6 +10,9 @@ use App\Models\IndicatorDisaggregation;
 use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
 use App\Models\User;
+use App\Services\ProjectService;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -160,6 +164,7 @@ class AggregatedReportsPage extends Component
         $this->resetCreateForm();
     }
 
+
     public function submitCreate(): void
     {
         $this->validate($this->formRules(), $this->formMessages());
@@ -167,33 +172,56 @@ class AggregatedReportsPage extends Component
         // Duplicate check — same combination already exists?
         $existing = AggregatedReport::where([
             'indicator_id'              => $this->formIndicatorId,
-            'organisation_id'           => $this->formOrganisationId,
-            'financial_year_id'         => $this->formFinancialYearId,
-            'reporting_period_month_id' => $this->formReportingPeriodId,
-        ])->when($this->formCrop, fn($q) => $q->where('crop', $this->formCrop))
+            'organisation_id'            => $this->formOrganisationId,
+            'financial_year_id'          => $this->formFinancialYearId,
+            'reporting_period_month_id'  => $this->formReportingPeriodId,
+            'project_id' => ProjectService::app_project_id(),
+            'crop' => $this->formCrop,
+
+        ])
+
             ->first();
+
 
         if ($existing) {
             $this->duplicateId = $existing->id;
-            return; // blade will show the duplicate warning
+
+            return;
         }
 
-        $record = AggregatedReport::create([
-            'indicator_id'              => $this->formIndicatorId,
-            'organisation_id'           => $this->formOrganisationId,
-            'financial_year_id'         => $this->formFinancialYearId,
-            'reporting_period_month_id' => $this->formReportingPeriodId,
-            'crop'                      => $this->formCrop ?: null,
-        ]);
+        try {
+            DB::transaction(function () {
+                $record = AggregatedReport::create([
+                    'indicator_id'              => $this->formIndicatorId,
+                    'organisation_id'           => $this->formOrganisationId,
+                    'financial_year_id'         => $this->formFinancialYearId,
+                    'reporting_period_month_id' => $this->formReportingPeriodId,
+                    'project_id'                => ProjectService::app_project_id(),
+                    'crop'                      => $this->formCrop ?: null,
+                ]);
+                $name = IndicatorDisaggregation::find($this->formDisaggregationId)->name;
+               $record->data()->create([
+                    'value'                => $this->formValue,
+                    'name'                 => $name,
+                ]);
 
-        AggregatedReportData::create([
-            'aggregated_report_id' => $record->id,
-            'value'                => $this->formValue,
-        ]);
 
-        $this->resetCreateForm();
-        $this->showCreateForm = false;
-        session()->flash('success', 'Record created successfully.');
+            });
+
+            $this->resetCreateForm();
+            $this->showCreateForm = false;
+
+            session()->flash('success', 'Record created successfully.');
+            Artisan::call('update:information');
+        } catch (Throwable $e) {
+            report($e);
+
+
+            session()->flash(
+                'error',
+                'Unable to create the record. Please try again.'
+            );
+        }
     }
 
     /**
@@ -343,7 +371,7 @@ class AggregatedReportsPage extends Component
         $query = AggregatedReportData::with([
             'systemReport',
             'systemReport.indicator',
-            'systemReport.reportingPeriod',
+            'systemReport.reportingPeriodMonth',
             'systemReport.financialYear',
             'systemReport.organisation',
             'systemReport.project',
@@ -433,5 +461,4 @@ class AggregatedReportsPage extends Component
             'disaggregationModels' => IndicatorDisaggregation::orderBy('name')->get()->unique('name'),
         ]);
     }
-
 }

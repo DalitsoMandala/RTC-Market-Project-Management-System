@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Detail;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
@@ -49,6 +50,8 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->showPerPage(10)
                 ->pageName('processors')
                 ->showRecordCount(),
+            Detail::make()
+                ->view('components.powergrid-components.processors-detail'),
         ];
     }
 
@@ -421,7 +424,14 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->render(function () use ($link) {
                     // Using a simple return is faster than compiling a Blade view for a single button
                     return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
-                })
+                }),
+
+                      Button::add('detail')
+                ->slot('<i class="bx bx-show"></i>')
+                ->class('btn btn-warning btn-sm')
+                ->tooltip('View Details')
+                ->toggleDetail($row->id),
+
         ];
     }
     // public function actions($row): array

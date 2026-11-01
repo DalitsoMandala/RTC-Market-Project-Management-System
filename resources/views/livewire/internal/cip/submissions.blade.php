@@ -16,7 +16,7 @@
         <div class="row">
             <div class="col-12">
                 <x-alerts />
-                <x-table-card :title="'Batch Submissions'" :subtitle="'View all submissions'">
+                <x-table-card :title="'Batch Submissions'" :subtitle="'View all batch submissions'">
                     <livewire:tables.submission-table :routePrefix="$routePrefix" :tableName="'SubmissionTable'" :userId="auth()->user()->id" />
                 </x-table-card>
                 <x-table-card :title="'Aggregate Submissions'" :subtitle="'View aggregate submissions'">
