@@ -26,7 +26,7 @@ class RoleBasedRedirectHelper
         if ($user->hasAnyRole('staff')) {
             return '/staff/dashboard';
         }
-        if ($user->hasAnyRole('project_manager')) {
+        if ($user->hasAnyRole('project-manager')) {
             return '/cip/project-manager/dashboard';
         }
 

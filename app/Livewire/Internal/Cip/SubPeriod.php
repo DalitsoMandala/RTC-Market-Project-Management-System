@@ -2,45 +2,48 @@
 
 namespace App\Livewire\Internal\Cip;
 
-use Throwable;
-use Carbon\Carbon;
-use App\Models\Form;
-use App\Models\User;
-use App\Models\Project;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\Submission;
-use App\Models\MailingList;
-use Livewire\Attributes\On;
-use App\Models\Organisation;
+use App\Jobs\sendAllIndicatorNotificationJob;
+use App\Jobs\SendNotificationJob;
 use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\MailingList;
+use App\Models\Organisation;
+use App\Models\OrganisationTarget;
+use App\Models\Project;
 use App\Models\ReportingPeriod;
-use App\Traits\IndicatorsTrait;
-use Illuminate\Validation\Rule;
+use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Jobs\SendNotificationJob;
-use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
+use App\Models\User;
+use App\Services\ProjectService;
+use App\Traits\IndicatorsTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
-use App\Models\IndicatorDisaggregation;
-use App\Jobs\sendAllIndicatorNotificationJob;
+use Illuminate\Validation\ValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Notifications\EmployeeBroadcastNotification;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Throwable;
 
 class SubPeriod extends Component
 {
     use LivewireAlert;
     use IndicatorsTrait;
+
     public $rowId;
     public $rowData = [];
     public $forms = [];
-    public $status = false;
-    public $expired = false;
+
+    public bool $is_open = false;
+    public bool $is_expired = false;
+    public bool $is_restricted = false;
 
     #[Validate('required', as: 'start of submissions')]
     public $start_period;
@@ -69,362 +72,604 @@ class SubPeriod extends Component
     public $organisations = [];
     public $selectedOrganisation;
     public $selectedOrganisations = [];
-    public $is_restricted = false;
-    public $notifyUsers = true;
+
+    public bool $notifyUsers = true;
+    public bool $bypassNotifications = false;
+
     #[Validate('required')]
     public $selectedIndicator;
 
     public $all;
-    public $targets = [];  // This will hold the dynamically added targets
-    public $cip_targets = [];  // This will hold the dynamically added
+    public $targets = [];
+    public $cip_targets = [];
     public $disableTarget = true;
     public $isCipTargets = false;
+
     protected $rules = [];
+
     public $selectAllIndicators = true;
     public $skipTargets = true;
-    public bool $bypassNotifications = false;
 
     protected function rules()
     {
-        $isCipTargets = $this->isCipTargets;
         return [
-            //     'targets.*' => 'required',
-            //   'targets.*.name' => 'required|string|distinct',
-            //  'targets.*.value' => 'required|numeric',
-            // 'cip_targets.*.value' => [
-            //     Rule::requiredIf(function () use ($isCipTargets) {
-            //         return $isCipTargets === true;  // or whatever condition checks your flag
-            //     }),
-            // ],
             'selectedOrganisations' => 'required',
         ];
     }
 
-    protected $messages = [
-        // 'targets.*.name.required' => 'Target name required',
-        // 'targets.*.value.required' => 'Target value required',
-        // 'targets.*.value.numeric' => 'Target value must be numeric',
-        // 'targets.*.name.distinct' => 'Target name must be unique',
-        // 'cip_targets.*.value.required' => 'Target value required',
-        // 'cip_targets.*.value.numeric' => 'Target value must be numeric',
-    ];
+    protected $messages = [];
 
     public function mount()
     {
         $this->loadData();
+
+        $this->selectedProject = ProjectService::app_project_id();
     }
 
-    /**
-     * Add a new target to the array
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Target management
+    |--------------------------------------------------------------------------
+    */
+
     public function addTarget()
     {
         $this->targets->push([
             'name' => null,
-            'value' => null
+            'value' => null,
         ]);
+
         $this->cip_targets->push([
             'name' => null,
-            'value' => null
+            'value' => null,
         ]);
     }
 
-    /**
-     * Remove a target from the array
-     */
     public function removeTarget($index)
     {
-        //  unset($this->targets[$index]);
-        $this->targets = array_values($this->targets);  // Reindex the array
-        $this->cip_targets = array_values($this->cip_targets);  // Reindex the array
-        $this->targets = $this->targets->forget($index)->values();
-        $this->cip_targets = $this->cip_targets->forget($index)->values();
+        $this->targets = collect($this->targets)
+            ->forget($index)
+            ->values();
+
+        $this->cip_targets = collect($this->cip_targets)
+            ->forget($index)
+            ->values();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load component data
+    |--------------------------------------------------------------------------
+    */
 
     public function loadData()
     {
         $this->projects = Project::all();
         $this->financialYears = FinancialYear::all();
         $this->months = ReportingPeriodMonth::all();
-        $this->indicators = Indicator::all();
+        $this->indicators = Indicator::where('is_active', true)->get();
         $this->forms = Form::all();
         $this->disaggregations = IndicatorDisaggregation::all();
+
         $this->fill([
             'targets' => collect([
                 [
                     'name' => null,
-                    'value' => null
-                ]
+                    'value' => null,
+                ],
             ]),
+
             'selectedProject' => 1,
+
             'cip_targets' => collect([
                 [
                     'name' => null,
-                    'value' => null
-                ]
-            ])
+                    'value' => null,
+                ],
+            ]),
         ]);
+
         $this->organisations = Organisation::get();
         $this->selectedOrganisations = [0];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Edit submission period
+    |--------------------------------------------------------------------------
+    */
 
-
-
-    #[On('editData')]
+    #[On('edit-period')]
     public function fillData($row)
     {
         $row = (object) $row;
+
         $this->rowData = $row;
-        $this->rowId = $row->rn;
+        $this->rowId = $row->id;
 
+        $this->start_period = Carbon::parse($row->date_established)
+            ->format('Y-m-d H:i:s');
 
+        $this->end_period = Carbon::parse($row->date_ending)
+            ->format('Y-m-d H:i:s');
 
-        $this->start_period = Carbon::parse($row->date_established)->format('Y-m-d H:i:s');
-        $this->end_period = Carbon::parse($row->date_ending)->format('Y-m-d H:i:s');
-        $this->status = $row->is_open;
-        $this->selectedMonth = $row->month_range_period_id;
+        $this->is_open = (bool) $row->is_open;
+        $this->is_expired = (bool) $row->is_expired;
+        $this->is_restricted = (bool) $row->is_restricted;
+
+        // Normalize existing expired records.
+        if ($this->is_expired) {
+            $this->is_open = false;
+            $this->is_restricted = false;
+        }
+
+        $this->selectedMonth = $row->reporting_period_month_id;
         $this->selectedFinancialYear = $row->financial_year_id;
-        $this->is_restricted = $row->is_restricted;
-        $this->bypassNotifications = $row->bypass_notification;
+
+        $this->bypassNotifications = (bool) $row->bypass_notification;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Submission status management
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * When a period expires, automatically close submissions
+     * and remove submission restrictions.
+     */
+    public function updatedIsExpired($value): void
+    {
+        $this->is_expired = (bool) $value;
+
+        if ($this->is_expired) {
+            $this->is_open = false;
+            $this->is_restricted = false;
+        }
+    }
+
+    /**
+     * An expired period cannot be reopened.
+     */
+    public function updatedIsOpen($value): void
+    {
+        if ($this->is_expired && $value) {
+            $this->is_open = false;
+        }
+    }
+
+    /**
+     * An expired period cannot be restricted.
+     */
+    public function updatedIsRestricted($value): void
+    {
+        if ($this->is_expired && $value) {
+            $this->is_restricted = false;
+        }
+    }
+
+    /**
+     * Validate the submission period status before updating.
+     *
+     * A period must either be open or expired.
+     * Both statuses cannot be false.
+     */
+    private function validateSubmissionStatus(): bool
+    {
+        if (! $this->is_expired && ! $this->is_open) {
+            $this->addError(
+                'is_open',
+                'You cannot close submissions without marking the period as expired. Either keep submissions open or mark the period as expired.'
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Project-related data
+    |--------------------------------------------------------------------------
+    */
 
     public function updateProjectRelatedData($project)
     {
-        $period = ReportingPeriod::findOrFail($project->reporting_period_id);
-        $this->months = ReportingPeriodMonth::where('period_id', $period->id)->get();
-        $this->financialYears = FinancialYear::where('project_id', $project->id)->get();
-        $this->indicators = Indicator::where('project_id', $project->id)->get();
+        $period = ReportingPeriod::findOrFail(
+            $project->reporting_period_id
+        );
 
-        $this->dispatch('update-indicator', data: $this->indicators, selected: $this->selectedIndicator);
+        $this->months = ReportingPeriodMonth::where(
+            'reporting_period_month_id',
+            $period->id
+        )->get();
+
+        $this->financialYears = FinancialYear::where(
+            'project_id',
+            $project->id
+        )->get();
+
+        $this->indicators = Indicator::where(
+            'project_id',
+            $project->id
+        )
+            ->where('is_active', true)
+            ->get();
+
+        $this->dispatch(
+            'update-indicator',
+            data: $this->indicators,
+            selected: $this->selectedIndicator
+        );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save submission period
+    |--------------------------------------------------------------------------
+    */
 
     public function save()
     {
+        $this->resetErrorBag();
+
         try {
-
-
             $this->validate([
-
                 'selectedMonth' => 'required',
                 'selectedFinancialYear' => 'required',
-
+                'selectedProject' => 'required',
                 'start_period' => 'required',
                 'end_period' => 'required',
             ]);
-        } catch (Throwable $e) {
-            session()->flash('validation_error', 'There are errors in the form.');
+        } catch (ValidationException $e) {
+            session()->flash(
+                'validation_error',
+                'There are errors in the form.'
+            );
+
             throw $e;
         }
 
         try {
 
+            /*
+             * UPDATE EXISTING SUBMISSION PERIOD
+             */
+            if ($this->rowId) {
+                $this->handleUpdate($this->rowId);
 
-            if (!$this->rowId) {
+                return;
+            }
 
-                $periods = [];
-                $usersWithData = [];
+            /*
+             * CREATE NEW SUBMISSION PERIOD
+             *
+             * New periods are always created open and not expired.
+             */
 
-                $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->where('is_active', true)->has('organisation.indicatorResponsiblePeople')->whereHas('roles', function ($query) {
-                    return $query->whereNotIn('name', ['admin', 'project_manager']);
-                })->get();
+            $existingSubmissionPeriod = SubmissionPeriod::where(
+                'reporting_period_month_id',
+                $this->selectedMonth
+            )
+                ->where(
+                    'financial_year_id',
+                    $this->selectedFinancialYear
+                )
+                ->where('is_open', true)
+                ->first();
 
-                $existingSubmissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
-                    ->where('financial_year_id', $this->selectedFinancialYear)
-                    ->where('is_open', true)
-                    ->first();
+            if ($existingSubmissionPeriod) {
+                session()->flash(
+                    'error',
+                    'This submission period exists.'
+                );
 
-                if ($existingSubmissionPeriod) {
-                    session()->flash('error', 'This submission period exists.');
-                    $this->redirect(url()->previous());
-                    return;
-                }
+                return $this->redirect(url()->previous());
+            }
 
+            $newSubmissionPeriod = new SubmissionPeriod();
 
+            $newSubmissionPeriod->reporting_period_month_id =
+                $this->selectedMonth;
+
+            $newSubmissionPeriod->financial_year_id =
+                $this->selectedFinancialYear;
+
+            $newSubmissionPeriod->date_established =
+                $this->start_period;
+
+            $newSubmissionPeriod->date_ending =
+                $this->end_period;
+
+            $newSubmissionPeriod->is_open = true;
+            $newSubmissionPeriod->is_expired = false;
+            $newSubmissionPeriod->is_restricted = false;
+
+            $newSubmissionPeriod->bypass_notification =
+                $this->bypassNotifications;
+
+            $newSubmissionPeriod->save();
+
+            /*
+             * Get users who should receive notifications.
+             */
+            $users = User::with(
+                'organisation',
+                'organisation.indicatorResponsiblePeople'
+            )
+                ->where('is_active', true)
+                ->has('organisation.indicatorResponsiblePeople')
+                ->whereHas('roles', function ($query) {
+                    $query->whereNotIn('name', [
+                        'admin',
+                        'project-manager',
+                        'monitor',
+                        'enumerator',
+                    ]);
+                })
+                ->get();
+
+            /*
+             * Send notifications after creating the period.
+             */
+            if ($this->notifyUsers) {
 
                 foreach ($users as $user) {
 
-                    $indicators = $user->organisation->indicatorResponsiblePeople->map(function ($indicator) {
+                    $indicatorIds = $user->organisation
+                        ->indicatorResponsiblePeople
+                        ->pluck('indicator_id');
 
-                        return Indicator::find($indicator->indicator_id);
-                    })->flatten();
-                    $usersWithData[] = [
-                        'user' => $user,
+                    $indicators = Indicator::whereIn(
+                        'id',
+                        $indicatorIds
+                    )
+                        ->where('is_active', true)
+                        ->get();
 
-                    ];
-
-                    foreach ($indicators as $indicator) {
-                        $forms = $indicator->forms;
-                        foreach ($forms as $form) {
-                            $submissionPeriod = SubmissionPeriod::where('indicator_id', $indicator->id)
-                                ->where('form_id', $form->id)
-                                ->where('month_range_period_id', $this->selectedMonth)
-                                ->where('financial_year_id', $this->selectedFinancialYear)
-                                ->first();
-
-                            if (!$submissionPeriod) {
-                                $submissionPeriod = new SubmissionPeriod();
-                                $submissionPeriod->indicator_id = $indicator->id;
-                                $submissionPeriod->form_id = $form->id;
-                                $submissionPeriod->month_range_period_id = $this->selectedMonth;
-                                $submissionPeriod->financial_year_id = $this->selectedFinancialYear;
-                                $submissionPeriod->date_established = $this->start_period;
-                                $submissionPeriod->date_ending = $this->end_period;
-                                $submissionPeriod->is_open = true;
-                                $submissionPeriod->bypass_notification = $this->bypassNotifications;
-                                $submissionPeriod->save();
-                                $periods[] = $submissionPeriod->id;
-                            } else {
-                                continue;
-                            }
-                        }
-                        $indicatorIds[] = $indicator->id;
-                    }
-
-
-
-                    if (count($periods) > 0 && $this->notifyUsers) {
-
+                    if ($indicators->isNotEmpty()) {
                         Bus::chain([
-                            new sendAllIndicatorNotificationJob($user,  $indicators)
+                            new sendAllIndicatorNotificationJob(
+                                $user,
+                                $indicators
+                            ),
                         ])->dispatch();
                     }
                 }
-
-                    session()->flash('success', 'Successfully added submission periods.');
-                    $this->redirect(url()->previous());
-
-
             }
 
+            session()->flash(
+                'success',
+                'Successfully added a submission period.'
+            );
 
+            return $this->redirect(url()->previous());
 
-
-            if ($this->rowId) {
-                $this->handleUpdate();
-            }
         } catch (Throwable $th) {
-            //  dd($th);
-            Log::error($th);
-            session()->flash('error', 'Something went wrong.');
+
+            Log::error('Failed to save submission period.', [
+                'message' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            session()->flash(
+                'error',
+                'Something went wrong.'
+            );
+
+            return;
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update submission period
+    |--------------------------------------------------------------------------
+    */
+
+    private function handleUpdate($rowId): void
+    {
+        /*
+         * First normalize expired periods.
+         */
+        if ($this->is_expired) {
+            $this->is_open = false;
+            $this->is_restricted = false;
+        }
+
+        /*
+         * Enforce the rule:
+         *
+         * is_open = true, is_expired = false
+         * OR
+         * is_open = false, is_expired = true
+         *
+         * Both cannot be false.
+         */
+        if (! $this->validateSubmissionStatus()) {
+            return;
+        }
+
+        /*
+         * Save changes inside a transaction.
+         */
+        DB::transaction(function () use ($rowId) {
+
+            $period = SubmissionPeriod::findOrFail($rowId);
+
+            $period->update([
+                'is_open' => $this->is_open,
+                'is_expired' => $this->is_expired,
+                'is_restricted' => $this->is_restricted,
+
+                'date_ending' => $this->end_period,
+                'date_established' => $this->start_period,
+
+                'reporting_period_month_id' => $this->selectedMonth,
+                'financial_year_id' => $this->selectedFinancialYear,
+
+                'bypass_notification' => $this->bypassNotifications,
+            ]);
+        });
+
+        session()->flash(
+            'success',
+            'Submission period updated successfully.'
+        );
+
+        $this->resetData();
+
+        $this->dispatch('refresh');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mailing list
+    |--------------------------------------------------------------------------
+    */
+
     public function setMailingList($selectedPeriods, $usersWithData)
     {
-
         foreach ($selectedPeriods as $period) {
 
             foreach ($usersWithData as $userData) {
+
                 $user = $userData['user'];
 
-                if (!$user) continue;
+                if (! $user) {
+                    continue;
+                }
 
                 MailingList::updateOrCreate(
                     [
                         'user_id' => $user->id,
-                        'submission_period_id' => $period
+                        'submission_period_new_id' => $period,
                     ],
                     [
                         'user_id' => $user->id,
-                        'submission_period_id' => $period
+                        'submission_period_new_id' => $period,
                     ]
-
                 );
             }
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prepare submission data
+    |--------------------------------------------------------------------------
+    */
+
     private function prepareSubmissionData(): array
     {
-
-        if (Carbon::parse($this->end_period)->format('H:i:s') === '00:00:00') {
+        if (
+            Carbon::parse($this->end_period)->format('H:i:s')
+            === '00:00:00'
+        ) {
             $this->end_period = Carbon::parse($this->end_period)
-                ->setTime(23, 59, 59)  // Sets to 11:59:00 PM
-                ->format('Y-m-d H:i:s'); // Convert back to string if needed
+                ->setTime(23, 59, 59)
+                ->format('Y-m-d H:i:s');
         }
+
         return [
             'date_established' => $this->start_period,
             'date_ending' => $this->end_period,
-            'is_open' => $this->status,
+
+            'is_open' => $this->is_open,
+            'is_expired' => $this->is_expired,
+
             'form_id' => $this->selectedForm[0],
-            'is_expired' => $this->expired ?? false,
-            'month_range_period_id' => $this->selectedMonth,
+
+            'reporting_period_month_id' => $this->selectedMonth,
             'financial_year_id' => $this->selectedFinancialYear,
             'indicator_id' => $this->selectedIndicator,
         ];
     }
 
-
-    private function handleUpdate(): void
-    {
-
-
-        $rowData = (object) $this->rowData;
-
-        if ($rowData) {
-
-            SubmissionPeriod::where('month_range_period_id', $rowData->month_range_period_id)
-                ->where('financial_year_id', $rowData->financial_year_id)
-                ->where('date_established', $rowData->date_established)
-                ->where('date_ending', $rowData->date_ending)
-                ->update([
-                    'is_open' => $this->status,
-                    'date_ending' => $this->end_period,
-                    'date_established' => $this->start_period,
-                    'is_expired' => $this->status ? false : $this->expired,
-                    'month_range_period_id' => $this->selectedMonth,
-                    'financial_year_id' => $this->selectedFinancialYear,
-                    'is_restricted' => $this->is_restricted,
-                    'bypass_notification' => $this->bypassNotifications
-
-                ]);
-
-            session()->flash('success', 'Updated Successfully');
-            $this->resetData();
-            $this->dispatch('refresh');
-        }
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Create submission periods
+    |--------------------------------------------------------------------------
+    */
 
     private function handleCreate(Collection $data)
     {
-        $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
+        $exists = SubmissionPeriod::where(
+            'reporting_period_month_id',
+            $this->selectedMonth
+        )
             ->where('financial_year_id', $this->selectedFinancialYear)
             ->where('indicator_id', $this->selectedIndicator)
             ->whereIn('form_id', $this->selectedForm)
             ->where('date_established', $this->start_period)
             ->where('date_ending', $this->end_period)
-            // ->where('is_expired', false)
-            // ->where('is_open', true)
             ->exists();
+
         $selectedPeriods = [];
 
         if ($exists) {
             $this->dispatch('timeout');
-            session()->flash('error', 'This record already exists.');
+
+            session()->flash(
+                'error',
+                'This record already exists.'
+            );
         } else {
+
             try {
+
                 foreach ($this->selectedForm as $formId) {
-                    $submissionPeriod = SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
+
+                    $submissionPeriod = SubmissionPeriod::create(
+                        array_merge(
+                            $data->toArray(),
+                            ['form_id' => $formId]
+                        )
+                    );
+
                     $selectedPeriods[] = $submissionPeriod->id;
                 }
 
                 $this->updateTargets();
-                session()->flash('success', 'Created Successfully');
-                $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, null, $selectedPeriods);
+
+                session()->flash(
+                    'success',
+                    'Created Successfully'
+                );
+
+                $this->sendBroadcast(
+                    $this->selectedIndicator,
+                    $this->selectedForm,
+                    null,
+                    $selectedPeriods
+                );
+
                 return redirect()->to(url()->previous());
-            } catch (\Throwable $e) {
+
+            } catch (Throwable $e) {
                 throw $e;
             }
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Update targets
+    |--------------------------------------------------------------------------
+    */
+
     private function updateTargets(): void
     {
         $user = User::find(auth()->user()->id);
+
         $organisationId = $user->organisation->id;
+
         if ($this->skipTargets === false) {
 
-
             foreach ($this->targets as $key => $target) {
+
                 $subTarget = SubmissionTarget::updateOrCreate(
                     [
                         'financial_year_id' => $this->selectedFinancialYear,
@@ -449,18 +694,44 @@ class SubPeriod extends Component
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Closed submission notification
+    |--------------------------------------------------------------------------
+    */
+
     private function handleClosedSubmission()
     {
         $form = Form::find($this->selectedForm[0]);
+
         $period = ReportingPeriodMonth::find($this->selectedMonth);
-        session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
-        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for {$form->name} for the period of ({$period->start_month} - {$period->end_month}).");
+
+        session()->flash(
+            'success',
+            'Updated Successfully. You have closed the submission for this form and period.'
+        );
+
+        $this->sendBroadcast(
+            $this->selectedIndicator,
+            $this->selectedForm,
+            "Unfortunately, submissions have been closed for {$form->name} for the period of ({$period->start_month} - {$period->end_month})."
+        );
+
         return redirect()->to(url()->previous());
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | User notifications
+    |--------------------------------------------------------------------------
+    */
 
-    public function filterUsers($user, $Indicator, $forms, $errorMessage = null)
-    {
+    public function filterUsers(
+        $user,
+        $Indicator,
+        $forms,
+        $errorMessage = null
+    ) {
         $link = match (true) {
             $user->hasAnyRole('manager') => route('cip-submission-period'),
             $user->hasAnyRole('staff') => route('cip-staff-submission-period'),
@@ -468,93 +739,146 @@ class SubPeriod extends Component
         };
 
         if ($errorMessage) {
+
             Bus::chain([
-                new SendNotificationJob($user, $errorMessage, $link, true)
+                new SendNotificationJob(
+                    $user,
+                    $errorMessage,
+                    $link,
+                    true
+                ),
             ])->dispatch();
+
             return;
         }
 
-        $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
+        $formNames = Form::whereIn('id', $forms)
+            ->pluck('name')
+            ->toArray();
 
         $htmlForms = '<br><ol>';
+
         foreach ($formNames as $formName) {
             $htmlForms .= "<li><b>{$formName}</b></li>";
         }
-        $htmlForms = "</br><ol>";
-        foreach ($formNames as $formName) {
-            $htmlForms .= "<li>
-                        <b>{$formName}</b>
-                        </li>";
-        }
+
+        $htmlForms .= '</ol><br>';
+
         $indicatorName = Indicator::find($Indicator)->indicator_name;
-        $htmlForms .= "</ol></br>";
-        $messageContent = "";
-        $messageContent .= "<p> Submissions are now open for <b>" . $indicatorName . "</b></p>";
+
+        $messageContent = '';
+
+        $messageContent .=
+            '<p>Submissions are now open for <b>'
+            . $indicatorName
+            . '</b></p>';
+
         $messageContent .= $htmlForms;
-        $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
-        $messageContent .= "<p>For more details, please go to the platform.</p>";
 
+        $messageContent .=
+            '<p>These forms will be closed on <b>'
+            . Carbon::parse($this->end_period)->format('d/m/Y H:i:A')
+            . '</b>. Please go to the platform to complete your submission before the period ends.</p>';
 
+        $messageContent .=
+            '<p>For more details, please go to the platform.</p>';
 
         Bus::chain([
-            new SendNotificationJob($user, $messageContent, $link, false)
+            new SendNotificationJob(
+                $user,
+                $messageContent,
+                $link,
+                false
+            ),
         ])->dispatch();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Broadcast notifications
+    |--------------------------------------------------------------------------
+    */
 
-
-    public function sendBroadcast($Indicator, $forms, $errorMessage = null, $selectedPeriods = [])
-    {
-        // Base query for organisations with indicator responsible people
+    public function sendBroadcast(
+        $Indicator,
+        $forms,
+        $errorMessage = null,
+        $selectedPeriods = []
+    ) {
         $organisations = Organisation::query()
-            ->with(['indicatorResponsiblePeople', 'users'])
+            ->with([
+                'indicatorResponsiblePeople',
+                'users',
+            ])
             ->whereHas(
                 'indicatorResponsiblePeople',
-                fn($query) =>
-                $query->where('indicator_id', $this->selectedIndicator)
+                fn ($query) => $query->where(
+                    'indicator_id',
+                    $this->selectedIndicator
+                )
             );
 
-        // Apply organisation filter if specific one is selected
         if ($this->selectedOrganisations !== [0]) {
-            $organisations->whereIn('id', $this->selectedOrganisations);
+            $organisations->whereIn(
+                'id',
+                $this->selectedOrganisations
+            );
         }
 
-        // Process each organisation
-        $organisations->get()->each(function ($organisation) use ($errorMessage, $selectedPeriods) {
-            $organisation->users->each(function ($user) use ($errorMessage, $selectedPeriods) {
-                // Skip users with admin/manager roles
-                if ($user->hasAnyRole(['admin', 'project_manager'])) {
-                    return;
-                }
+        $organisations->get()->each(
+            function ($organisation) use (
+                $errorMessage,
+                $selectedPeriods
+            ) {
+                $organisation->users->each(
+                    function ($user) use (
+                        $errorMessage,
+                        $selectedPeriods
+                    ) {
 
-                // Filter users and add to mailing list
-                $this->filterUsers(
-                    user: $user,
-                    Indicator: $this->selectedIndicator,
-                    forms: $this->selectedForm,
-                    errorMessage: $errorMessage
+                        if ($user->hasAnyRole([
+                            'admin',
+                            'project-manager',
+                        ])) {
+                            return;
+                        }
+
+                        $this->filterUsers(
+                            user: $user,
+                            Indicator: $this->selectedIndicator,
+                            forms: $this->selectedForm,
+                            errorMessage: $errorMessage
+                        );
+
+                        foreach ($selectedPeriods as $period) {
+
+                            MailingList::updateOrCreate(
+                                [
+                                    'user_id' => $user->id,
+                                    'submission_period_new_id' => $period,
+                                ],
+                                [
+                                    'user_id' => $user->id,
+                                    'submission_period_new_id' => $period,
+                                ]
+                            );
+                        }
+                    }
                 );
-
-
-                // Add user to mailing list for selected periods
-                foreach ($selectedPeriods as $period) {
-                    MailingList::updateOrCreate(
-                        [
-                            'user_id' => $user->id,
-                            'submission_period_id' => $period
-                        ],
-                        [
-                            'user_id' => $user->id,
-                            'submission_period_id' => $period
-                        ]
-                    );
-                }
-            });
-        });
+            }
+        );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Livewire update hooks
+    |--------------------------------------------------------------------------
+    */
+
     public function updatedSelectedProject($value)
     {
         $project = Project::find($value);
+
         if ($project) {
             $this->updateProjectRelatedData($project);
         } else {
@@ -565,65 +889,123 @@ class SubPeriod extends Component
     public function updated($property, $value)
     {
         if ($this->selectedProject && $this->selectedIndicator) {
-            $indicator = Indicator::find($this->selectedIndicator);
-            if ($indicator) {
-                $formIds = $indicator->forms->pluck('id');
-                $this->all = $formIds;
-                $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
-                $organisationIds = ResponsiblePerson::where('indicator_id', $indicator->id)->pluck('organisation_id')->toArray();
-                $this->organisations = Organisation::whereIn('id', $organisationIds)->get();
 
-                $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
+            $indicator = Indicator::find($this->selectedIndicator);
+
+            if ($indicator) {
+
+                $formIds = $indicator->forms->pluck('id');
+
+                $this->all = $formIds;
+
+                $this->forms = $formIds->isNotEmpty()
+                    ? Form::whereIn('id', $formIds)->get()
+                    : collect();
+
+                $organisationIds = ResponsiblePerson::where(
+                    'indicator_id',
+                    $indicator->id
+                )
+                    ->pluck('organisation_id')
+                    ->toArray();
+
+                $this->organisations = Organisation::whereIn(
+                    'id',
+                    $organisationIds
+                )->get();
+
+                $this->dispatch(
+                    'changed-form',
+                    data: $formIds->toArray(),
+                    forms: $this->forms
+                );
             }
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Indicator targets
+    |--------------------------------------------------------------------------
+    */
+
     public function getTargets()
     {
         $indicator = Indicator::find($this->selectedIndicator);
-        $user = User::find(auth()->user()->id);
-        $organisationId = $user->organisation->id;
-        $responsiblePeople = $indicator->responsiblePeopleforIndicators->where('organisation_id', $organisationId)->first();
-        $this->isCipTargets = $responsiblePeople ? true : false;
-        $newTargets = [];
-        $newCipTargets = [];
-        if ($indicator) {
-            $disaggregations = $indicator->disaggregations()->pluck('name')->toArray();
 
-            $this->disaggregations = $disaggregations;
+        if (! $indicator) {
+            return;
         }
 
-        $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
-            ->where('financial_year_id', $this->selectedFinancialYear)
+        $user = User::find(auth()->user()->id);
+
+        $organisationId = $user->organisation->id;
+
+        $responsiblePeople = $indicator
+            ->responsiblePeopleforIndicators
+            ->where('organisation_id', $organisationId)
+            ->first();
+
+        $this->isCipTargets = $responsiblePeople ? true : false;
+
+        $newTargets = [];
+        $newCipTargets = [];
+
+        $this->disaggregations = $indicator
+            ->disaggregations()
+            ->pluck('name')
+            ->toArray();
+
+        $targets = SubmissionTarget::where(
+            'indicator_id',
+            $this->selectedIndicator
+        )
+            ->where(
+                'financial_year_id',
+                $this->selectedFinancialYear
+            )
             ->get();
+
         if ($targets->count() > 0) {
-            // Loop through $targets and populate $newTargets
+
             foreach ($targets as $target) {
+
                 $newTargets[] = [
                     'name' => $target->target_name,
                     'value' => $target->target_value,
                 ];
 
-                $CipTargets = OrganisationTarget::where('submission_target_id', $target->id)
-                    ->where('organisation_id', $organisationId)
+                $cipTargets = OrganisationTarget::where(
+                    'submission_target_id',
+                    $target->id
+                )
+                    ->where(
+                        'organisation_id',
+                        $organisationId
+                    )
                     ->get();
-                foreach ($CipTargets as $cipTarget) {
+
+                foreach ($cipTargets as $cipTarget) {
+
                     $newCipTargets[] = [
                         'value' => $cipTarget->value,
                     ];
                 }
             }
+
         } else {
+
             $newTargets = [
                 [
                     'name' => null,
                     'value' => null,
-                ]
+                ],
             ];
+
             $newCipTargets = [
                 [
                     'value' => null,
-                ]
+                ],
             ];
         }
 
@@ -635,22 +1017,36 @@ class SubPeriod extends Component
 
     public function updatedSelectedIndicator($value)
     {
-        if (!$this->rowId) {
+        if (! $this->rowId) {
             $this->selectedForm = null;
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Reset component
+    |--------------------------------------------------------------------------
+    */
+
     public function resetData()
     {
         $this->reset();
+
         $this->loadData();
+
         $this->resetErrorBag();
+
         $this->dispatch('update-indicator');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
     public function render()
     {
-
         return view('livewire.internal.cip.sub-period', []);
     }
 }

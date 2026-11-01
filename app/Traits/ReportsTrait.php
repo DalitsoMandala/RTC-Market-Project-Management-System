@@ -27,7 +27,7 @@ trait ReportsTrait
     public function __construct(
         public readonly ?int $financial_year_id = null,
         public readonly ?int $project_id = null,
-        public readonly ?int $reporting_period_id = null,
+        public readonly ?int $reporting_period_month_id = null,
         public readonly ?int $organisation_id = null,
         public readonly ?int $indicator_id = null,
     ) {
@@ -54,7 +54,7 @@ trait ReportsTrait
     public function initIgnoredYears()
     {
         $indicatorClasses = IndicatorClass::get();
-        $reportingPeriods = $this->reporting_period_id ? [$this->reporting_period_id] : ReportingPeriodMonth::pluck('id')->toArray();
+        $reportingPeriods = $this->reporting_period_month_id ? [$this->reporting_period_month_id] : ReportingPeriodMonth::pluck('id')->toArray();
         $organisations    = $this->organisation_id ? [$this->organisation_id] : Organisation::pluck('id')->toArray();
         $crops            = CoreFunctions::getCropsWithNull();
         $indicators       = Indicator::get()->keyBy('id');
@@ -72,12 +72,12 @@ trait ReportsTrait
                             foreach ($crops as $crop) {
                                 try {
                                     $conditions = [
-                                        'reporting_period_id' => $period,
-                                        'financial_year_id'   => $year,
-                                        'organisation_id'     => $org,
-                                        'project_id'          => $indicator->project_id,
-                                        'indicator_id'        => $indicator->id,
-                                        'crop'                => $crop,
+                                        'reporting_period_month_id' => $period,
+                                        'financial_year_id'         => $year,
+                                        'organisation_id'           => $org,
+                                        'project_id'                => $indicator->project_id,
+                                        'indicator_id'              => $indicator->id,
+                                        'crop'                      => $crop,
                                     ];
 
                                     // 1. Secure parent record
@@ -145,13 +145,13 @@ trait ReportsTrait
 
                                 } catch (\Exception $e) {
                                     Log::error("Init Ignored Year Matrix Record Failure: " . $e->getMessage(), [
-                                        'indicator_class_id'  => $indicatorClass->id,
-                                        'indicator_id'        => $indicator->id,
-                                        'reporting_period_id' => $period,
-                                        'financial_year_id'   => $year,
-                                        'organisation_id'     => $org,
-                                        'project_id'          => $indicator->project_id,
-                                        'stack_trace'         => $e->getTraceAsString(),
+                                        'indicator_class_id'        => $indicatorClass->id,
+                                        'indicator_id'              => $indicator->id,
+                                        'reporting_period_month_id' => $period,
+                                        'financial_year_id'         => $year,
+                                        'organisation_id'           => $org,
+                                        'project_id'                => $indicator->project_id,
+                                        'stack_trace'               => $e->getTraceAsString(),
                                     ]);
 
                                     throw $e; // Rollback transaction
@@ -172,8 +172,8 @@ trait ReportsTrait
 
         $indicatorClasses = IndicatorClass::get();
 
-        $reportingPeriods = $this->reporting_period_id
-            ? [$this->reporting_period_id]
+        $reportingPeriods = $this->reporting_period_month_id
+            ? [$this->reporting_period_month_id]
             : ReportingPeriodMonth::pluck('id')->toArray();
 
         $organisations = $this->organisation_id
@@ -244,12 +244,12 @@ trait ReportsTrait
                         try {
                             $disaggregations = [];
                             $conditions      = [
-                                'reporting_period_id' => $period,
-                                'financial_year_id'   => $year,
-                                'organisation_id'     => $org,
-                                'project_id'          => $indicator->project_id,
-                                'indicator_id'        => $indicator->id,
-                                'crop'                => $crop,
+                                'reporting_period_month_id' => $period,
+                                'financial_year_id'         => $year,
+                                'organisation_id'           => $org,
+                                'project_id'                => $indicator->project_id,
+                                'indicator_id'              => $indicator->id,
+                                'crop'                      => $crop,
                             ];
 
                             // Target destination is ALWAYS SystemReport
@@ -294,14 +294,14 @@ trait ReportsTrait
                             $this->errorCount++;
 
                             Log::error("Report Error: " . $e->getMessage(), [
-                                'reporting_period_id' => $period,
-                                'financial_year_id'   => $year,
-                                'organisation_id'     => $org,
-                                'crop'                => $crop,
-                                'indicator_id'        => $indicatorClass->indicator_id,
-                                'class'               => $indicatorClass->class,
-                                'is_aggregate_year'   => $isAggregateYear,
-                                'stack'               => $e->getTraceAsString(),
+                                'reporting_period_month_id' => $period,
+                                'financial_year_id'         => $year,
+                                'organisation_id'           => $org,
+                                'crop'                      => $crop,
+                                'indicator_id'              => $indicatorClass->indicator_id,
+                                'class'                     => $indicatorClass->class,
+                                'is_aggregate_year'         => $isAggregateYear,
+                                'stack'                     => $e->getTraceAsString(),
                             ]);
 
                             // Force rollback of the active transaction

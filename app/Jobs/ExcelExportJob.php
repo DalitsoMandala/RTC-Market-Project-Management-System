@@ -1046,11 +1046,11 @@ class ExcelExportJob implements ShouldQueue
                                 // Check if systemReport and reportingPeriod are available
                                 $report_period  = null;
                                 $type_of_period = null;
-                                if ($record->systemReport && $record->systemReport->reportingPeriod) {
-                                    $start_month    = $record->systemReport->reportingPeriod->start_month;
-                                    $end_month      = $record->systemReport->reportingPeriod->end_month;
+                                if ($record->systemReport && $record->systemReport->reportingPeriodMonth) {
+                                    $start_month    = $record->systemReport->reportingPeriodMonth->start_month;
+                                    $end_month      = $record->systemReport->reportingPeriodMonth->end_month;
                                     $report_period  = $start_month . ' - ' . $end_month;
-                                    $type_of_period = $record->systemReport->reportingPeriod->type;
+                                    $type_of_period = $record->systemReport->reportingPeriodMonth->type;
                                 }
 
                                 $writer->addRow([
@@ -1079,11 +1079,11 @@ class ExcelExportJob implements ShouldQueue
                         // Check if systemReport and reportingPeriod are available
                         $report_period  = null;
                         $type_of_period = null;
-                        if ($record->systemReport && $record->systemReport->reportingPeriod) {
-                            $start_month    = $record->systemReport->reportingPeriod->start_month;
-                            $end_month      = $record->systemReport->reportingPeriod->end_month;
+                        if ($record->systemReport && $record->systemReport->reportingPeriodMonth) {
+                            $start_month    = $record->systemReport->reportingPeriodMonth->start_month;
+                            $end_month      = $record->systemReport->reportingPeriodMonth->end_month;
                             $report_period  = $start_month . ' - ' . $end_month;
-                            $type_of_period = $record->systemReport->reportingPeriod->type;
+                            $type_of_period = $record->systemReport->reportingPeriodMonth->type;
                         }
 
                         $writer->addRow([

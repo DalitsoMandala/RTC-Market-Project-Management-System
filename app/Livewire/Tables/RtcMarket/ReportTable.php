@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\tables\rtcMarket;
 
 use App\Models\Crop;
@@ -32,32 +33,25 @@ final class ReportTable extends PowerGridComponent
     use ExportTrait;
 
     public bool $withSortStringNumber = true;
-    public string $sortField          = 'system_reports.indicator_id';
+    public string $sortField = 'system_report_data.value';
+    public $namedExport = 'report';
 
     public function setUp(): array
     {
-        //  $this->showCheckBox();
-        $timestamp = Carbon::now();
         return [
             Header::make()
-            // ->showSearchInput()
                 ->includeViewOnTop('components.report-header'),
-            // ->includeViewOnBottom('components.import-button'),
             Footer::make()
-                ->showPerPage(10)
+                ->showPerPage()
                 ->showRecordCount(),
         ];
     }
 
-    public $namedExport = 'report';
-
-    // #[On('export-report')]
+    #[On('export-report')]
     public function startExport()
     {
-
         if (! $this->checkReport()) {
             $this->dispatch('export-fail', message: 'Data is updating, please wait a few minutes.');
-
             return;
         }
         $this->namedExport = 'report';
@@ -68,7 +62,7 @@ final class ReportTable extends PowerGridComponent
     #[On('report-updated')]
     public function completedReport()
     {
-
+        //
     }
 
     #[On('export-report')]
@@ -81,78 +75,90 @@ final class ReportTable extends PowerGridComponent
         $this->namedExport = 'summary';
         $this->execute($this->namedExport);
         $this->performExport();
-        // Bus::dispatch(new ReportSummaryJob(auth()->user()));
     }
 
-    public function checkReport()
+    public function checkReport(): bool
     {
-
-        $check = ReportStatus::where('status', 'completed')->exists();
-
-        if ($check) {
-            return true;
-        }
-        return false;
+        return ReportStatus::where('status', 'completed')->exists();
     }
+
     #[On('download-export')]
     public function downloadExport()
     {
+        $filePath = 'public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx';
 
-        if (! Storage::exists('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx')) {
+        if (! Storage::exists($filePath)) {
             return;
         }
-        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+
+        return Storage::download($filePath);
     }
 
-    public function datasource(): Builder
-    {
-        // Start building the query for SystemReportData and eager load systemReport
+  public function datasource(): Builder
+{
+    $query = SystemReportData::query()
+        ->with([
+            'systemReport.indicator',
+            'systemReport.organisation',
+            'systemReport.financialYear',
+            'systemReport.reportingPeriodMonth',
+            'systemReport.project',
+        ])
+        ->join(
+            'system_reports',
+            'system_reports.id',
+            '=',
+            'system_report_data.system_report_id'
+        )
+        ->leftJoin(
+            'indicators',
+            'indicators.id',
+            '=',
+            'system_reports.indicator_id'
+        )
+        ->leftJoin(
+            'organisations',
+            'organisations.id',
+            '=',
+            'system_reports.organisation_id'
+        )
+        ->leftJoin(
+            'financial_years',
+            'financial_years.id',
+            '=',
+            'system_reports.financial_year_id'
+        )
+        ->select([
+            'system_report_data.*',
+            'indicators.indicator_name as indicator_name',
+            'indicators.indicator_no as indicator_no',
+            'organisations.name as organisation_name',
+            'financial_years.number as financial_year',
+        ]);
 
-        $query = SystemReportData::query()
-            ->with(['systemReport', 'systemReport.indicator', 'systemReport.organisation', 'systemReport.financialYear'])
-            ->join('system_reports', 'system_reports.id', '=', 'system_report_data.system_report_id')
-            ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
-            ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
-            ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
-            ->select([
-                'system_report_data.*',
-                'indicators.indicator_name as indicator_name',
-                'indicators.indicator_no as indicator_no',
-                'organisations.name as organisation_name',
-                'financial_years.number as financial_year',
+    $user = User::find(auth()->id());
 
-            ]);
-
-        $user = User::find(auth()->user()->id);
-
-        if ($user->hasAnyRole('external')) {
-            $query->where('system_reports.organisation_id', $user->organisation->id);
-        }
-
-        return $query->orderBy('system_reports.crop', 'asc')
-            ->orderBy('system_reports.indicator_id', 'asc');
+    if ($user && $user->hasAnyRole('external')) {
+        $query->where(
+            'system_reports.organisation_id',
+            $user->organisation->id ?? null
+        );
     }
 
-    /**
-     * Check if any filters are set.
-     */
-
-    /**
-     * Apply filters to the query.
-     */
+    return $query;
+}
 
     public function filters(): array
     {
         return [
             Filter::select('indicator_name', 'indicators.id')
                 ->dataSource(function () {
-                    $indicators = Indicator::distinct()->get();
-                    return $indicators->map(function ($indicator) {
+                    return Indicator::distinct()->get()->map(function ($indicator) {
                         return [
-                            'id'             => $indicator->id,
-                            'number'         => $indicator->indicator_no,
+                            'id' => $indicator->id,
+                            'number' => $indicator->indicator_no,
                             'indicator_name' => $indicator->indicator_name,
-                            'name'           => "({$indicator->indicator_no}) {$indicator->indicator_name}",
+                            'name' => "({$indicator->indicator_no}) {$indicator->indicator_name}",
                         ];
                     });
                 })->optionLabel('name')
@@ -162,6 +168,7 @@ final class ReportTable extends PowerGridComponent
                 ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
                 ->optionLabel('name')
                 ->optionValue('name'),
+
             Filter::select('crop')
                 ->dataSource([
                     ['name' => 'All crops', 'value' => 'null'],
@@ -172,13 +179,13 @@ final class ReportTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('value')
                 ->builder(function (Builder $query, $value) {
-
                     if ($value === 'null') {
                         $query->whereNull('system_reports.crop');
                     } else {
                         $query->where('system_reports.crop', $value);
                     }
                 }),
+
             Filter::select('financial_year', 'financial_years.id')
                 ->dataSource(
                     FinancialYear::query()
@@ -189,15 +196,15 @@ final class ReportTable extends PowerGridComponent
                         ->map(function ($year) {
                             return [
                                 'number' => $year->number,
-                                'name'   => 'Year ' . $year->number,
-                                'id'     => $year->id,
+                                'name' => 'Year ' . $year->number,
+                                'id' => $year->id,
                             ];
                         })
                 )
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('report_period', 'system_reports.reporting_period_id')
+            Filter::select('report_period', 'system_reports.reporting_period_month_id')
                 ->dataSource(function () {
                     return ReportingPeriodMonth::with('reportingPeriod')
                         ->whereHas('reportingPeriod', function ($query) {
@@ -207,33 +214,33 @@ final class ReportTable extends PowerGridComponent
                         ->get()
                         ->map(function ($months) {
                             $start_month = $months->start_month;
-                            $end_month   = $months->end_month;
-                            $unspecified = $months->start_month == $months->end_month ? $months->start_month : "{$start_month}-{$end_month}";
+                            $end_month = $months->end_month;
+                            $unspecified = $months->start_month == $months->end_month
+                                ? $months->start_month
+                                : "{$start_month}-{$end_month}";
 
                             return [
-                                'id'   => $months->id,
+                                'id' => $months->id,
                                 'name' => $unspecified,
                             ];
                         });
                 })
                 ->optionLabel('name')
                 ->optionValue('id'),
+
             Filter::select('organisation_name', 'organisations.id')
                 ->dataSource(Organisation::select(['name', 'id'])->distinct()->get())
                 ->optionLabel('name')
                 ->optionValue('id'),
-
         ];
     }
 
     public function relationSearch(): array
     {
         return [
-
-            'systemReport.indicator'     => ['indicator_name', 'indicator_no'],
-            'systemReport.organisation'  => ['name'],
+            'systemReport.indicator' => ['indicator_name', 'indicator_no'],
+            'systemReport.organisation' => ['name'],
             'systemReport.financialYear' => ['number'],
-
         ];
     }
 
@@ -242,52 +249,43 @@ final class ReportTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('number', function ($model) {
-                // Handle null for systemReport and indicator
                 return $model->systemReport->indicator->indicator_no ?? null;
             })
             ->add('indicator_name', function ($model) {
-                // Handle null for systemReport and indicator
-                $indicatorName   = $model->systemReport->indicator->indicator_name ?? null;
+                $indicatorName = $model->systemReport->indicator->indicator_name ?? null;
                 $indicatorNumber = $model->systemReport->indicator->indicator_no ?? null;
                 return '(' . $indicatorNumber . ') ' . $indicatorName;
             })
             ->add('name', function ($model) {
-
                 return $model->name ?? null;
             })
             ->add('project', function ($model) {
-                // Handle null for systemReport and project
                 return $model->systemReport->project->name ?? null;
             })
             ->add('value', function ($model) {
-                return "<span class='fw-bolder'>{$model->value}</span>" ?? null;
+                return "<span class='fw-bolder'>{$model->value}</span>";
             })
             ->add('report_period', function ($model) {
-                // Handle null for reportingPeriod
-                if (! $model->systemReport->reportingPeriod) {
+                if (! $model->systemReport->reportingPeriodMonth) {
                     return null;
                 }
 
-                $start_month = $model->systemReport->reportingPeriod->start_month;
-                $end_month   = $model->systemReport->reportingPeriod->end_month;
+                $start_month = $model->systemReport->reportingPeriodMonth->start_month;
+                $end_month = $model->systemReport->reportingPeriodMonth->end_month;
 
                 return $start_month . ' - ' . $end_month;
             })
             ->add('financial_year', function ($model) {
-                // Handle null for financialYear
                 return $model->systemReport->financialYear->number ?? null;
             })
-
             ->add('crop', function ($model) {
-                // Handle null for financialYear
                 return $model->systemReport->crop ?? 'All crops';
             })
             ->add('organisations', function ($model) {
-                // Handle null for organisation
                 return $model->systemReport->organisation->name ?? null;
             })
             ->add('updated_at', function ($model) {
-                return $model->updated_at->format('Y-m-d H:i:s') ?? null;
+                return optional($model->updated_at)->format('Y-m-d H:i:s');
             });
     }
 
@@ -295,37 +293,36 @@ final class ReportTable extends PowerGridComponent
     {
         return [
             Column::make('#', 'id')->hidden()->visibleInExport(false),
-            // Column::make('Indicator #', 'number', 'indicator_no')
-            //     ->searchable(),
-            Column::make('Indicator Name', 'indicator_name')
+
+            Column::make('Indicator Name', 'indicator_name', 'indicators.indicator_name')
                 ->headerAttribute(styleAttr: "min-width:350px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap")
                 ->searchable()
                 ->sortable(),
-            Column::make('Disaggregation', 'name')
+
+            Column::make('Disaggregation', 'name', 'system_report_data.name')
                 ->sortable()
                 ->searchable(),
 
             Column::make('Project', 'project')->hidden()->visibleInExport(true),
-            Column::make('Reporting period', 'report_period')->searchable(),
-            Column::make('Organisation', 'organisations', 'organisation_name')->sortable()->searchable(),
-            Column::make('Project year', 'financial_year')->sortable(),
-            Column::make('Enterprise', 'crop', 'system_reports.crop')->searchable(),
-            Column::make('Value', 'value')
+
+            Column::make('Reporting period', 'report_period', 'system_reports.reporting_period_month_id')
+                ->searchable()
                 ->sortable(),
 
+            Column::make('Organisation', 'organisation_name', 'organisations.name')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Project year', 'financial_year', 'financial_years.number')
+                ->sortable(),
+
+            Column::make('Enterprise', 'crop', 'system_reports.crop')
+                ->searchable()
+                ->sortable(),
+
+            Column::make('Value', 'value', 'system_report_data.value')
+                ->sortable(),
         ];
     }
-
-    /*
-     * public function actionRules($row): array
-     * {
-     *    return [
-     *         // Hide button edit for ID 1
-     *         Rule::button('edit')
-     *             ->when(fn($row) => $row->id === 1)
-     *             ->hide(),
-     *     ];
-     * }
-     */
 }

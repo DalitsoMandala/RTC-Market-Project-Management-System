@@ -31,20 +31,20 @@ class ReportJob implements ShouldQueue
     public $financial_year_id;
     public $organisation_id;
     public $indicator_id;
-    public $reporting_period_id;
+    public $reporting_period_month_id;
 
     public function __construct(
         $financial_year_id = null,
         $project_id = null,
-        $reporting_period_id = null,
+        $reporting_period_month_id = null,
         $organisation_id = null,
         $indicator_id = null
     ) {
-        $this->project_id          = $project_id;
-        $this->financial_year_id   = $financial_year_id;
-        $this->reporting_period_id = $reporting_period_id;
-        $this->organisation_id     = $organisation_id;
-        $this->indicator_id        = $indicator_id;
+        $this->project_id                = $project_id;
+        $this->financial_year_id         = $financial_year_id;
+        $this->reporting_period_month_id = $reporting_period_month_id;
+        $this->organisation_id           = $organisation_id;
+        $this->indicator_id              = $indicator_id;
     }
 
     public function handle(): void
@@ -56,8 +56,8 @@ class ReportJob implements ShouldQueue
             return $q->where('indicator_id', $this->indicator_id);
         })->get();
 
-        $reportingPeriods = $this->reporting_period_id
-            ? [$this->reporting_period_id]
+        $reportingPeriods = $this->reporting_period_month_id
+            ? [$this->reporting_period_month_id]
             : ReportingPeriodMonth::pluck('id')->toArray();
 
         $financialYears = $this->financial_year_id
@@ -115,12 +115,12 @@ class ReportJob implements ShouldQueue
                                 /** MAIN REPORT RECORD */
                                 $report = SystemReport::updateOrCreate(
                                     [
-                                        'reporting_period_id' => $period,
-                                        'financial_year_id'   => $year,
-                                        'organisation_id'     => $org,
-                                        'project_id'          => $indicator->project_id,
-                                        'indicator_id'        => $indicator->id,
-                                        'crop'                => $crop,
+                                        'reporting_period_month_id' => $period,
+                                        'financial_year_id'         => $year,
+                                        'organisation_id'           => $org,
+                                        'project_id'                => $indicator->project_id,
+                                        'indicator_id'              => $indicator->id,
+                                        'crop'                      => $crop,
                                     ]
                                 );
 

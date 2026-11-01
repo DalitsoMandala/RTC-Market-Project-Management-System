@@ -6,7 +6,7 @@
 
 
 
-        <div class="row gy-1 ">
+        <div class="row">
             <div class="col-12 col-md-12">
 
                 <div class="card">

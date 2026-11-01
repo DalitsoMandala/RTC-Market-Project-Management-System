@@ -112,16 +112,16 @@ class MarketingLogImportMultiSheet implements WithMultipleSheets, WithChunkReadi
                 //  $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager')) {
                     Submission::create([
-                        'batch_no'    => $this->submissionDetails['batch_no'],
-                        'form_id'     => $this->submissionDetails['form_id'],
-                        'period_id'   => $this->submissionDetails['submission_period_id'],
-                        'user_id'     => $this->submissionDetails['user_id'],
-                        'status'      => 'approved',
-                        'batch_type'  => 'batch',
-                        'is_complete' => 1,
-                        'table_name'  => 'production_marketing_logs',
-                        'file_link'   => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description'],
+                        'batch_no'                  => $this->submissionDetails['batch_no'],
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'approved',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'production_marketing_logs',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -135,16 +135,16 @@ class MarketingLogImportMultiSheet implements WithMultipleSheets, WithChunkReadi
                     );
                 } else if ($user->hasAnyRole('admin')) {
                     Submission::create([
-                        'batch_no'    => $this->submissionDetails['batch_no'],
-                        'form_id'     => $this->submissionDetails['form_id'],
-                        'period_id'   => $this->submissionDetails['submission_period_id'],
-                        'user_id'     => $this->submissionDetails['user_id'],
-                        'status'      => 'approved',
-                        'batch_type'  => 'batch',
-                        'is_complete' => 1,
-                        'table_name'  => 'production_marketing_logs',
-                        'file_link'   => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description'],
+                        'batch_no'                  => $this->submissionDetails['batch_no'],
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'approved',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'production_marketing_logs',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -158,16 +158,16 @@ class MarketingLogImportMultiSheet implements WithMultipleSheets, WithChunkReadi
                     );
                 } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
-                        'batch_no'    => $this->cacheKey,
-                        'form_id'     => $this->submissionDetails['form_id'],
-                        'period_id'   => $this->submissionDetails['submission_period_id'],
-                        'user_id'     => $this->submissionDetails['user_id'],
-                        'status'      => 'pending',
-                        'batch_type'  => 'batch',
-                        'is_complete' => 1,
-                        'table_name'  => 'production_marketing_logs',
-                        'file_link'   => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description'],
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'pending',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'production_marketing_logs',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -179,16 +179,16 @@ class MarketingLogImportMultiSheet implements WithMultipleSheets, WithChunkReadi
                     ));
                 } else {
                     Submission::create([
-                        'batch_no'    => $this->submissionDetails['batch_no'],
-                        'form_id'     => $this->submissionDetails['form_id'],
-                        'period_id'   => $this->submissionDetails['submission_period_id'],
-                        'user_id'     => $this->submissionDetails['user_id'],
-                        'status'      => 'pending',
-                        'batch_type'  => 'batch',
-                        'is_complete' => 1,
-                        'table_name'  => 'production_marketing_logs',
-                        'file_link'   => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description'],
+                        'batch_no'                  => $this->submissionDetails['batch_no'],
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'pending',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'production_marketing_logs',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(

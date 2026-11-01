@@ -1,7 +1,8 @@
 <x-mail::message>
+# Hello {{ $user_name }},
 {!! $message !!}
 <x-mail::button :url="$url">
-Go to Website
+Visit Website
 </x-mail::button>
 
 @if(\App\Models\SystemDetail::find(1))

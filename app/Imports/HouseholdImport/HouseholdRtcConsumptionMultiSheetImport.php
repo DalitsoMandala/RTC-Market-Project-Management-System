@@ -1,47 +1,35 @@
 <?php
-
 namespace App\Imports\HouseholdImport;
 
-use App\Models\User;
-use App\Models\Submission;
-use App\Models\JobProgress;
-use App\Models\MainFoodHrc;
-use App\Helpers\ExcelValidator;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use Illuminate\Support\Facades\Cache;
-use App\Notifications\JobNotification;
-use App\Models\HouseholdRtcConsumption;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-
-use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Events\BeforeSheet;
-use Maatwebsite\Excel\Validators\Failure;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
-use App\Helpers\PriorImportValidation;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use App\Imports\HouseholdImport\HouseholdSheetImport;
+use App\Imports\HouseholdImport\MainFoodSheetImport;
+use App\Models\HouseholdRtcConsumption;
+use App\Models\JobProgress;
+use App\Models\Submission;
+use App\Models\User;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use App\Imports\HouseholdImport\MainFoodSheetImport;
-use App\Imports\HouseholdImport\HouseholdSheetImport;
-use Maatwebsite\Excel\Validators\ValidationException;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\ImportFailed;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use Importable, RegistersEventListeners;
     protected $expectedSheetNames = [
         'Household Data',
-        'Main Food Data'
+        'Main Food Data',
     ];
     protected $expectedHeaders = [
         'Household Data' => [
@@ -69,7 +57,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
         'Main Food Data' => [
             'Household ID',
             'Main Food Name',
-        ]
+        ],
     ];
     protected $cacheKey;
     protected $filePath;
@@ -79,8 +67,8 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
     protected $totalRows = 0;
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
-        $this->cacheKey = $cacheKey;
-        $this->filePath = $filePath;
+        $this->cacheKey          = $cacheKey;
+        $this->filePath          = $filePath;
         $this->submissionDetails = $submissionDetails;
     }
     public function sheets(): array
@@ -91,11 +79,10 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
         ];
     }
 
-
     private function getSheetHeaders(Worksheet $sheet): array
     {
         $highestColumn = $sheet->getHighestColumn();
-        $headerCells = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
+        $headerCells   = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
         return $headerCells[0] ?? [];
     }
 
@@ -110,18 +97,16 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
             // Handle by a closure.
             BeforeImport::class => function (BeforeImport $event) {
 
-
-                $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
-                $reader = IOFactory::createReaderForFile($this->filePath);
-                $spreadsheet = $reader->load($this->filePath);
-                $sheetNames = $spreadsheet->getSheetNames();
-
+                $firstSheetName = $this->expectedSheetNames[0]; // Get first sheet from the expected list
+                $reader         = IOFactory::createReaderForFile($this->filePath);
+                $spreadsheet    = $reader->load($this->filePath);
+                $sheetNames     = $spreadsheet->getSheetNames();
 
                 $workBook = $event->reader->getTotalRows();
 
                 foreach ($workBook as $sheetName => $totalRows) {
-                    // Check if the sheet is blank
-                    if ($totalRows <= 2) {  // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
+                                           // Check if the sheet is blank
+                    if ($totalRows <= 2) { // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
                         if ($sheetName === $firstSheetName) {
                             // Log error if the first sheet is blank
                             Log::error("The sheet '{$firstSheetName}' is blank.");
@@ -132,13 +117,10 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     }
                 }
 
-
-
-
                 // Validate headers and missing sheet names
                 foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
                     // Check if sheet exists
-                    if (!in_array($sheetName, $sheetNames)) {
+                    if (! in_array($sheetName, $sheetNames)) {
                         throw new ExcelValidationException("Sheet '{$sheetName}' is missing in the uploaded file.");
                     }
 
@@ -147,27 +129,24 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
 
                     // Validate headers
                     $actualHeaders = $this->getSheetHeaders($sheet);
-                    if (!$this->validateHeaders($actualHeaders, $expectedHeaders)) {
+                    if (! $this->validateHeaders($actualHeaders, $expectedHeaders)) {
                         throw new ExcelValidationException("Headers in sheet '{$sheetName}' do not match the expected format.");
                     }
                 }
 
-
-
                 // Get total rows from both sheets
-                $rowCounts = $event->reader->getTotalRows();
+                $rowCounts       = $event->reader->getTotalRows();
                 $this->totalRows = (($rowCounts['Household Data'] - 2) ?? 0) + (($rowCounts['Main Food Data'] - 2) ?? 0); // others are header rows
-                // Initialize JobProgress record
-
+                                                                                                                          // Initialize JobProgress record
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'total_rows' => $this->totalRows,
+                        'total_rows'     => $this->totalRows,
                         'processed_rows' => 0,
-                        'progress' => 0,
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'form_name' => 'Household RTC Consumption',
+                        'progress'       => 0,
+                        'user_id'        => $this->submissionDetails['user_id'],
+                        'form_name'      => 'Household RTC Consumption',
                     ]
                 );
 
@@ -181,16 +160,16 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                 //     $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager')) {
                     Submission::create([
-                        'batch_no' => $this->submissionDetails['batch_no'],
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'batch_no'                  => $this->submissionDetails['batch_no'],
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'approved',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'rtc_production_farmers',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -204,16 +183,16 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     );
                 } else if ($user->hasAnyRole('admin')) {
                     Submission::create([
-                        'batch_no' => $this->submissionDetails['batch_no'],
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'batch_no'                  => $this->submissionDetails['batch_no'],
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'approved',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'rtc_production_farmers',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(
@@ -227,16 +206,16 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     );
                 } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
-                        'file_link' => $this->submissionDetails['file_link'],
-                        'description' => $this->submissionDetails['description']
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'pending',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'rtc_production_farmers',
+                        'file_link'                 => $this->submissionDetails['file_link'],
+                        'description'               => $this->submissionDetails['description'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -248,15 +227,15 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     ));
                 } else {
                     Submission::create([
-                        'batch_no' => $this->submissionDetails['batch_no'],
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'batch_no'                  => $this->submissionDetails['batch_no'],
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'pending',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'rtc_production_farmers',
+                        'file_link'                 => $this->submissionDetails['file_link'],
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,
@@ -264,17 +243,13 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                             'batch' => $this->cacheKey,
                         ], true) . '#batch-submission'
 
-
                     ));
                 }
-
-
-
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'status' => 'completed',
+                        'status'   => 'completed',
                         'progress' => 100,
                     ]
                 );
@@ -296,24 +271,18 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-                        'error' => $errorMessage,
+                        'error'  => $errorMessage,
                     ]
                 );
-
 
                 HouseholdRtcConsumption::where('uuid', $this->cacheKey)->delete();
                 Submission::where('batch_no', $this->cacheKey)->delete();
 
-
                 Log::error($exception->getMessage());
             },
 
-
-
         ];
     }
-
-
 
     public function chunkSize(): int
     {

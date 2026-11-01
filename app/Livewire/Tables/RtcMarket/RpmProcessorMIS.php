@@ -24,12 +24,15 @@ final class RpmProcessorMIS extends PowerGridComponent
 {
     use WithExport;
     use \App\Traits\ExportTrait;
+    public $rowId;
     public function datasource(): Builder
     {
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmProcessorMarketInformationSystem::query()->with('processors')->select([
+        $query = RpmProcessorMarketInformationSystem::query()->when($this->rowId, function ($query) {
+            $query->where('rpmp_mis.rpmp_id', $this->rowId);
+        })->with('processors')->select([
             'rpmp_mis.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -91,7 +94,9 @@ final class RpmProcessorMIS extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
 
-
+->add('group_name', function ($model) {
+                return $model->processors->group_name;
+            })
             ->add('unique_id', function ($model) {
                 return $model->processors->pp_id;
             })
@@ -123,6 +128,11 @@ final class RpmProcessorMIS extends PowerGridComponent
                 ->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
 
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
             Column::make('Name of Market Information systems', 'name')
                 ->searchable()

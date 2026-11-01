@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +10,6 @@ class ReportingPeriod extends Model
 
     public function reportingMonths()
     {
-        return $this->hasMany(ReportingPeriodMonth::class, 'period_id');
+        return $this->hasMany(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }
 }

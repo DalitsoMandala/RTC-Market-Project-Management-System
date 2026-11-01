@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables;
 
 use App\Models\Baseline;
 use App\Models\BaselineDataMultiple;
@@ -211,13 +211,14 @@ final class BaselineTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+              Column::action(''),
             Column::make('#', 'id'),
             Column::make('Indicator #', 'indicator_no')
                 ->searchable(),
             Column::make('Indicator', 'indicator_name')
                 ->searchable(),
             Column::make('Baseline value', 'baseline_value'),
-            Column::action(''),
+
         ];
     }
 

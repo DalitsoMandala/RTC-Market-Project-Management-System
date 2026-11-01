@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Jobs;
 
 use App\Models\AggregatedReport;
@@ -12,13 +11,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-
 class AggregateReportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 3;
-    public $timeout = 1200; // 20 minutes
+    public $tries   = 3;
+    public $timeout = 1200;           // 20 minutes
     public $backoff = [60, 300, 600]; // Retry delays
     /**
      * Create a new job instance.
@@ -43,7 +41,7 @@ class AggregateReportJob implements ShouldQueue
                 foreach ($reportDataCollection as $reportData) {
 
                     // Safety check to prevent throwing errors if the relationship is missing
-                    if (!$reportData->systemReport) {
+                    if (! $reportData->systemReport) {
                         continue;
                     }
 
@@ -51,7 +49,7 @@ class AggregateReportJob implements ShouldQueue
 
                     $indicator = $reportData->systemReport?->indicator;
 
-                    if (!$indicator) {
+                    if (! $indicator) {
                         continue;
                     }
 
@@ -60,25 +58,25 @@ class AggregateReportJob implements ShouldQueue
 
                     if ($disaggregation) {
                         // The name exists
-                        $indicatorId = $indicator->id;
-                        $disaggregationId = $disaggregation->id;
-                        $reportingPeriodId = $reportData->systemReport->reporting_period_id;
-                        $financialYearId = $reportData->systemReport->financial_year_id;
-                        $organisationId = $reportData->systemReport->organisation_id;
-                        $crop = $reportData->systemReport->crop;
-                        $projectId = $reportData->systemReport->project_id;
+                        $indicatorId       = $indicator->id;
+                        $disaggregationId  = $disaggregation->id;
+                        $reportingPeriodId = $reportData->systemReport->reporting_period_month_id;
+                        $financialYearId   = $reportData->systemReport->financial_year_id;
+                        $organisationId    = $reportData->systemReport->organisation_id;
+                        $crop              = $reportData->systemReport->crop;
+                        $projectId         = $reportData->systemReport->project_id;
                         AggregatedReport::updateOrCreate(
                             [
-                                'indicator_id' => $indicatorId,
+                                'indicator_id'                => $indicatorId,
                                 'indicator_disaggregation_id' => $disaggregationId,
-                                'reporting_period_id' => $reportingPeriodId,
-                                'financial_year_id' => $financialYearId,
-                                'organisation_id' => $organisationId,
-                                'crop' => $crop,
-                                'project_id' => $projectId
+                                'reporting_period_month_id'   => $reportingPeriodId,
+                                'financial_year_id'           => $financialYearId,
+                                'organisation_id'             => $organisationId,
+                                'crop'                        => $crop,
+                                'project_id'                  => $projectId,
                             ],
                             [
-                                'value' => 0
+                                'value' => 0,
                             ]
                         );
                     }

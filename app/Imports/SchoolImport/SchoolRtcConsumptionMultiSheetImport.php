@@ -1,43 +1,30 @@
 <?php
-
 namespace App\Imports\SchoolImport;
 
-use App\Models\User;
-use App\Models\Submission;
-use App\Models\JobProgress;
-use App\Helpers\ExcelValidator;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use App\Models\SchoolRtcConsumption;
-use Illuminate\Support\Facades\Cache;
-use App\Notifications\JobNotification;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use App\Imports\ImportProcessor\RpmpMisImport;
+use App\Imports\SchoolImport\SchoolRtcConsumptionImport;
+use App\Models\JobProgress;
+use App\Models\SchoolRtcConsumption;
+use App\Models\Submission;
+use App\Models\User;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Validators\ValidationException;
-use App\Imports\SchoolImport\SchoolRtcConsumptionImport;
-use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
-use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
-use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
-use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
-use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\ImportFailed;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     protected $expectedSheetNames = ['School RTC Consumption'];
-    protected $expectedHeaders = [
+    protected $expectedHeaders    = [
         'School RTC Consumption' => [
             'EPA',
             'Section',
@@ -56,11 +43,11 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
     protected $cacheKey;
     protected $filePath;
     protected $submissionDetails = [];
-    protected $totalRows = 0;
+    protected $totalRows         = 0;
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
-        $this->cacheKey = $cacheKey;
-        $this->filePath = $filePath;
+        $this->cacheKey          = $cacheKey;
+        $this->filePath          = $filePath;
         $this->submissionDetails = $submissionDetails;
     }
 
@@ -73,7 +60,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
     private function getSheetHeaders(Worksheet $sheet): array
     {
         $highestColumn = $sheet->getHighestColumn();
-        $headerCells = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
+        $headerCells   = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
         return $headerCells[0] ?? [];
     }
 
@@ -85,17 +72,16 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
-                $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
-                $reader = IOFactory::createReaderForFile($this->filePath);
-                $spreadsheet = $reader->load($this->filePath);
-                $sheetNames = $spreadsheet->getSheetNames();
-
+                $firstSheetName = $this->expectedSheetNames[0]; // Get first sheet from the expected list
+                $reader         = IOFactory::createReaderForFile($this->filePath);
+                $spreadsheet    = $reader->load($this->filePath);
+                $sheetNames     = $spreadsheet->getSheetNames();
 
                 $workBook = $event->reader->getTotalRows();
 
                 foreach ($workBook as $sheetName => $totalRows) {
-                    // Check if the sheet is blank
-                    if ($totalRows <= 2) {  // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
+                                           // Check if the sheet is blank
+                    if ($totalRows <= 2) { // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
                         if ($sheetName === $firstSheetName) {
                             // Log error if the first sheet is blank
                             Log::error("The sheet '{$firstSheetName}' is blank.");
@@ -106,13 +92,10 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     }
                 }
 
-
-
-
                 // Validate headers and missing sheet names
                 foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
                     // Check if sheet exists
-                    if (!in_array($sheetName, $sheetNames)) {
+                    if (! in_array($sheetName, $sheetNames)) {
                         throw new ExcelValidationException("Sheet '{$sheetName}' is missing in the uploaded file.");
                     }
 
@@ -121,13 +104,13 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
 
                     // Validate headers
                     $actualHeaders = $this->getSheetHeaders($sheet);
-                    if (!$this->validateHeaders($actualHeaders, $expectedHeaders)) {
+                    if (! $this->validateHeaders($actualHeaders, $expectedHeaders)) {
                         throw new ExcelValidationException("Headers in sheet '{$sheetName}' do not match the expected format.");
                     }
                 }
 
                 // Get total rows from all sheets and initialize JobProgress
-                $rowCounts = $event->reader->getTotalRows();
+                $rowCounts       = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 1) ?? 0); // excluding headers
                 }, 0);
@@ -135,11 +118,11 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'total_rows' => $this->totalRows,
+                        'total_rows'     => $this->totalRows,
                         'processed_rows' => 0,
-                        'progress' => 0,
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'form_name' => 'School Consumption Import',
+                        'progress'       => 0,
+                        'user_id'        => $this->submissionDetails['user_id'],
+                        'form_name'      => 'School Consumption Import',
                     ]
                 );
 
@@ -151,15 +134,15 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                 // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'table_name' => 'school_rtc_consumption',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'approved',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'school_rtc_consumption',
+                        'file_link'                 => $this->submissionDetails['file_link'],
                     ]);
 
                     $user->notify(
@@ -171,17 +154,17 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
 
                         )
                     );
-                } else   if ($user->hasAnyRole('staff')) {
+                } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'table_name' => 'school_rtc_consumption',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'approved',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'school_rtc_consumption',
+                        'file_link'                 => $this->submissionDetails['file_link'],
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,
@@ -192,15 +175,15 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     ));
                 } else {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
-                        'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['submission_period_id'],
-                        'user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'pending',
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'table_name' => 'school_rtc_consumption',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'batch_no'                  => $this->cacheKey,
+                        'form_id'                   => $this->submissionDetails['form_id'],
+                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
+                        'user_id'                   => $this->submissionDetails['user_id'],
+                        'status'                    => 'pending',
+                        'batch_type'                => 'batch',
+                        'is_complete'               => 1,
+                        'table_name'                => 'school_rtc_consumption',
+                        'file_link'                 => $this->submissionDetails['file_link'],
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -209,21 +192,19 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                             'batch' => $this->cacheKey,
                         ], true) . '#batch-submission'
 
-
                     ));
                 }
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
-                        'status' => 'completed',
-                        'progress' => 100
+                        'status'   => 'completed',
+                        'progress' => 100,
                     ]
                 );
             },
 
             ImportFailed::class => function (ImportFailed $event) {
-
 
                 $exception = $event->getException();
 
@@ -242,14 +223,14 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     [
                         'status' => 'failed',
 
-                        'error' => $errorMessage,
+                        'error'  => $errorMessage,
                     ]
                 );
                 SchoolRtcConsumption::where('uuid', $this->cacheKey)->delete();
                 Submission::where('batch_no', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
-            }
+            },
         ];
     }
 

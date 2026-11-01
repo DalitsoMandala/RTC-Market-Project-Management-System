@@ -1,115 +1,30 @@
+@section('title')
+    Reporting periods
+@endsection
+
 <div>
-    @section('title')
-        Reporting periods
-    @endsection
     <div class="container-fluid">
-
-        <!-- start page title -->
         <div class="row">
+            <x-breadcrumbs />
+
             <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div>
 
 
-                    <div class="page-title-left col-12">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">
-                                Reporting Periods</li>
-                        </ol>
-                    </div>
+                    <x-alpine-alerts />
 
-                </div>
-            </div>
-        </div>
-        <!-- end page title -->
-        <x-alpine-alerts />
-        <!-- Nav tabs -->
-        <div class="card">
-            <div class="card-header card-title fw-bold border-bottom-0 ">
-                Project Reporting Periods
-            </div>
-            <div class="card-body">
-
-                <ul class=" nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
-                            type="button" role="tab" aria-controls="home" aria-selected="true">
-                            Reporting period
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
-                            type="button" role="tab" aria-controls="profile" aria-selected="false">
-                            Reporting period details
-                        </button>
-                    </li>
-
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#financial_year"
-                            type="button" role="tab" aria-controls="profile" aria-selected="false">
-                            Project Years
-                        </button>
-                    </li>
-
-
-                </ul>
-
-
-                <!-- Tab panes -->
-                <div class="mt-2 tab-content">
-                    <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <livewire:admin.reporting-period-table />
-                    </div>
-
-
-                    <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <livewire:admin.reporting-months-table />
-                    </div>
-                    <div class="tab-pane" id="financial_year" role="tabpanel" aria-labelledby="profile-tab">
+                    {{-- ============================ Project Years ============================ --}}
+                    <x-table-card title="Project Years" subtitle="Manage project years" :isResponsive="false">
                         <livewire:admin.financial-year-table />
-                    </div>
+                    </x-table-card>
+                    {{-- ============================ Reporting Periods ============================ --}}
+                    <x-table-card title="Reporting Periods" subtitle="Manage project reporting periods" :isResponsive="false">
+                        <livewire:admin.reporting-period-table />
+                    </x-table-card>
+
+
                 </div>
-
-
             </div>
         </div>
-
-
     </div>
-
-
-
-
-
-
-
-    {{-- <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })">
-
-
-        <x-modal id="view-indicator-modal" title="edit">
-            <form>
-                <div class="mb-3">
-
-                    <x-text-input placeholder="Name of indicator..." />
-                </div>
-
-                <div class="modal-footer border-top-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-warning">Save changes</button>
-
-                </div>
-            </form>
-        </x-modal>
-
-    </div> --}}
-
-
-
-
-</div>
-
 </div>

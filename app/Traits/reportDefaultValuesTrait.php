@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Traits;
 
 trait reportDefaultValuesTrait
@@ -10,12 +9,12 @@ trait reportDefaultValuesTrait
     public $indicator_id;
     public $financial_year_id;
     public $month_period_id;
-    public $submission_period_id;
+    public $submission_period_new_id;
     public function mount()
     {
-        $this->submissionPeriodId = $this->submission_period_id;
-        $this->selectedForm = $this->form_id;
-        $this->selectedIndicator = $this->indicator_id;
+        $this->submissionPeriodId    = $this->submission_period_new_id;
+        $this->selectedForm          = $this->form_id;
+        $this->selectedIndicator     = $this->indicator_id;
         $this->selectedFinancialYear = $this->financial_year_id;
     }
 }

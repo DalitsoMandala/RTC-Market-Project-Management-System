@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Internal\Cip;
 
 use App\Models\Form;
@@ -31,11 +32,11 @@ class Indicators extends Component
     public $disaggregations = [];
 
     public $leadPartners = [];
-    #[Validate('required')]
-    public $selectedLeadPartner = [];
+ #[Validate('required|array|min:1')]
+public $selectedLeadPartner = [];
 
     public $sources = [];
-    #[Validate('required')]
+    #[Validate('required|array|min:1')]
     public $selectedSource = [];
 
     public $submissionTypes = [];
@@ -45,7 +46,15 @@ class Indicators extends Component
     public function setData($id)
     {
         $this->resetErrorBag();
-        $indicator                 = Indicator::find($id);
+        // Prefer this — fail loudly, Livewire turns 404 into a clean error
+        $indicator = Indicator::findOrFail($id);
+
+        // or, if you want a toast instead of a 404
+        $indicator = Indicator::find($id);
+        if (! $indicator) {
+            $this->alert('error', 'Indicator not found for the current project.');
+            return;
+        }
         $this->rowId               = $id;
         $this->indicator           = $indicator->indicator_name;
         $this->selectedProject     = $indicator->project->id;
@@ -94,8 +103,7 @@ class Indicators extends Component
         $this->reset();
     }
 
-    public function saveDisaggregations()
-    {}
+
     public function mount()
     {
 

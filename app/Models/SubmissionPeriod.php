@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class SubmissionPeriod extends Model
 {
     use HasFactory;
+    protected $table   = 'submission_periods_new';
     protected $guarded = [];
 
     public function submissions()
     {
-        return $this->hasMany(Submission::class, 'period_id');
+        return $this->hasMany(Submission::class, 'submission_period_new_id');
     }
 
     public function form()
@@ -26,23 +26,9 @@ class SubmissionPeriod extends Model
     }
     public function reportingMonths()
     {
-        return $this->belongsTo(ReportingPeriodMonth::class, 'month_range_period_id');
+        return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_month_id');
     }
 
-    public function indicator()
-    {
+   
 
-        return $this->belongsTo(Indicator::class, 'indicator_id');
-    }
-
-
-    public function submissionTargets()
-    {
-        return $this->hasMany(SubmissionTarget::class, 'submission_period_id');
-    }
-
-    public function mailingList()
-    {
-        return $this->hasMany(MailingList::class, 'submission_period_id');
-    }
 }

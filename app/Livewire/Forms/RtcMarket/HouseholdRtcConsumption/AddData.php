@@ -1,34 +1,27 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
-use Throwable;
-
-use Carbon\Carbon;
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Helpers\LogError;
-use App\Models\Indicator;
-use App\Models\Submission;
-use App\Models\LocationHrc;
-use App\Models\MainFoodHrc;
-use Livewire\Attributes\On;
+use App\Exceptions\UserErrorException;
 use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\HouseholdRtcConsumption;
+use App\Models\Indicator;
+use App\Models\OrganisationTarget;
+use App\Models\ReportingPeriodMonth;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use App\Exceptions\UserErrorException;
-use App\Models\HouseholdRtcConsumption;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Notifications\ManualDataAddedNotification;
-use App\Notifications\AggregateDataAddedNotification;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class AddData extends Component
 {
@@ -46,7 +39,6 @@ class AddData extends Component
 
     public $district;
 
-
     public $enterprise = 'Cassava';
 
     public $period;
@@ -55,7 +47,7 @@ class AddData extends Component
 
     public $selectedForm;
 
-    public $months = [];
+    public $months         = [];
     public $financialYears = [];
 
     public $projects = [];
@@ -65,7 +57,7 @@ class AddData extends Component
     public $selectedFinancialYear;
 
     public $selectedProject;
-    public $form_name = 'HOUSEHOLD CONSUMPTION FORM';
+    public $form_name      = 'HOUSEHOLD CONSUMPTION FORM';
     public $openSubmission = false;
 
     public $indicators;
@@ -76,7 +68,7 @@ class AddData extends Component
 
     public $loadAggregate = [];
 
-    public $aggregateData = [];
+    public $aggregateData    = [];
     public $checkifAggregate = false;
 
     public $showReport = false;
@@ -86,51 +78,51 @@ class AddData extends Component
     protected function rules()
     {
         return [
-            'epa' => 'required',
-            'section' => 'required',
-            'district' => 'required',
-            'enterprise' => 'required',
-            'inputs.*.date_of_assessment' => 'required|date',
-            'inputs.*.actor_type' => 'required',
-            'inputs.*.rtc_group_platform' => 'required',
-            'inputs.*.producer_organisation' => 'required',
-            'inputs.*.actor_name' => 'required',
-            'inputs.*.age_group' => 'required',
-            'inputs.*.sex' => 'required',
-            'inputs.*.phone_number' => 'required',
-            'inputs.*.household_size' => 'required|numeric|min:0',
-            'inputs.*.under_5_in_household' => 'required|numeric|min:0|lte:inputs.*.household_size',
-            'inputs.*.rtc_consumers' => 'required|numeric|min:0|lte:inputs.*.household_size',
-            'inputs.*.rtc_consumers_potato' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
-            'inputs.*.rtc_consumers_sw_potato' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
-            'inputs.*.rtc_consumers_cassava' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
+            'epa'                                => 'required',
+            'section'                            => 'required',
+            'district'                           => 'required',
+            'enterprise'                         => 'required',
+            'inputs.*.date_of_assessment'        => 'required|date',
+            'inputs.*.actor_type'                => 'required',
+            'inputs.*.rtc_group_platform'        => 'required',
+            'inputs.*.producer_organisation'     => 'required',
+            'inputs.*.actor_name'                => 'required',
+            'inputs.*.age_group'                 => 'required',
+            'inputs.*.sex'                       => 'required',
+            'inputs.*.phone_number'              => 'required',
+            'inputs.*.household_size'            => 'required|numeric|min:0',
+            'inputs.*.under_5_in_household'      => 'required|numeric|min:0|lte:inputs.*.household_size',
+            'inputs.*.rtc_consumers'             => 'required|numeric|min:0|lte:inputs.*.household_size',
+            'inputs.*.rtc_consumers_potato'      => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
+            'inputs.*.rtc_consumers_sw_potato'   => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
+            'inputs.*.rtc_consumers_cassava'     => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
             'inputs.*.rtc_consumption_frequency' => 'required|numeric|min:0',
-            'inputs.*.main_food' => 'required',
+            'inputs.*.main_food'                 => 'required',
         ];
     }
     protected function validationAttributes()
     {
         return [
-            'epa' => 'epa',
-            'section' => 'section',
-            'district' => 'district',
-            'enterprise' => 'enterprise',
-            'inputs.*.date_of_assessment' => 'date of assessment',
-            'inputs.*.actor_type' => 'actor type',
-            'inputs.*.rtc_group_platform' => 'RTC group platform',
-            'inputs.*.producer_organisation' => 'producer organisation',
-            'inputs.*.actor_name' => 'actor name',
-            'inputs.*.age_group' => 'age group',
-            'inputs.*.sex' => 'sex',
-            'inputs.*.phone_number' => 'phone number',
-            'inputs.*.household_size' => 'household size',
-            'inputs.*.under_5_in_household' => 'under 5 in household',
-            'inputs.*.rtc_consumers' => 'RTC consumers',
-            'inputs.*.rtc_consumers_potato' => 'RTC consumers (potato)',
-            'inputs.*.rtc_consumers_sw_potato' => 'RTC consumers (sweet potato)',
-            'inputs.*.rtc_consumers_cassava' => 'RTC consumers (cassava)',
+            'epa'                                => 'epa',
+            'section'                            => 'section',
+            'district'                           => 'district',
+            'enterprise'                         => 'enterprise',
+            'inputs.*.date_of_assessment'        => 'date of assessment',
+            'inputs.*.actor_type'                => 'actor type',
+            'inputs.*.rtc_group_platform'        => 'RTC group platform',
+            'inputs.*.producer_organisation'     => 'producer organisation',
+            'inputs.*.actor_name'                => 'actor name',
+            'inputs.*.age_group'                 => 'age group',
+            'inputs.*.sex'                       => 'sex',
+            'inputs.*.phone_number'              => 'phone number',
+            'inputs.*.household_size'            => 'household size',
+            'inputs.*.under_5_in_household'      => 'under 5 in household',
+            'inputs.*.rtc_consumers'             => 'RTC consumers',
+            'inputs.*.rtc_consumers_potato'      => 'RTC consumers (potato)',
+            'inputs.*.rtc_consumers_sw_potato'   => 'RTC consumers (sweet potato)',
+            'inputs.*.rtc_consumers_cassava'     => 'RTC consumers (cassava)',
             'inputs.*.rtc_consumption_frequency' => 'RTC consumption frequency',
-            'inputs.*.main_food' => 'main food',
+            'inputs.*.main_food'                 => 'main food',
         ];
     }
 
@@ -140,23 +132,23 @@ class AddData extends Component
 
         $this->inputs->push(
             [
-                'date_of_assessment' => null,
-                'actor_type' => null,
-                'rtc_group_platform' => 'Household',
-                'producer_organisation' => null,
-                'actor_name' => null,
-                'age_group' => null,
-                'sex' => null,
-                'phone_number' => null,
-                'household_size' => null,
-                'under_5_in_household' => null,
-                'rtc_consumers' => null,
-                'rtc_consumers_potato' => null,
-                'rtc_consumers_sw_potato' => null,
-                'rtc_consumers_cassava' => null,
+                'date_of_assessment'        => null,
+                'actor_type'                => null,
+                'rtc_group_platform'        => 'Household',
+                'producer_organisation'     => null,
+                'actor_name'                => null,
+                'age_group'                 => null,
+                'sex'                       => null,
+                'phone_number'              => null,
+                'household_size'            => null,
+                'under_5_in_household'      => null,
+                'rtc_consumers'             => null,
+                'rtc_consumers_potato'      => null,
+                'rtc_consumers_sw_potato'   => null,
+                'rtc_consumers_cassava'     => null,
                 'rtc_consumption_frequency' => null,
 
-                'main_food' => [],
+                'main_food'                 => [],
             ],
         );
     }
@@ -164,16 +156,17 @@ class AddData extends Component
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
-    public function updated($property, $value) {}
+    public function updated($property, $value)
+    {}
 
     public function updatedSelectedIndicator($value)
     {
 
         $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
-            ->where('indicator_id', $this->selectedIndicator)->pluck('month_range_period_id');
+            ->where('indicator_id', $this->selectedIndicator)->pluck('reporting_period_month_id');
         $this->months = ReportingPeriodMonth::get();
         $this->months = $this->months->whereIn('id', $period);
     }
@@ -192,82 +185,73 @@ class AddData extends Component
             throw $e;
         }
 
-
         try {
             $uuid = Uuid::uuid4()->toString();
 
             $userId = auth()->user()->id;
 
             $data = [];
-            $now = Carbon::now();
+            $now  = Carbon::now();
             foreach ($this->inputs as $index => $input) {
 
-
-                $input['uuid'] = $uuid;
-                $input['user_id'] = $userId;
+                $input['uuid']       = $uuid;
+                $input['user_id']    = $userId;
                 $input['created_at'] = $now;
                 $input['updated_at'] = $now;
-                $input['epa'] = $this->epa;
-                $input['section'] = $this->section;
-                $input['district'] = $this->district;
+                $input['epa']        = $this->epa;
+                $input['section']    = $this->section;
+                $input['district']   = $this->district;
                 $input['enterprise'] = $this->enterprise;
-                $data[] = $input;
+                $data[]              = $input;
             }
 
-
             $currentUser = Auth::user();
-
-
 
             try {
 
                 $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
-                    ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
-                if (!$period) {
+                    ->where('financial_year_id', $this->selectedFinancialYear)->where('reporting_period_month_id', $this->selectedMonth)->first();
+                if (! $period) {
                     throw new UserErrorException("Sorry you can not submit your form right now!"); // expired or closed
 
                 }
 
                 Submission::create([
-                    'batch_no' => $uuid,
-                    'form_id' => $this->selectedForm,
-                    'user_id' => $currentUser->id,
-                    'status' => 'approved',
+                    'batch_no'                  => $uuid,
+                    'form_id'                   => $this->selectedForm,
+                    'user_id'                   => $currentUser->id,
+                    'status'                    => 'approved',
                     //     'data' => json_encode($data),
-                    'batch_type' => 'manual',
-                    'is_complete' => 1,
-                    'period_id' => $this->submissionPeriodId,
-                    'table_name' => 'household_rtc_consumption',
+                    'batch_type'                => 'manual',
+                    'is_complete'               => 1,
+                    'reporting_period_month_id' => $this->submissionPeriodId,
+                    'table_name'                => 'household_rtc_consumption',
 
                 ]);
 
                 foreach ($data as $dt) {
 
-                    $dt['submission_period_id'] = $this->submissionPeriodId;
-                    $dt['period_month_id'] = $this->selectedMonth;
-                    $dt['organisation_id'] = Auth::user()->organisation->id;
-                    $dt['financial_year_id'] = $this->selectedFinancialYear;
+                    $dt['submission_period_new_id']  = $this->submissionPeriodId;
+                    $dt['reporting_period_month_id'] = $this->selectedMonth;
+                    $dt['organisation_id']           = Auth::user()->organisation->id;
+                    $dt['financial_year_id']         = $this->selectedFinancialYear;
 
                     $dt['status'] = 'approved';
-                    $mainFood = $dt['main_food'];
+                    $mainFood     = $dt['main_food'];
                     unset($dt['main_food']);
 
                     $hrc = HouseholdRtcConsumption::create($dt);
 
-
                     foreach ($mainFood as $food) {
                         $hrc->mainFoods()->create([
-                            'name' => $food
+                            'name' => $food,
                         ]);
                     }
                 }
 
-
-
                 $this->reset('epa', 'section', 'district', 'enterprise');
                 $this->resetErrorBag();
                 $this->readdInputs();
-
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
                 $this->redirect(url()->previous());
@@ -295,23 +279,23 @@ class AddData extends Component
                 'inputs' =>
                 collect([
                     [
-                        'date_of_assessment' => null,
-                        'actor_type' => null,
-                        'rtc_group_platform' => 'Household',
-                        'producer_organisation' => null,
-                        'actor_name' => null,
-                        'age_group' => null,
-                        'sex' => null,
-                        'phone_number' => null,
-                        'household_size' => null,
-                        'under_5_in_household' => null,
-                        'rtc_consumers' => null,
-                        'rtc_consumers_potato' => null,
-                        'rtc_consumers_sw_potato' => null,
-                        'rtc_consumers_cassava' => null,
+                        'date_of_assessment'        => null,
+                        'actor_type'                => null,
+                        'rtc_group_platform'        => 'Household',
+                        'producer_organisation'     => null,
+                        'actor_name'                => null,
+                        'age_group'                 => null,
+                        'sex'                       => null,
+                        'phone_number'              => null,
+                        'household_size'            => null,
+                        'under_5_in_household'      => null,
+                        'rtc_consumers'             => null,
+                        'rtc_consumers_potato'      => null,
+                        'rtc_consumers_sw_potato'   => null,
+                        'rtc_consumers_cassava'     => null,
                         'rtc_consumption_frequency' => null,
 
-                        'main_food' => [],
+                        'main_food'                 => [],
                     ],
 
                 ]),
@@ -328,11 +312,11 @@ class AddData extends Component
             $userId = auth()->user()->id;
 
             $currentUser = Auth::user();
-            $user = User::find($userId);
+            $user        = User::find($userId);
             if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
 
                 try {
-                    $checkSubmissions = Submission::where('period_id', $this->submissionPeriodId)
+                    $checkSubmissions = Submission::where('reporting_period_month_id', $this->submissionPeriodId)
                         ->where('batch_type', 'aggregate')->where('user_id', $userId)
                         ->where('status', 'approved')
                         ->first();
@@ -342,22 +326,17 @@ class AddData extends Component
                         $this->dispatch('to-top');
                     } else {
 
-
-
                         Submission::create([
-                            'batch_no' => $uuid,
-                            'form_id' => $this->selectedForm,
-                            'user_id' => $currentUser->id,
-                            'status' => 'approved',
+                            'batch_no'                  => $uuid,
+                            'form_id'                   => $this->selectedForm,
+                            'user_id'                   => $currentUser->id,
+                            'status'                    => 'approved',
                             //       'data' => json_encode($this->aggregateData),
-                            'batch_type' => 'aggregate',
-                            'is_complete' => 1,
-                            'period_id' => $this->submissionPeriodId,
-                            'table_name' => 'household_rtc_consumption',
+                            'batch_type'                => 'aggregate',
+                            'is_complete'               => 1,
+                            'reporting_period_month_id' => $this->submissionPeriodId,
+                            'table_name'                => 'household_rtc_consumption',
                         ]);
-
-
-
 
                         session()->flash('success', 'Successfully submitted! <a href="' . route('cip-submissions') . '#manual-submission">View Submission here</a>');
                     }
@@ -373,16 +352,15 @@ class AddData extends Component
                 try {
 
                     Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => $currentUser->id,
+                        'batch_no'                  => $uuid,
+                        'form_id'                   => $this->selectedForm,
+                        'user_id'                   => $currentUser->id,
                         //  'data' => json_encode($this->aggregateData),
-                        'batch_type' => 'aggregate',
-                        'is_complete' => 1,
-                        'period_id' => $this->submissionPeriodId,
-                        'table_name' => 'household_rtc_consumption',
+                        'batch_type'                => 'aggregate',
+                        'is_complete'               => 1,
+                        'reporting_period_month_id' => $this->submissionPeriodId,
+                        'table_name'                => 'household_rtc_consumption',
                     ]);
-
 
                     session()->flash('success', 'Successfully submitted! <a href="' . route('external-submissions') . '#manual-submission">View Submission here</a>');
                 } catch (\Exception $e) {
@@ -408,34 +386,34 @@ class AddData extends Component
         $this->savePack();
     }
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
 
-        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_new_id == null) {
 
             abort(404);
         }
 
-        $findForm = Form::find($form_id);
-        $findIndicator = Indicator::find($indicator_id);
-        $findFinancialYear = FinancialYear::find($financial_year_id);
-        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
-        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
+        $findForm             = Form::find($form_id);
+        $findIndicator        = Indicator::find($indicator_id);
+        $findFinancialYear    = FinancialYear::find($financial_year_id);
+        $findMonthPeriod      = ReportingPeriodMonth::find($month_period_id);
+        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_new_id);
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
         } else {
-            $this->selectedForm = $findForm->id;
-            $this->selectedIndicator = $findIndicator->id;
+            $this->selectedForm          = $findForm->id;
+            $this->selectedIndicator     = $findIndicator->id;
             $this->selectedFinancialYear = $findFinancialYear->id;
-            $this->selectedMonth = $findMonthPeriod->id;
-            $this->submissionPeriodId = $findSubmissionPeriod->id;
+            $this->selectedMonth         = $findMonthPeriod->id;
+            $this->submissionPeriodId    = $findSubmissionPeriod->id;
             //check submission period
 
             $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
                 ->where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
+                ->where('reporting_period_month_id', $this->selectedMonth)
                 ->where('is_open', true)
                 ->first();
 
@@ -445,8 +423,7 @@ class AddData extends Component
                 ->get();
             $user = User::find(auth()->user()->id);
 
-
-            $targets = $target->pluck('id');
+            $targets                      = $target->pluck('id');
             $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
                 ->whereHas('submissionTarget', function ($query) use ($targets) {
                     $query->whereIn('submission_target_id', $targets);
@@ -455,14 +432,13 @@ class AddData extends Component
 
             $this->targetIds = $target->pluck('id')->toArray();
 
-
             if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-                $this->targetSet = true;
+                $this->targetSet      = true;
             } else {
                 $this->openSubmission = false;
-                $this->targetSet = false;
+                $this->targetSet      = false;
             }
         }
 
@@ -472,23 +448,23 @@ class AddData extends Component
                 'inputs' =>
                 collect([
                     [
-                        'date_of_assessment' => null,
-                        'actor_type' => null,
-                        'rtc_group_platform' => 'Household',
-                        'producer_organisation' => null,
-                        'actor_name' => null,
-                        'age_group' => null,
-                        'sex' => 'Male',
-                        'phone_number' => null,
-                        'household_size' => null,
-                        'under_5_in_household' => null,
-                        'rtc_consumers' => null,
-                        'rtc_consumers_potato' => null,
-                        'rtc_consumers_sw_potato' => null,
-                        'rtc_consumers_cassava' => null,
+                        'date_of_assessment'        => null,
+                        'actor_type'                => null,
+                        'rtc_group_platform'        => 'Household',
+                        'producer_organisation'     => null,
+                        'actor_name'                => null,
+                        'age_group'                 => null,
+                        'sex'                       => 'Male',
+                        'phone_number'              => null,
+                        'household_size'            => null,
+                        'under_5_in_household'      => null,
+                        'rtc_consumers'             => null,
+                        'rtc_consumers_potato'      => null,
+                        'rtc_consumers_sw_potato'   => null,
+                        'rtc_consumers_cassava'     => null,
                         'rtc_consumption_frequency' => null,
 
-                        'main_food' => [],
+                        'main_food'                 => [],
                     ],
 
                 ]),

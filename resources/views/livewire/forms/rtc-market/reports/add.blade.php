@@ -34,7 +34,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="mb-3" x-data="{
-                        
+
                         }">
                             <label for="" class="form-label">Indicator for reports (select one) <sup
                                     class="text-danger">*</sup></label>
@@ -86,7 +86,7 @@
                                 '-' .
                                 $array['form_id'] .
                                 '-' .
-                                $array['submission_period_id'];
+                                $array['submission_period_new_id'];
                         @endphp
 
                         @livewire(
@@ -96,7 +96,7 @@
                                 'indicator_id' => $array['indicator_id'],
                                 'financial_year_id' => $array['financial_year_id'],
                                 'month_period_id' => $array['month_period_id'],
-                                'submission_period_id' => $array['submission_period_id'],
+                                'submission_period_new_id' => $array['submission_period_new_id'],
                             ],
                             key($componentKey)
                         )

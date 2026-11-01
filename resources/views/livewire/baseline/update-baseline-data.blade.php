@@ -25,19 +25,10 @@
 
         <div class=" row">
             <div class="col-12">
+                <x-table-card title="Baseline Data" subtitle="Update baseline values">
+                    <livewire:tables.baseline-table />
+                </x-table-card>
 
-                <div class="shadow-md card">
-
-                    <div class="card-header card-title fw-bold border-bottom-0 ">
-                        Baseline Data
-                    </div>
-                    <div class=" card-body">
-
-
-                        <livewire:tables.baseline-table />
-                    </div>
-
-                </div>
             </div>
 
 
@@ -119,14 +110,15 @@
 
                         <!-- Action Buttons -->
                         <div class="d-flex justify-content-center gap-2">
-                            <button type="submit" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });"
-                                wire:loading.attr="disabled" class="btn btn-warning">
-                                Update
-                            </button>
-                            <button type="button" data-bs-dismiss="modal"  wire:loading.attr="disabled"
-                                class="btn btn-secondary">
+                             <button type="button" data-bs-dismiss="modal" wire:loading.attr="disabled"
+                                class="btn btn-secondary px-5">
                                 Cancel
                             </button>
+                            <button type="submit" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });"
+                                wire:loading.attr="disabled" class="btn btn-warning px-5">
+                                Update
+                            </button>
+
                         </div>
                     </form>
                 </x-modal>

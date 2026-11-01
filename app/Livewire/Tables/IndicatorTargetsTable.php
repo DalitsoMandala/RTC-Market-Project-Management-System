@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables;
 
 use App\Models\Indicator;
 use App\Models\IndicatorTarget;

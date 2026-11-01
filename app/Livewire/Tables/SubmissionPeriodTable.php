@@ -2,50 +2,41 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use App\Models\Source;
-use App\Models\Indicator;
-use Livewire\Attributes\On;
-use App\Models\Organisation;
 use App\Models\FinancialYear;
-use Illuminate\Support\Carbon;
-use App\Models\SubmissionPeriod;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\DB;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ResponsiblePerson;
+use App\Models\SubmissionPeriod;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use PhpOffice\PhpSpreadsheet\Calculation\Financial;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Detail;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SubmissionPeriodTable extends PowerGridComponent
 {
     use WithExport;
     public $currentRoutePrefix;
-    public string $sortField = 'date_established';
+    public string $sortField  = 'date_established';
     public string $primaryKey = 'rn';
 
     public function setUp(): array
     {
 
         // $this->timeout();
-
-
-
-
 
         return [
 
@@ -54,22 +45,34 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->showPerPage(10)
                 ->showRecordCount(),
 
-
             Detail::make()
-                ->view('components.submission-period-detail'),
+                ->view('components.submission-period-detail')->collapseOthers(),
         ];
     }
 
-
     public function datasource(): Builder
     {
+        $user = Auth::user();
         $sub = SubmissionPeriod::query()
-            ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn ,COUNT(id) as count, date_established, date_ending, is_open,is_expired,is_restricted,financial_year_id,month_range_period_id,bypass_notification')
-            ->groupBy('date_established', 'date_ending', 'is_open', 'is_expired', 'financial_year_id', 'month_range_period_id', 'is_restricted', 'bypass_notification')
-            ->orderBy('financial_year_id', 'desc')
-            ->orderBy('is_open', 'desc');
+            ->select([
+                'id',
+                'date_established',
+                'date_ending',
+                'is_open',
+                'is_expired',
+                'is_restricted',
+                'financial_year_id',
+                'reporting_period_month_id',
+                'bypass_notification',
+            ])
+            ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn')
+             ->orderByDesc('is_open')
+            ->orderByDesc('financial_year_id')
+           ;
 
-
+        if ($user->hasAnyRole(['external'])) {
+            return $sub->where('is_open', true)->where('is_expired', false)->where('is_restricted', false);
+        }
         return $sub;
     }
 
@@ -79,7 +82,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('id')
             ->add('form_id')
             ->add('form_name', function ($model) {
-
 
                 //  return $form->name;
                 // $form = Form::find($model->form_id);
@@ -91,7 +93,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
             })
             ->add('financial_year', function ($model) {
                 return FinancialYear::find($model->financial_year_id)?->number;
-                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+                //   ReportingPeriodMonth::find($model->reporting_period_month_id)->;
             })
 
             ->add('indicator_id')
@@ -115,10 +117,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
             })
 
             ->add('month_range', function ($model) {
-                return    ReportingPeriodMonth::find($model->month_range_period_id)->start_month . '-' . ReportingPeriodMonth::find($model->month_range_period_id)->end_month;
+
+                return ReportingPeriodMonth::find($model->reporting_period_month_id)->start_month . '-' . ReportingPeriodMonth::find($model->reporting_period_month_id)->end_month;
 
                 // return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
-                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+                //   ReportingPeriodMonth::find($model->reporting_period_month_id)->;
             })
             ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y'))
             ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y'))
@@ -127,13 +130,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
             })
             ->add('is_open')
             ->add('is_open_toggle', function ($model) {
-                $user = User::find(auth()->user()->id);
-                $restricted = $model->is_restricted && !$user->hasAnyRole(['manager', 'admin']);
+                $user       = User::find(auth()->user()->id);
+                $restricted = $model->is_restricted && ! $user->hasAnyRole(['manager', 'admin']);
 
                 if ($restricted) {
                     $model->is_open = 0;
                 }
-                $open = $model->is_open === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary';
+                $open    = $model->is_open === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary';
                 $is_open = $model->is_open === 1 ? 'Open' : 'Closed';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_open . '</span>';
@@ -141,16 +144,18 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('is_expired')
             ->add('is_expired_toggle', function ($model) {
 
-                $user = User::find(auth()->user()->id);
-                $restricted = $model->is_restricted && !$user->hasAnyRole(['manager', 'admin']);
-
-                if ($restricted) {
-                    $model->is_expired = 1;
-                }
-                $open = $model->is_expired === 1 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success';
+                $open       = $model->is_expired === 1 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success';
                 $is_expired = $model->is_expired === 1 ? 'Yes' : 'No';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
+            })
+
+                ->add('is_restricted', function ($model) {
+
+                $open    = $model->is_restricted === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary';
+                $is_open = $model->is_restricted === 1 ? 'Yes' : 'No';
+
+                return '<span class="badge ' . $open . ' "> ' . $is_open . '</span>';
             })
 
             // ->add('submissions', fn($model) => '<span class=" fw-bold">' . SubmissionPeriod::find($model->id)->submissions->count() . '</span>')
@@ -165,67 +170,55 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'forms' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'forms'           => [ // relationship on dishes model
+                'name',                // column enabled to search
 
             ],
             'reportingMonths' => [ // relationship on dishes model
-                'start_date', // column enabled to search
-                'end_date', // column enabled to search
+                'start_date',          // column enabled to search
+                'end_date',            // column enabled to search
             ],
-
-
-
-
 
         ];
     }
 
     public function columns(): array
-    {
-        return [
+{
+    $columns = [
+        Column::action(''),
+        Column::make('#', 'rn')->sortable(),
 
+        Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
+            ->sortable(),
 
+        Column::make('End of Submissions', 'date_ending_formatted', 'date_ending')
+            ->sortable(),
 
-            Column::make('#', 'rn')->sortable(),
+        Column::make('Months', 'month_range'),
 
+        Column::make('Financial Year', 'financial_year')
+            ->searchable(),
 
+        Column::make('Status', 'is_open_toggle', 'is_open')
+            ->sortable()
+            ->searchable(),
 
+        Column::make('Expired', 'is_expired_toggle', 'is_expired')
+            ->sortable()
+            ->searchable(),
+    ];
 
+    $user = Auth::user();
 
-            Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
-                ->sortable(),
-
-            Column::make('End of Submissions', 'date_ending_formatted', 'date_ending')
-                ->sortable(),
-
-            Column::make('Months', 'month_range'),
-
-            Column::make('Financial Year', 'financial_year')
-
-                ->searchable(),
-
-            Column::make('Status', 'is_open_toggle', 'is_open')
-                ->sortable()
-                ->searchable(),
-
-
-
-
-
-            Column::make('Expired', 'is_expired_toggle', 'is_expired')
-                ->sortable()
-                ->searchable(),
-
-
-
-
-            Column::action(''),
-
-
-
-        ];
+    // If user is NOT external, push the Restricted column directly to the flat array
+    if (!$user->hasAnyRole(['external'])) {
+        $columns[] = Column::make('Restricted', 'is_restricted', 'is_restricted')
+            ->sortable()
+            ->searchable();
     }
+
+    return $columns;
+}
 
     public function filters(): array
     {
@@ -237,16 +230,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-            Filter::select('indicator', 'indicator_id')
-                ->dataSource(Indicator::all())
-                ->optionLabel('indicator_name')
-                ->optionValue('id'),
 
             Filter::select('date_established', 'date_established')
                 ->dataSource(SubmissionPeriod::select(['date_established'])->distinct()->get()->map(function ($model) {
                     return [
                         'date_established' => $model->date_established,
-                        'formatted' => Carbon::parse($model->date_established)->format('d/m/Y'),
+                        'formatted'        => Carbon::parse($model->date_established)->format('d/m/Y'),
                     ];
                 }))
                 ->optionLabel('formatted')
@@ -257,7 +246,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
                     return [
                         'date_ending' => $model->date_ending,
-                        'formatted' => Carbon::parse($model->date_ending)->format('d/m/Y'),
+                        'formatted'   => Carbon::parse($model->date_ending)->format('d/m/Y'),
                     ];
                 }))
                 ->optionLabel('formatted')
@@ -268,18 +257,18 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
                     return [
                         'financial_year' => $model->financial_year_id,
-                        'formatted' => 'Year ' . FinancialYear::find($model->financial_year_id)?->number, //$model->financial_year,
+                        'formatted'      => 'Year ' . FinancialYear::find($model->financial_year_id)?->number, //$model->financial_year,
                     ];
                 }))
                 ->optionLabel('formatted')
                 ->optionValue('financial_year'),
 
-            Filter::select('month_range', 'month_range_period_id')
-                ->dataSource(SubmissionPeriod::select(['month_range_period_id'])->distinct()->get()->map(function ($model) {
+            Filter::select('month_range', 'reporting_period_month_id')
+                ->dataSource(SubmissionPeriod::select(['reporting_period_month_id'])->distinct()->get()->map(function ($model) {
 
                     return [
-                        'month_range' => $model->month_range_period_id,
-                        'formatted' => ReportingPeriodMonth::find($model->month_range_period_id)->start_month . '-' . ReportingPeriodMonth::find($model->month_range_period_id)->end_month,
+                        'month_range' => $model->reporting_period_month_id,
+                        'formatted'   => ReportingPeriodMonth::find($model->reporting_period_month_id)->start_month . '-' . ReportingPeriodMonth::find($model->reporting_period_month_id)->end_month,
                     ];
                 }))
                 ->optionLabel('formatted')
@@ -294,8 +283,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $this->dispatch('reload-tooltips');
     }
 
-
-
     // #[On('timeout')]
     // public function timeout()
     // {
@@ -305,18 +292,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
     //     ]);
     // }
 
-    #[On('toggle-detail')]
-    public function setDetail($row)
-    {
 
-        //  $this->toggleDetail();
-    }
 
     public function actions($row): array
     {
 
-        $user = User::find(auth()->user()->id);
-        $restricted = $row->is_restricted && !$user->hasAnyRole(['manager', 'admin']);
+        $user       = User::find(auth()->user()->id);
+        $restricted = $row->is_restricted && ! $user->hasAnyRole(['manager', 'admin']);
 
         return [
 
@@ -324,7 +306,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-show"></i>')
                 ->class('btn btn-warning btn-sm custom-tooltip')
                 ->tooltip('View Details')
-                ->toggleDetail($row->rn),
+                ->toggleDetail($row->id),
             // ->dispatch('toggle-detail', ['row' => $row]),
 
             Button::add('schedule')
@@ -332,14 +314,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->can(User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->class('btn btn-secondary btn-sm custom-tooltip')
                 ->tooltip('Edit Schedule')
-                ->dispatch('edit-period', ['data' => $row]),
-
-
+                ->dispatch('edit-period', ['row' => $row]),
 
             Button::add('restricted')
                 ->slot('<i class="bx bx-lock"></i>')
                 ->class('btn btn-danger pe-none btn-sm custom-tooltip')
-                ->can($row->is_restricted == '1' && !$restricted)
+                ->can($row->is_restricted == '1' && ! $restricted)
                 ->tooltip('Restricted Mode'),
             // Button::add('delete')
             //     ->slot('<i class="bx bx-trash-alt"></i>')
@@ -356,9 +336,9 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
     public function actionRules($row): array
     {
-        $user = Auth::user();
+        $user           = Auth::user();
         $organisationId = $user->organisation->id;
-        $indicator = Indicator::find($row->indicator_id);
+        $indicator      = Indicator::find($row->indicator_id);
 
         $responsiblePeople = ResponsiblePerson::where('indicator_id', $row->indicator_id)
             ->where('organisation_id', $organisationId)
@@ -367,17 +347,16 @@ final class SubmissionPeriodTable extends PowerGridComponent
         // Check if the organisation has responsible people
         $hasResponsiblePeople = $responsiblePeople !== null;
 
-        $currentDate = Carbon::now();
+        $currentDate     = Carbon::now();
         $establishedDate = $row->date_established;
-        $endDate = $row->end_date;
+        $endDate         = $row->end_date;
 
         $startDate = Carbon::parse($establishedDate);
-        $endDate = Carbon::parse($endDate);
+        $endDate   = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
-        $user = User::find(auth()->user()->id);
-        $restricted = $row->is_restricted && !$user->hasAnyRole(['manager', 'admin']);
-        $row->is_expired = $restricted ? false : true;
+        $user            = User::find(auth()->user()->id);
+        $restricted      = $row->is_restricted && ! $user->hasAnyRole(['manager', 'admin']);
 
 
         return [
@@ -389,9 +368,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Rule::button('detail')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || $restricted)
                 ->disable(),
-
-
-
 
         ];
     }

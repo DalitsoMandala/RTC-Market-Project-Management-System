@@ -6,13 +6,13 @@
     'tableName' => null,
 ])
 
-<style>
+{{-- <style>
     .table-secondary {
 
         --bs-table-bg: rgb(241 241 241/1) !important;
         --bs-table-border-color: rgb(241 241 241/1) !important;
     }
-</style>
+</style> --}}
 @php
     $baseTableClass = str_replace('table-bordered', '', $theme['table']['tableClass']);
     $baseTableClass = str_replace('table-striped', '', $baseTableClass);
@@ -21,8 +21,8 @@
 @endphp
 
 <div @isset($this->setUp['responsive']) x-data="pgResponsive" @endisset>
-    <table id="table_base_{{ $tableName }}" class="table power-grid-table {{ $baseTableClass }}"
-        style="{{ data_get($theme, 'tableStyle') }} font-size: 0.75rem;" >
+    <table id="table_base_{{ $tableName }}" class="table power-grid-table {{ $baseTableClass }} mb-0"
+        style="{{ data_get($theme, 'tableStyle') }} font-size: 0.75rem;">
         <thead class="{{ $headerTableClass }}" style="{{ data_get($theme, 'table.theadStyle') }} ">
             {{ $header }}
         </thead>
@@ -47,4 +47,3 @@
         <div x-data="pgLoadMore"></div>
     @endif
 </div>
-

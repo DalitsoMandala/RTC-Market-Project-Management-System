@@ -25,13 +25,16 @@ final class RpmFarmerMIS extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
+        public $rowId;
     public function datasource(): Builder
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
 
-        $query = RpmFarmerMarketInformationSystem::query()->with('farmers')->select([
+        $query = RpmFarmerMarketInformationSystem::query()->when($this->rowId, function ($query) {
+            $query->where('rpmf_id', $this->rowId);
+        })->with('farmers')->select([
             'rpmf_mis.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -93,7 +96,9 @@ final class RpmFarmerMIS extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
 
-
+            ->add('group_name', function ($model) {
+                return $model->farmers->group_name;
+            })
             ->add('unique_id', function ($model) {
                 return $model->farmers->pf_id;
             })
@@ -123,6 +128,11 @@ final class RpmFarmerMIS extends PowerGridComponent
                 ->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
 
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
             Column::make('Name of Market Information systems', 'name')
                 ->searchable()

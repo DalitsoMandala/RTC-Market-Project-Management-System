@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Models;
 
+use App\Services\ProjectService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -35,7 +38,7 @@ class Indicator extends Model
         return $this->hasMany(IndicatorDisaggregation::class, 'indicator_id');
     }
 
-    public function class ()
+    public function class()
     {
         return $this->hasOne(IndicatorClass::class, 'indicator_id');
     }
@@ -56,8 +59,19 @@ class Indicator extends Model
 
         return $this->hasMany(SubmissionTarget::class, 'indicator_id');
     }
+
+// NOTE: booted() runs once per process — safe under FPM,
+// verify under Octane / queue workers if project can change per request.
     protected static function booted()
     {
+        $projectId = ProjectService::app_project()?->id;
+
+    if ($projectId) {
+        static::addGlobalScope('current_project', function (Builder $query) use ($projectId) {
+            $query->where('indicators.project_id', $projectId);
+        });
+    }
+
         static::deleting(function ($indicator) {
             // This will automatically delete related records
             $indicator->submissionTargets()->each(function ($submissionTarget) {

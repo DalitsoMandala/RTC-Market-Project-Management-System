@@ -50,13 +50,13 @@ class Add extends Component
     public $reportIndicators = [];
     public $selectedReportIndicator;
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id)
     {
         // Validate required IDs
-        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Find and validate related models
-        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id);
 
         // Check if the submission period is open and targets are set
         $this->checkSubmissionPeriodAndTargets();

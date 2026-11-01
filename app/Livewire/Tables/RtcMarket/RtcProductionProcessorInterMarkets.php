@@ -27,6 +27,7 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     use WithExport;
     use \App\Traits\ExportTrait;
     public bool $deferLoading = false;
+    public $rowId;
     public function setUp(): array
     {
 
@@ -47,7 +48,9 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmProcessorInterMarket::query()->with('processors')->select([
+        $query = RpmProcessorInterMarket::query()->when($this->rowId, function ($query) {
+            $query->where('rpm_processor_id', $this->rowId);
+        })->with('processors')->select([
             'rpm_processor_inter_markets.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -82,7 +85,7 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('unique_id', fn($model) => $model->processors->pp_id)->add('rpm_processor_id')
-
+            ->add('group_name', fn($model) => $model->processors->group_name)
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
             ->add('market_name')
@@ -121,6 +124,11 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             Column::make('Processor ID', 'unique_id')->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
 
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),

@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\ReportingPeriod;
@@ -18,7 +17,7 @@ class ReportPeriodSeeder extends Seeder
         $reportingPeriods = [
             'QUARTERLY',
             'MONTHLY',
-            'ANNUALLY'
+            'ANNUALLY',
         ];
 
         foreach ($reportingPeriods as $period) {
@@ -30,38 +29,38 @@ class ReportPeriodSeeder extends Seeder
             if ($period === 'QUARTERLY') {
 
                 ReportingPeriodMonth::create([
-                    'period_id' => $reportingPeriod->id,
-                    'start_month' => 'JANUARY',
-                    'end_month' => 'MARCH',
-                    'type' => 'QUARTER 1'
+                    'reporting_period_id' => $reportingPeriod->id,
+                    'start_month'         => 'JANUARY',
+                    'end_month'           => 'MARCH',
+                    'type'                => 'QUARTER 1',
                 ]);
 
                 ReportingPeriodMonth::create([
-                    'period_id' => $reportingPeriod->id,
-                    'start_month' => 'APRIL',
-                    'end_month' => 'JUNE',
-                    'type' => 'QUARTER 2'
+                    'reporting_period_id' => $reportingPeriod->id,
+                    'start_month'         => 'APRIL',
+                    'end_month'           => 'JUNE',
+                    'type'                => 'QUARTER 2',
                 ]);
 
                 ReportingPeriodMonth::create([
-                    'period_id' => $reportingPeriod->id,
-                    'start_month' => 'JULY',
-                    'end_month' => 'SEPTEMBER',
-                    'type' => 'QUARTER 3'
+                    'reporting_period_id' => $reportingPeriod->id,
+                    'start_month'         => 'JULY',
+                    'end_month'           => 'SEPTEMBER',
+                    'type'                => 'QUARTER 3',
                 ]);
 
                 ReportingPeriodMonth::create([
-                    'period_id' => $reportingPeriod->id,
-                    'start_month' => 'OCTOBER',
-                    'end_month' => 'DECEMBER',
-                    'type' => 'QUARTER 4'
+                    'reporting_period_id' => $reportingPeriod->id,
+                    'start_month'         => 'OCTOBER',
+                    'end_month'           => 'DECEMBER',
+                    'type'                => 'QUARTER 4',
                 ]);
 
                 ReportingPeriodMonth::create([
-                    'period_id' => $reportingPeriod->id,
-                    'start_month' => 'UNSPECIFIED',
-                    'end_month' => 'UNSPECIFIED',
-                    'type' => 'UNSPECIFIED'
+                    'reporting_period_id' => $reportingPeriod->id,
+                    'start_month'         => 'UNSPECIFIED',
+                    'end_month'           => 'UNSPECIFIED',
+                    'type'                => 'UNSPECIFIED',
                 ]);
             }
         }

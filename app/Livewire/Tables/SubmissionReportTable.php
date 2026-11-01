@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables;
 
 use App\Models\FinancialYear;
 use App\Models\Indicator;
@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -47,6 +48,8 @@ final class SubmissionReportTable extends PowerGridComponent
             'submission_reports.*',
             DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
         ]);
+
+
         $user         = User::find(auth()->user()->id);
         $organisation = $user->organisation->id;
 
@@ -70,9 +73,9 @@ final class SubmissionReportTable extends PowerGridComponent
 
                 return $model?->indicator?->indicator_no . ' - ' . $model?->indicator?->indicator_name;
             })
-            ->add('user_id', fn($model) => $model->user->name)
+            ->add('user_id', fn($model) => $model->user->name . ' (' . $model->user->organisation->name . ')')
             ->add('data')
-            ->add('submission_period_id', function ($model) {
+            ->add('submission_period_new_id', function ($model) {
                 $start = Carbon::parse($model->submissionPeriod->date_established)->format('d-m-Y H:i A');
                 $end   = Carbon::parse($model->submissionPeriod->date_ending)->format('d-m-Y H:i A');
                 return "{$start} - {$end}";
@@ -100,7 +103,7 @@ final class SubmissionReportTable extends PowerGridComponent
                             </div>
                         </div>
                         <div class='flex-grow-1 fw-bolder'>
-                           {$file->file_link}
+                           " . Str::limit($file->file_link, 15) . "
 
                         </div>
                     </div>

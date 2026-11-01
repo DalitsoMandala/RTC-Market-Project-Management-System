@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('elevation')->nullable();
             $table->string('enterprise')->nullable();
             $table->string('type_of_produce')->nullable(); // seed/ware/cuttings
-            $table->string('season')->nullable(); // rainfed/irrigated
+            $table->string('season')->nullable();          // rainfed/irrigated
             $table->decimal('total_variable_cost', 15, 2)->default(0);
             $table->decimal('total_harvest', 15, 2)->default(0);
             $table->decimal('selling_price', 15, 2)->default(0);
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->decimal('break_even_yield', 15, 2)->default(0);
             $table->decimal('break_even_price', 15, 2)->default(0);
             $table->decimal('gross_margin', 15, 2)->default(0);
-              $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('organisation_id')->nullable()->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

@@ -6,19 +6,7 @@
 
         <!-- start page title -->
         <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-
-
-                    <div class="page-title-left col-12">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">System setup</li>
-                        </ol>
-                    </div>
-
-                </div>
-            </div>
+            <x-breadcrumbs />
         </div>
         <!-- end page title -->
         <div class="row">
@@ -157,18 +145,24 @@
                             <div class="card-body">
                                 <p class="text-muted">Backup the database and export it locally for safekeeping.</p>
                                 @if (session()->has('backup-success'))
-                                    <div class="alert alert-success"> <i class="bx bx-check-circle me-1"></i>{{ session()->get('backup-success') }}</div>
+                                    <div class="alert alert-success"> <i
+                                            class="bx bx-check-circle me-1"></i>{{ session()->get('backup-success') }}
+                                    </div>
                                 @endif
                                 @if (session()->has('backup-error'))
-                                    <div class="alert alert-danger"> <i class="bx bx-alarm-exclamation me-1"></i>{{ session()->get('backup-error') }}</div>
+                                    <div class="alert alert-danger"> <i
+                                            class="bx bx-alarm-exclamation me-1"></i>{{ session()->get('backup-error') }}
+                                    </div>
                                 @endif
 
-                                <button class="btn btn-warning"   @if($isRunning) disabled @endif wire:click="backupDatabase" wire:loading.attr="disabled">
+                                <button class="btn btn-warning" @if ($isRunning) disabled @endif
+                                    wire:click="backupDatabase" wire:loading.attr="disabled">
 
 
                                     <span class="me-1"> Backup Database </span>
-                                    @if($isRunning)
-                                     <span wire:poll.1000ms="backupProgress" class="spinner-border spinner-border-sm"></span>
+                                    @if ($isRunning)
+                                        <span wire:poll.1000ms="backupProgress"
+                                            class="spinner-border spinner-border-sm"></span>
                                     @endif
                                 </button>
                                 <hr>
@@ -187,7 +181,7 @@
 
         <div x-data x-init=" $wire.on('hideModal', (e) => {
              const modals = document.querySelectorAll('.modal.show');
-
+        
              // Iterate over each modal and hide it using Bootstrap's modal hide method
              modals.forEach(modal => {
                  const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -195,8 +189,8 @@
                      modalInstance.hide();
                  }
              });
-
-
+        
+        
              if (e.data !== null) {
                  let blob = new Blob([e.data], { type: 'text/plain' });
                  let link = document.createElement('a');
@@ -205,11 +199,11 @@
                  link.click();
                  window.reload();
              }
-
-
-
-
-
+        
+        
+        
+        
+        
          })">
 
         </div>

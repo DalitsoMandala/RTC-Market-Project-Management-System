@@ -1,6 +1,6 @@
 @if (count($enabledFilters))
     <div
-        class="col-md-12 d-flex table-responsive"
+        class="col-md-12 d-flex table-responsive ps-1"
         style="margin-top: 5px"
     >
         @if (count($enabledFilters) > 1)

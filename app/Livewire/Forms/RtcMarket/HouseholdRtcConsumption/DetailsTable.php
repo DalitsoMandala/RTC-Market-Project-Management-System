@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\forms\rtcMarket\HouseholdRtcConsumption;
+namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
 use App\Models\HrcLocation;
 use App\Models\Submission;

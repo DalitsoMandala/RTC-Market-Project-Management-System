@@ -142,7 +142,7 @@ Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-st
 
             Column::make('Attendee ID', 'att_id')->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
-            Column::make('UUID', 'uuid')->searchable()->hidden(),
+
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable()->bodyAttribute('table-sticky-col')

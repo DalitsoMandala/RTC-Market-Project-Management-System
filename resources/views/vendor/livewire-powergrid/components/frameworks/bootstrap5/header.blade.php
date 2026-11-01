@@ -3,7 +3,9 @@
     <div class="dt--top-section">
         <div class="mb-1 row">
             <div class="col-12">
-                @includeIf(data_get($setUp, 'header.includeViewOnTop'))
+                <div class="p-3">
+                    @includeIf(data_get($setUp, 'header.includeViewOnTop'))
+                </div>
 
 
             </div>

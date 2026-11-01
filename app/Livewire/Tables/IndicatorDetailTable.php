@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;

@@ -87,9 +87,9 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             'uuid'                        => $this->data['batch_no'],
             'user_id'                     => $this->data['user_id'],
             'organisation_id'             => $this->data['organisation_id'],
-            'submission_period_id'        => $this->data['submission_period_id'],
+            'submission_period_new_id'    => $this->data['submission_period_new_id'],
             'financial_year_id'           => $this->data['financial_year_id'],
-            'period_month_id'             => $this->data['period_month_id'],
+            'reporting_period_month_id'   => $this->data['reporting_period_month_id'],
             'status'                      => $status,
         ]);
 

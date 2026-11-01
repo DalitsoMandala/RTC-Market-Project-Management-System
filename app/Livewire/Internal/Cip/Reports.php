@@ -26,6 +26,7 @@ class Reports extends Component
             $status = ReportStatus::create([
                 'status'   => 'pending',
                 'progress' => 0,
+
             ]);
         }
 

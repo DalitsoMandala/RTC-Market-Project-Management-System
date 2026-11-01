@@ -150,10 +150,10 @@ final class ProductionMarketingLogTable extends PowerGridComponent
             ->add('main_buyer')
             ->add('uuid')
             ->add('user_id')
-            ->add('submission_period_id')
+            ->add('submission_period_new_id')
             ->add('organisation_id')
             ->add('financial_year_id')
-            ->add('period_month_id')
+            ->add('reporting_period_month_id')
             ->add('status')
             ->add('created_at')
             ->add('updated_at');

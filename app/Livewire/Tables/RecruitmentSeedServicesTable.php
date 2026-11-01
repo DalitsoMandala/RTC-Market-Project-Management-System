@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables;
 
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -21,6 +21,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RecruitmentSeedServicesTable extends PowerGridComponent
 {
     use WithExport;
+    public $rowId;
 
     public function setUp(): array
     {
@@ -43,7 +44,11 @@ final class RecruitmentSeedServicesTable extends PowerGridComponent
             'recruitments'
         ])->join('recruitments', function ($join) {
             $join->on('recruitments.id', '=', 'recruit_seed_registrations.recruitment_id');
-        })->select([
+        })->when($this->rowId, function ($query) {
+            $query->where('recruitments.id', $this->rowId);
+        })
+
+        ->select([
             'recruit_seed_registrations.*',
             'recruitments.rc_id as rc_id',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')

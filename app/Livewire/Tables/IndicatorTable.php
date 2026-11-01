@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Tables;
 
 use App\Models\Cgiar_Project;
@@ -52,14 +53,13 @@ final class IndicatorTable extends PowerGridComponent
                     'indicator_classes.class as file_location',
                     DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
                 ])
-            // 1st: Active items (1) first, Inactive items (0) at the end
+                // 1st: Active items (1) first, Inactive items (0) at the end
                 ->orderBy('indicators.is_active', 'desc')
-            // 2nd: Letters first, then numbers
+                // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-            // 3rd: Indicator number sorting
+                // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
-
-        } else if ($user->hasAnyRole(['manager', 'monitor', 'project_manager', 'staff'])) {
+        } else if ($user->hasAnyRole(['manager', 'monitor', 'project-manager', 'staff'])) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
@@ -74,13 +74,12 @@ final class IndicatorTable extends PowerGridComponent
                     DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
                 ])
 
-            // 1st: Active items (1) first, Inactive items (0) at the end
+                // 1st: Active items (1) first, Inactive items (0) at the end
                 ->orderBy('indicators.is_active', 'desc')
-            // 2nd: Letters first, then numbers
+                // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-            // 3rd: Indicator number sorting
+                // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
-
         } else {
             $organisation_id = $user->organisation->id;
 
@@ -97,11 +96,11 @@ final class IndicatorTable extends PowerGridComponent
                 'indicators.*',
                 DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
             ])
-            // 1st: Active items (1) first, Inactive items (0) at the end
+                // 1st: Active items (1) first, Inactive items (0) at the end
                 ->orderBy('indicators.is_active', 'desc')
-            // 2nd: Letters first, then numbers
+                // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-            // 3rd: Indicator number sorting
+                // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
         }
     }
@@ -130,8 +129,8 @@ final class IndicatorTable extends PowerGridComponent
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('admin')) {
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('admin-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-                } else if ($user->hasAnyRole('project_manager')) {
-                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                } else if ($user->hasAnyRole('project-manager')) {
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('project-manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('monitor')) {

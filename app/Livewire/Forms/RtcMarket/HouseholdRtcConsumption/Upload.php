@@ -1,51 +1,29 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
-use Throwable;
-use Carbon\Carbon;
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Jobs\RandomNames;
-use App\Models\Indicator;
-use App\Models\Submission;
-use App\Models\ImportError;
-use App\Models\JobProgress;
-use Illuminate\Support\Str;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use Livewire\WithFileUploads;
-use App\Models\JobProgressCheck;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionTarget;
-use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
-use App\Exceptions\UserErrorException;
-use App\Notifications\JobNotification;
-use App\Models\HouseholdRtcConsumption;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Storage;
-use App\Exceptions\SheetImportException;
 use App\Exceptions\ExcelValidationException;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Notifications\BatchDataAddedNotification;
-use App\Exports\rtcmarket\HouseholdExport\HrcExport;
-use App\Imports\rtcmarket\HouseholdImport\HrcImport;
 use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
 use App\Imports\HouseholdImport\HouseholdRtcConsumptionMultiSheetImport;
+use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\OrganisationTarget;
+use App\Models\ReportingPeriodMonth;
+use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
+use App\Models\User;
 use App\Traits\CheckProgressTrait;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Upload extends Component
 {
@@ -85,8 +63,6 @@ class Upload extends Component
     public function submitUpload()
     {
 
-
-
         try {
             $this->validate();
         } catch (Throwable $e) {
@@ -94,9 +70,6 @@ class Upload extends Component
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
         }
-
-
-
 
         try {
             //code...
@@ -109,33 +82,28 @@ class Upload extends Component
                 $this->upload->storeAs('public/imports', $name);
                 $path = storage_path('app/public/imports/' . $name);
 
-
-
                 // Queue the import with Laravel Excel's queueable functionality
 
                 try {
 
-
-
                     Excel::import(new HouseholdRtcConsumptionMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
-                        'submission_period_id' => $this->submissionPeriodId,
-                        'organisation_id' => Auth::user()->organisation->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'period_month_id' => $this->selectedMonth,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => Auth::user()->id,
-                        'batch_type' => 'batch',
-                        'table_name' => 'household_rtc_consumption',
-                        'is_complete' => 1,
-                        'file_link' => $name,
-                        'batch_no' => $this->importId,
-                        'route' => $this->currentRoute,
+                        'submission_period_new_id'  => $this->submissionPeriodId,
+                        'organisation_id'           => Auth::user()->organisation->id,
+                        'financial_year_id'         => $this->selectedFinancialYear,
+                        'reporting_period_month_id' => $this->selectedMonth,
+                        'form_id'                   => $this->selectedForm,
+                        'user_id'                   => Auth::user()->id,
+                        'batch_type'                => 'batch',
+                        'table_name'                => 'household_rtc_consumption',
+                        'is_complete'               => 1,
+                        'file_link'                 => $name,
+                        'batch_no'                  => $this->importId,
+                        'route'                     => $this->currentRoute,
 
                     ]), $path);
                     $this->checkProgress();
                 } catch (ExcelValidationException $th) {
-
 
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
@@ -143,8 +111,6 @@ class Upload extends Component
                 }
             }
         } catch (\Exception $th) {
-
-
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th);
@@ -158,7 +124,7 @@ class Upload extends Component
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
     // public function checkProgress()
@@ -169,11 +135,7 @@ class Upload extends Component
     //     $this->importing = true;
     //     $this->importingFinished = false;
 
-
     //     if ($this->progress == 100) {
-
-
-
 
     //         if ($jobProgress->status == 'failed') {
 
@@ -202,7 +164,6 @@ class Upload extends Component
     //     }
     // }
 
-
     public function send()
     {
         $user = User::find(auth()->user()->id);
@@ -219,38 +180,34 @@ class Upload extends Component
         }
     }
 
-
-
-
-
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_new_id, $uuid)
     {
 
-        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_new_id == null) {
 
             abort(404);
         }
 
-        $findForm = Form::find($form_id);
-        $findIndicator = Indicator::find($indicator_id);
-        $findFinancialYear = FinancialYear::find($financial_year_id);
-        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
-        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
+        $findForm             = Form::find($form_id);
+        $findIndicator        = Indicator::find($indicator_id);
+        $findFinancialYear    = FinancialYear::find($financial_year_id);
+        $findMonthPeriod      = ReportingPeriodMonth::find($month_period_id);
+        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_new_id);
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
         } else {
-            $this->selectedForm = $findForm->id;
-            $this->selectedIndicator = $findIndicator->id;
+            $this->selectedForm          = $findForm->id;
+            $this->selectedIndicator     = $findIndicator->id;
             $this->selectedFinancialYear = $findFinancialYear->id;
-            $this->selectedMonth = $findMonthPeriod->id;
-            $this->submissionPeriodId = $findSubmissionPeriod->id;
+            $this->selectedMonth         = $findMonthPeriod->id;
+            $this->submissionPeriodId    = $findSubmissionPeriod->id;
             //check submission period
 
             $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
                 ->where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
+                ->where('reporting_period_month_id', $this->selectedMonth)
                 ->where('is_open', true)
                 ->first();
 
@@ -260,8 +217,7 @@ class Upload extends Component
                 ->get();
             $user = User::find(auth()->user()->id);
 
-
-            $targets = $target->pluck('id');
+            $targets                      = $target->pluck('id');
             $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
                 ->whereHas('submissionTarget', function ($query) use ($targets) {
                     $query->whereIn('submission_target_id', $targets);
@@ -269,20 +225,17 @@ class Upload extends Component
                 ->get();
             $this->targetIds = $target->pluck('id')->toArray();
 
-
             if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-                $this->targetSet = true;
+                $this->targetSet      = true;
             } else {
                 $this->openSubmission = false;
-                $this->targetSet = false;
+                $this->targetSet      = false;
             }
         }
 
-
-
-        $this->importId = Uuid::uuid4()->toString();
+        $this->importId     = Uuid::uuid4()->toString();
         $this->currentRoute = url()->current();
     }
     public function downloadTemplate()
@@ -309,8 +262,6 @@ class Upload extends Component
             }
         }
     }
-
-
 
     public function render()
     {

@@ -27,6 +27,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
+    public $rowId;
     public function setUp(): array
     {
 
@@ -48,7 +49,9 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RpmProcessorConcAgreement::query()->with('processors')->select([
+        $query = RpmProcessorConcAgreement::query()->when($this->rowId, function ($query) {
+            $query->where('rpm_processor_conc_agreements.rpm_processor_id', $this->rowId);
+        })->with('processors')->select([
             'rpm_processor_conc_agreements.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -68,7 +71,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => $model->processors->pp_id)
             ->add('rpm_farmer_id')
-
+            ->add('group_name', fn($model) => $model->processors->group_name)
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('partner_name')
             ->add('country')
@@ -142,6 +145,12 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
             Column::make('#', 'rn')->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col')->sortable(),
             Column::make('PROCESSOR ID', 'unique_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
+       Column::make('Group name', 'group_name')
+                ->sortable()
+                ->searchable()
+                ->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),

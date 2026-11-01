@@ -1,41 +1,104 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Traits;
 
 use App\Models\Submission;
 use App\Models\User;
-use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\On;
+use PowerComponents\LivewirePowerGrid\Button;
 use ZipArchive;
+use Throwable;
 
 trait DownloadImportTrait
 {
-    //
-    public $location = 'imports';
-    public $batchType = 'batch';
+    public string $location = 'imports';
 
-    public function batchType($type)
+    public string $batchType = 'batch';
+
+
+
+    public array $checkboxValues = [];
+
+    public bool $checkboxAll = false;
+
+    /**
+     * Set the import storage directory.
+     */
+    public function setLocation(string $location): void
+    {
+        $location = trim($location, '/\\');
+
+        if (
+            $location === '' ||
+            str_contains($location, '..') ||
+            str_contains($location, ':')
+        ) {
+            throw new \InvalidArgumentException('Invalid storage location.');
+        }
+
+        $this->location = $location;
+    }
+
+    /**
+     * Set the batch type.
+     */
+    public function setBatchType(string $type): void
     {
         $this->batchType = $type;
     }
 
-    public function setLocation($location)
+    /**
+     * Resolve a safe relative file path on the public disk.
+     */
+    protected function importFilePath($fileLink): ?string
     {
-        $this->location = $location;
+        if (!is_string($fileLink) || trim($fileLink) === '') {
+            return null;
+        }
+
+        $fileLink = str_replace('\\', '/', trim($fileLink));
+
+        if (
+            str_starts_with($fileLink, '/') ||
+            preg_match('/^[a-zA-Z]:/', $fileLink) ||
+            in_array('..', explode('/', $fileLink), true)
+        ) {
+            return null;
+        }
+
+        return trim($this->location, '/') . '/' . ltrim($fileLink, '/');
     }
+
+    /**
+     * Download an individual submission.
+     */
     public function download($id)
     {
         $submission = Submission::find($id);
 
-        $filePath = $this->location . '/' . $submission->file_link;
-
-        if (!Storage::disk('public')->exists($filePath)) {
-
-            $this->alert('error', 'File not found', [
+        if (!$submission) {
+            $this->alert('error', 'Submission not found.', [
                 'position' => 'center',
                 'timer' => 5000,
-                'toast' => false
+                'toast' => false,
+            ]);
+
+            return;
+        }
+
+        $disk = Storage::disk('public');
+
+        $filePath = $this->importFilePath($submission->file_link);
+
+        if (!$filePath || !$disk->exists($filePath)) {
+            $this->alert('error', 'File not found.', [
+                'position' => 'center',
+                'timer' => 5000,
+                'toast' => false,
             ]);
 
             return;
@@ -43,100 +106,249 @@ trait DownloadImportTrait
 
         $this->clearChecks();
 
-        return redirect(asset('storage/' . $filePath));
+        return response()->download(
+            $disk->path($filePath),
+            basename($submission->file_link)
+        );
     }
 
+    /**
+     * PowerGrid bulk download button.
+     */
     public function header(): array
     {
-
-
         return [
-            \PowerComponents\LivewirePowerGrid\Button::add('bulk-download')
-
+            Button::add('bulk-download')
                 ->bladeComponent('bulk-button', [
-                    'tableName' => $this->tableName
-                ])
-
+                    'tableName' => $this->tableName,
+                ]),
         ];
     }
+
+    /**
+     * Download multiple submissions as a ZIP archive.
+     */
     public function downloadZip($ids)
     {
+        $zip = null;
+        $zipPath = null;
+        $disk = Storage::disk('public');
+
         try {
+            // Ensure PHP ZIP extension is installed.
+            if (!class_exists(ZipArchive::class)) {
+                throw new \RuntimeException('PHP ZIP extension is not installed.');
+            }
+
+            // Normalize selected IDs.
+            $ids = collect($ids)
+                ->filter(fn ($id) => is_numeric($id))
+                ->unique()
+                ->values();
+
+            if ($ids->isEmpty()) {
+                $this->alert('error', 'No submissions selected.', [
+                    'position' => 'center',
+                    'timer' => 5000,
+                    'toast' => false,
+                ]);
+
+                return;
+            }
+
+            // Retrieve selected submissions.
             $submissions = Submission::whereIn('id', $ids)->get();
 
             if ($submissions->isEmpty()) {
-                $this->alert('error', 'Missing submissions', [
+                $this->alert('error', 'No submissions found.', [
                     'position' => 'center',
                     'timer' => 5000,
-                    'toast' => false
+                    'toast' => false,
                 ]);
+
                 return;
             }
 
-            $zipName = 'submissions_' . now()->format('Y-m-d_H-i-s') . '.zip';
-            $zipPath = 'public/temp/' . $zipName;
+            // Generate a unique ZIP filename.
+            $zipName = 'submissions_' .
+                now()->format('Y-m-d_H-i-s_u') .
+                '_' . uniqid() . '.zip';
 
-            // Create temp directory if it doesn't exist
-            if (!Storage::exists('public/temp')) {
-                Storage::makeDirectory('public/temp');
-            }
+            // Store ZIP in storage/app/public/temp.
+            $zipPath = 'temp/' . $zipName;
 
+            // Create temporary directory if necessary.
+            $disk->makeDirectory('temp');
+
+            // Resolve absolute filesystem path.
+            $fullPath = $disk->path($zipPath);
+
+            // Initialize ZIP archive.
             $zip = new ZipArchive();
-            $fullPath = Storage::path($zipPath);
 
-            if ($zip->open($fullPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-                foreach ($submissions as $submission) {
-                    $filePath = 'public/' . $this->location . '/' . $submission->file_link;
-                    if (Storage::exists($filePath)) {
-                        // Use addFile for better performance
+            $result = $zip->open(
+                $fullPath,
+                ZipArchive::CREATE | ZipArchive::OVERWRITE
+            );
 
-                        // Get file extension
-                        $extension = pathinfo($submission->file_link, PATHINFO_EXTENSION);
-
-                        // Create new filename
-                        $user = User::find($submission->user_id);
-                        $newFilename = "file_{$submission->table_name}_{$submission->batch_no}_{$user->name}.{$extension}";
-                        $zip->addFile(Storage::path($filePath), $newFilename);
-                    }
-                }
-                $zip->close();
-
-                // Return redirect to the temporary ZIP file URL
-                $this->clearChecks();
-                return redirect()->to(Storage::url($zipPath));
-            } else {
-                throw new \Exception('Failed to create ZIP archive.');
+            if ($result !== true) {
+                throw new \RuntimeException('Unable to create ZIP archive. Error code: ' . $result);
             }
-        } catch (\Exception $e) {
 
-            $this->alert('error', $e->getMessage(), [
+            // Retrieve users in one query.
+            $users = User::whereIn(
+                'id',
+                $submissions->pluck('user_id')->filter()->unique()
+            )->pluck('name', 'id');
+
+            $addedFiles = 0;
+
+            // Add submission files to ZIP.
+            foreach ($submissions as $submission) {
+                $filePath = $this->importFilePath($submission->file_link);
+
+                // Skip missing or invalid files.
+                if (!$filePath || !$disk->exists($filePath)) {
+                    continue;
+                }
+
+                $extension = pathinfo(
+                    $submission->file_link,
+                    PATHINFO_EXTENSION
+                );
+
+                $userName = $users->get(
+                    $submission->user_id,
+                    'Unknown_User'
+                );
+
+                // Sanitize ZIP filename components.
+                $safeTable = preg_replace(
+                    '/[^A-Za-z0-9_-]/',
+                    '_',
+                    $submission->table_name ?? 'table'
+                );
+
+                $safeBatch = preg_replace(
+                    '/[^A-Za-z0-9_-]/',
+                    '_',
+                    $submission->batch_no ?? 'batch'
+                );
+
+                $safeUser = preg_replace(
+                    '/[^A-Za-z0-9_-]/',
+                    '_',
+                    $userName
+                );
+
+                // Generate unique filename.
+                $newFilename = "file_{$safeTable}_{$safeBatch}_{$safeUser}_{$submission->id}";
+
+                if ($extension !== '') {
+                    $newFilename .= '.' . strtolower($extension);
+                }
+
+                // Add physical file to ZIP archive.
+                if ($zip->addFile(
+                    $disk->path($filePath),
+                    $newFilename
+                )) {
+                    $addedFiles++;
+                }
+            }
+
+            // Prevent downloading empty ZIP archives.
+            if ($addedFiles === 0) {
+                $zip->close();
+                $zip = null;
+
+                throw new \RuntimeException('No existing files were available for download.');
+            }
+
+            // Finalize ZIP archive.
+            if (!$zip->close()) {
+                $zip = null;
+
+                throw new \RuntimeException('Failed to finalize ZIP archive.');
+            }
+
+            $zip = null;
+
+            // Clear selected PowerGrid rows.
+            $this->clearChecks();
+
+            // Stream ZIP to browser and delete after sending.
+            return response()
+                ->download($fullPath, $zipName)
+                ->deleteFileAfterSend(true);
+
+        } catch (Throwable $e) {
+            // Close archive if still open.
+            if ($zip instanceof ZipArchive) {
+                $zip->close();
+            }
+
+            // Remove incomplete ZIP archive.
+            if ($zipPath && $disk->exists($zipPath)) {
+                $disk->delete($zipPath);
+            }
+
+            // Log technical details.
+            Log::error('Submission ZIP download failed.', [
+                'error' => $e->getMessage(),
+                'location' => $this->location,
+                'ids' => $ids ?? [],
+            ]);
+
+            // Show a user-friendly error.
+            $this->alert('error', 'Unable to prepare the download. Please try again.', [
                 'position' => 'center',
                 'timer' => 5000,
-                'toast' => false
+                'toast' => false,
             ]);
+
+            return;
         }
     }
 
-    #[\Livewire\Attributes\On('bulkDownload.{tableName}')]
-    public function bulkDownload(): void
+    /**
+     * Handle bulk download event.
+     */
+    #[On('bulkDownload.{tableName}')]
+    public function bulkDownload()
     {
+        $ids = collect($this->checkboxValues ?? [])
+            ->filter()
+            ->unique()
+            ->values();
 
-        if ($this->checkboxValues) {
-            if (count($this->checkboxValues) > 1) {
-                $this->downloadZip($this->checkboxValues);
-                return;
-            }
-            foreach ($this->checkboxValues as $id) {
-                $this->download($id);
-            }
+        if ($ids->isEmpty()) {
+            $this->alert('warning', 'Please select at least one submission.', [
+                'position' => 'center',
+                'timer' => 5000,
+                'toast' => false,
+            ]);
+
+            return;
         }
+
+        // Multiple submissions: download ZIP.
+        if ($ids->count() > 1) {
+            return $this->downloadZip($ids);
+        }
+
+        // Single submission: download original file.
+        return $this->download($ids->first());
     }
 
-
-    #[\Livewire\Attributes\On('clearChecks.{tableName}')]
+    /**
+     * Clear selected PowerGrid rows.
+     */
+    #[On('clearChecks.{tableName}')]
     public function clearChecks(): void
     {
         $this->js('window.pgBulkActions.clearAll()');
+
         $this->checkboxValues = [];
         $this->checkboxAll = false;
     }

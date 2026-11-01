@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\Admin\Operations;
 
 use App\Models\AggregatedReport;
@@ -9,6 +10,9 @@ use App\Models\IndicatorDisaggregation;
 use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
 use App\Models\User;
+use App\Services\ProjectService;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -160,40 +164,64 @@ class AggregatedReportsPage extends Component
         $this->resetCreateForm();
     }
 
+
     public function submitCreate(): void
     {
         $this->validate($this->formRules(), $this->formMessages());
 
         // Duplicate check — same combination already exists?
         $existing = AggregatedReport::where([
-            'indicator_id'        => $this->formIndicatorId,
-            'organisation_id'     => $this->formOrganisationId,
-            'financial_year_id'   => $this->formFinancialYearId,
-            'reporting_period_id' => $this->formReportingPeriodId,
-        ])->when($this->formCrop, fn($q) => $q->where('crop', $this->formCrop))
+            'indicator_id'              => $this->formIndicatorId,
+            'organisation_id'            => $this->formOrganisationId,
+            'financial_year_id'          => $this->formFinancialYearId,
+            'reporting_period_month_id'  => $this->formReportingPeriodId,
+            'project_id' => ProjectService::app_project_id(),
+            'crop' => $this->formCrop,
+
+        ])
+
             ->first();
+
 
         if ($existing) {
             $this->duplicateId = $existing->id;
-            return; // blade will show the duplicate warning
+
+            return;
         }
 
-        $record = AggregatedReport::create([
-            'indicator_id'        => $this->formIndicatorId,
-            'organisation_id'     => $this->formOrganisationId,
-            'financial_year_id'   => $this->formFinancialYearId,
-            'reporting_period_id' => $this->formReportingPeriodId,
-            'crop'                => $this->formCrop ?: null,
-        ]);
+        try {
+            DB::transaction(function () {
+                $record = AggregatedReport::create([
+                    'indicator_id'              => $this->formIndicatorId,
+                    'organisation_id'           => $this->formOrganisationId,
+                    'financial_year_id'         => $this->formFinancialYearId,
+                    'reporting_period_month_id' => $this->formReportingPeriodId,
+                    'project_id'                => ProjectService::app_project_id(),
+                    'crop'                      => $this->formCrop ?: null,
+                ]);
+                $name = IndicatorDisaggregation::find($this->formDisaggregationId)->name;
+               $record->data()->create([
+                    'value'                => $this->formValue,
+                    'name'                 => $name,
+                ]);
 
-        AggregatedReportData::create([
-            'aggregated_report_id' => $record->id,
-            'value'                => $this->formValue,
-        ]);
 
-        $this->resetCreateForm();
-        $this->showCreateForm = false;
-        session()->flash('success', 'Record created successfully.');
+            });
+
+            $this->resetCreateForm();
+            $this->showCreateForm = false;
+
+            session()->flash('success', 'Record created successfully.');
+            Artisan::call('update:information');
+        } catch (Throwable $e) {
+            report($e);
+
+
+            session()->flash(
+                'error',
+                'Unable to create the record. Please try again.'
+            );
+        }
     }
 
     /**
@@ -212,7 +240,7 @@ class AggregatedReportsPage extends Component
         $this->filterIndicator       = (string) $record->indicator_id;
         $this->filterOrganisation    = (string) $record->organisation_id;
         $this->filterFinancialYear   = (string) $record->financial_year_id;
-        $this->filterReportingPeriod = (string) $record->reporting_period_id;
+        $this->filterReportingPeriod = (string) $record->reporting_period_month_id;
         $this->filterDisaggregation  = $record->indicatorDisaggregation->name ?? '';
         $this->filterCrop            = $record->crop ?? '';
 
@@ -286,11 +314,11 @@ class AggregatedReportsPage extends Component
         // If this is a crop-specific value, update all matching crop records
         if ($report->crop) {
             AggregatedReport::where([
-                'indicator_id'        => $report->indicator_id,
-                'organisation_id'     => $report->organisation_id,
-                'financial_year_id'   => $report->financial_year_id,
-                'reporting_period_id' => $report->reporting_period_id,
-                'crop'                => $report->crop,
+                'indicator_id'              => $report->indicator_id,
+                'organisation_id'           => $report->organisation_id,
+                'financial_year_id'         => $report->financial_year_id,
+                'reporting_period_month_id' => $report->reporting_period_month_id,
+                'crop'                      => $report->crop,
             ])
                 ->first()?->data()
                 ->where('name', $report->crop)
@@ -343,12 +371,12 @@ class AggregatedReportsPage extends Component
         $query = AggregatedReportData::with([
             'systemReport',
             'systemReport.indicator',
-            'systemReport.reportingPeriod',
+            'systemReport.reportingPeriodMonth',
             'systemReport.financialYear',
             'systemReport.organisation',
             'systemReport.project',
         ])->whereHas('systemReport.project', fn($q) => $q->where('name', 'RTC MARKET'))->join('aggregated_reports', 'aggregated_report_data.aggregated_report_id', '=', 'aggregated_reports.id')
-            ->select('aggregated_report_data.*', 'aggregated_reports.indicator_id', 'aggregated_reports.organisation_id', 'aggregated_reports.financial_year_id', 'aggregated_reports.reporting_period_id', 'aggregated_reports.crop');
+            ->select('aggregated_report_data.*', 'aggregated_reports.indicator_id', 'aggregated_reports.organisation_id', 'aggregated_reports.financial_year_id', 'aggregated_reports.reporting_period_month_id', 'aggregated_reports.crop');
 
         // Search
         if ($this->search) {
@@ -380,7 +408,7 @@ class AggregatedReportsPage extends Component
         }
 
         if ($this->filterReportingPeriod) {
-            $query->where('reporting_period_id', $this->filterReportingPeriod);
+            $query->where('reporting_period_month_id', $this->filterReportingPeriod);
         }
 
         if ($this->filterDisaggregation) {
@@ -433,5 +461,4 @@ class AggregatedReportsPage extends Component
             'disaggregationModels' => IndicatorDisaggregation::orderBy('name')->get()->unique('name'),
         ]);
     }
-
 }

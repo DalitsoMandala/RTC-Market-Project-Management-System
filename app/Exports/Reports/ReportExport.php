@@ -232,7 +232,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
      * Apply filters with validation
      */
     public function applyFilters(
-        $reporting_period_id = null,
+        $reporting_period_month_id = null,
         $financial_year_id = null,
         $organisation_id = null,
         $enterprise = null,
@@ -243,7 +243,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
             $query = SystemReport::with('data')
                 ->where('indicator_id', $indicator_id)
                 ->where('project_id', $this->project->id)
-                ->when($reporting_period_id, fn($q) => $q->where('reporting_period_id', $reporting_period_id))
+                ->when($reporting_period_month_id, fn($q) => $q->where('reporting_period_month_id', $reporting_period_month_id))
                 ->when($financial_year_id, fn($q) => $q->where('financial_year_id', $financial_year_id))
                 ->when($organisation_id, fn($q) => $q->where('organisation_id', $organisation_id))
                 ->when($enterprise, function ($q) use ($enterprise) {
@@ -276,7 +276,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
     //         $crop = $crop ?? 'All';
 
     //         $reportIds = $this->applyFilters(
-    //             reporting_period_id: null,
+    //             reporting_period_month_idnth_id: null,
     //             financial_year_id: $financialYearId,
     //             organisation_id: $organisationId,
     //             enterprise: $crop,
@@ -321,7 +321,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
 
             // 1. Fetch reports based on filters
             $reportIds = $this->applyFilters(
-                reporting_period_id: null,
+                reporting_period_month_id: null,
                 financial_year_id: $financialYearId,
                 organisation_id: $organisationId,
                 enterprise: $crop,
