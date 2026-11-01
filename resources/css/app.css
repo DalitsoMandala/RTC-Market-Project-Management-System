@@ -861,7 +861,7 @@ th {
     display: flex;
     align-items: center;
     /* placeholder gradient standing in for a real photo — swap background-image below */
-    background-image: url("{{ asset("assets/images/panel-bg2.jpg") }}");
+   background-image: url("/public/assets/images/panel-bg2.jpg");
     background-size: cover;
     background-position: center center;
 }
