@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables;
 
 use App\Models\Baseline;
 use App\Models\BaselineDataMultiple;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables;
 
 use App\Models\MarketData;
 use App\Models\User;
@@ -222,9 +222,9 @@ final class MarketDataTable extends PowerGridComponent
     Button::add('edit')
         ->render(function ($dish) use ($link, $uuid) {
             // Generate the URL in PHP first
-            
+
             $url = route($link, ['id' => $uuid]);
-         
+
             return Blade::render(<<<HTML
                 <a href="{{ \$url }}" class="btn btn-warning btn-sm"><i class="bx bx-pen"></i></a>
             HTML, ['url' => $url]);

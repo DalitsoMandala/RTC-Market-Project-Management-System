@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\admin;
+namespace App\Livewire\Admin;
 
 use App\Models\ReportingPeriod;
 use Illuminate\Database\Eloquent\Builder;

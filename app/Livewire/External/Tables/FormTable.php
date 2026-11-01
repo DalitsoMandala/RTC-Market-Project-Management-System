@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\external\Tables;
+namespace App\Livewire\External\Tables;
 
 use App\Models\FinancialYear;
 use App\Models\Form;

@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\admin;
+namespace App\Livewire\Admin;
 
 use App\Models\Form;
 use App\Models\Indicator;
