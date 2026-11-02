@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureProjectConfig;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -10,24 +11,25 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+     ->withMiddleware(function (Middleware $middleware) {
+
+        // Run globally on every request
+
+
+        // Middleware aliases
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
-    })
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
             'all_roles' => \App\Http\Middleware\CheckAllRoles::class,
-        ]);
-    })
-
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias([
             'check_baseline' => \App\Http\Middleware\CheckBaselineValues::class,
         ]);
+
+
+
     })
+
+
 
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -1,5 +1,4 @@
 @props([
-    'theme' => '',
     'enabledFilters' => [],
     'column' => null,
     'inline' => null,
@@ -26,8 +25,8 @@
 
         $defaultAttributes = $fieldClassName::getWireAttributes($field, $title);
 
-        $selectClasses = \Illuminate\Support\Arr::toCssClasses(['power_grid', data_get($theme, 'selectClass')]);
-        $inputClasses = \Illuminate\Support\Arr::toCssClasses(['power_grid', data_get($theme, 'inputClass')]);
+        $selectClasses = theme_style($theme, 'filterInputText.select');
+        $inputClasses = theme_style($theme, 'filterInputText.input');
 
         $params = array_merge(
             [
@@ -48,14 +47,14 @@
             :attributes="new \Illuminate\View\ComponentAttributeBag($params)"
         />
     @else
-        <div
-            class="{{ data_get($theme, 'baseClass') }}"
-            style="{{ data_get($theme, 'baseStyle') }}"
-        >
-            @if ($showSelectOptions)
-                <div class="relative">
+        <div class="{{ theme_style($theme, 'filterInputText.base') }}">
+            @if (!$inline)
+                <label class="form-label fw-semibold mb-1">{{ $title }}</label>
+            @endif
+                <div @class(["d-flex", "flex-row gap-2 align-items-center" => !$inline, "flex-column align-items-start gap-1" => $inline])>
+                @if ($showSelectOptions)
                     <select
-                        class="{{ $selectClasses }}"
+                        @class(["form-select form-select-sm", "w-auto" => !$inline, "w-full" => $inline])
                         style="{{ data_get($column, 'headerStyle') }}"
                         {{ $defaultAttributes['selectAttributes'] }}
                     >
@@ -66,9 +65,7 @@
                             >{{ trans('livewire-powergrid::datatable.input_text_options.' . $value) }}</option>
                         @endforeach
                     </select>
-                </div>
-            @endif
-            <div class="mt-1">
+                @endif
                 <input
                     wire:key="input-{{ $field }}"
                     data-id="{{ $field }}"
@@ -76,7 +73,7 @@
                         @else
                             {{ $defaultAttributes['inputAttributes'] }} @endif
                     type="text"
-                    class="{{ $inputClasses }}"
+                    class="form-control form-control-sm"
                     placeholder="{{ $placeholder }}"
                 />
             </div>

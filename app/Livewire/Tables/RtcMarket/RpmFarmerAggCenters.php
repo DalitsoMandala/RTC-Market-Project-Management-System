@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
 use App\Traits\ExportTrait;
@@ -14,8 +14,8 @@ use App\Models\RpmFarmerAggregationCenter;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -23,7 +23,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RpmFarmerAggCenters extends PowerGridComponent
 {
-
+    public string $tableName = 'rpmFarmerAggCenters';
     use WithExport;
     use ExportTrait;
     public function datasource(): Builder
@@ -83,8 +83,8 @@ final class RpmFarmerAggCenters extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->showRecordCount(),
         ];

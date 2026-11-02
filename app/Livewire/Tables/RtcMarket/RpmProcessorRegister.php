@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use Illuminate\Support\Carbon;
 
@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
@@ -28,8 +28,8 @@ final class RpmProcessorRegister extends PowerGridComponent
 
         return [
 
-            Header::make(),
-            Footer::make()
+            PowerGrid::header(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];

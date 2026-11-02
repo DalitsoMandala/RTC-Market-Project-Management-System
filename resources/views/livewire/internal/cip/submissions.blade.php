@@ -16,22 +16,24 @@
         <div class="row">
             <div class="col-12">
                 <x-alerts />
-                <x-table-card :title="'Batch Submissions'" :subtitle="'View all batch submissions'">
+
+
+                <x-table-card :title="'Batch Submissions' . ' (' .$batch. ')'" :subtitle="'View all batch submissions'">
                     <livewire:tables.submission-table :routePrefix="$routePrefix" :tableName="'SubmissionTable'" :userId="auth()->user()->id" />
                 </x-table-card>
-                <x-table-card :title="'Aggregate Submissions'" :subtitle="'View aggregate submissions'">
+                <x-table-card :title="'Aggregate Submissions' . ' (' .$aggregate. ')'" :subtitle="'View aggregate submissions'">
                     <livewire:tables.aggregate-submission-table :routePrefix="$routePrefix" :tableName="'AggregateSubmissionTable'" :userId="auth()->user()->id" />
                 </x-table-card>
                 @hasanyrole('admin|manager|staff|enumerator')
-                    <x-table-card :title="'Manual Submissions'" :subtitle="'View manual submissions'">
+                    <x-table-card :title="'Manual Submissions' . ' (' .$manual. ')'" :subtitle="'View manual submissions'">
                         <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :routePrefix="$routePrefix" :userId="auth()->user()->id" />
                     </x-table-card>
-                    <x-table-card :title="'Market Data Submissions'" :subtitle="'View market data submissions'">
+                    <x-table-card :title="'Market Data Submissions' . ' (' .$market. ')'" :subtitle="'View market data submissions'">
                         <livewire:tables.market-data-submission-table :routePrefix="$routePrefix" :userId="auth()->user()->id" />
                     </x-table-card>
                 @endhasanyrole
                 <x-table-card :title="'Job Progress'" :subtitle="'View job progress'">
-                    {{-- <livewire:tables.job-progress-table :userId="auth()->user()->id" /> --}}
+                    <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                 </x-table-card>
 
 

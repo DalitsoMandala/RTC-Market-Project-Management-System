@@ -4,6 +4,7 @@
     'column' => null,
     'inline' => null,
     'filter' => null,
+    'options' => [],
 ])
 
 @php
@@ -12,7 +13,7 @@
 
     $defaultAttributes = \PowerComponents\LivewirePowerGrid\Components\Filters\FilterSelect::getWireAttributes($field, $title);
 
-    $filterClasses = Arr::toCssClasses([data_get($theme, 'selectClass'), $class, 'power_grid']);
+    $filterClasses = Arr::toCssClasses([theme_style($theme, 'filterSelect.select'), $class]);
 
     $params = array_merge([...data_get($filter, 'attributes'), ...$defaultAttributes], $filter);
 @endphp
@@ -25,32 +26,39 @@
         :attributes="new \Illuminate\View\ComponentAttributeBag($params)"
     />
 @else
-    <div
-        class="{{ data_get($theme, 'baseClass') }}"
-        style="{{ data_get($theme, 'baseStyle') }}"
-    >
-        <select
-            class="{{ $filterClasses }}"
-            style="{{ data_get($column, 'headerStyle') }}"
-            {{ $defaultAttributes['selectAttributes'] }}
+    <div class="mb-2">
+        @if (!$inline)
+            <label class="form-label fw-semibold mb-1">{{ $title ?? '' }}</label>
+        @endif
+        <div
+            class="{{ theme_style($theme, 'filterSelect.base') }}"
         >
-            <option value="">{{ trans('livewire-powergrid::datatable.select.all') }}</option>
+            <select
+                class="{{ $filterClasses }}"
+                style="{{ data_get($column, 'headerStyle') }}"
+                {{ $defaultAttributes['selectAttributes'] }}
+            >
 
-            @php
-                $computedDatasource = data_get($filter, 'computedDatasource');
-                $dataSource = filled($computedDatasource)
-                    ? $this->{$computedDatasource}
-                    : data_get($filter, 'dataSource');
-            @endphp
+                @if(!data_get($params, 'params.disableOptionAll', false))
+                    <option value="">{{ trans('livewire-powergrid::datatable.select.all') }}</option>
+                @endif
 
-            @foreach ($dataSource as $key => $item)
-                <option
-                    wire:key="select-{{ $tableName }}-{{ $key }}"
-                    value="{{ $item[data_get($filter, 'optionValue')] }}"
-                >
-                    {{ $item[data_get($filter, 'optionLabel')] }}
-                </option>
-            @endforeach
-        </select>
+                @php
+                    $computedDatasource = data_get($filter, 'computedDatasource');
+                    $dataSource = filled($computedDatasource)
+                        ? $this->{$computedDatasource}
+                        : data_get($filter, 'dataSource');
+                @endphp
+
+                @foreach ($dataSource as $key => $item)
+                    <option
+                        wire:key="select-{{ $tableName }}-{{ $key }}"
+                        value="{{ $item[data_get($filter, 'optionValue')] }}"
+                    >
+                        {{ $item[data_get($filter, 'optionLabel')] }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
     </div>
 @endif

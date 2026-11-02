@@ -14,7 +14,7 @@
 
     $defaultAttributes = $fieldClassName::getWireAttributes($field, array_merge($filter, (array)$column));
 
-    $filterClasses = Arr::toCssClasses([data_get($theme, 'inputClass'), 'power_grid']);
+    $filterClasses = Arr::toCssClasses([theme_style($theme, 'filterNumber.input')]);
 
     $placeholder = data_get($filter, 'placeholder');
 
@@ -29,27 +29,29 @@
         :attributes="new \Illuminate\View\ComponentAttributeBag($params)"
     />
 @else
-    <div
-        class="{{ data_get($theme, 'baseClass') }}"
-        style="{{ data_get($theme, 'baseStyle') }}"
-    >
-        <div>
-            <input
-                {{ $defaultAttributes['inputStartAttributes'] }}
-                @if ($inline) style="{{ data_get($theme, 'inputStyle') }} {{ data_get($column, 'headerStyle') }}" @endif
-                type="text"
-                class="{{ $filterClasses }}"
-                placeholder="{{ $placeholder['min'] ?? __('Min') }}"
-            >
-        </div>
-        <div class="mt-1">
-            <input
-                {{ $defaultAttributes['inputEndAttributes'] }}
-                @if ($inline) style="{{ data_get($theme, 'inputStyle') }} {{ data_get($column, 'headerStyle') }}" @endif
-                type="text"
-                class="{{ $filterClasses }}"
-                placeholder="{{ $placeholder['max'] ?? __('Max') }}"
-            >
+    <div class="mb-2">
+        @if (!$inline)
+            <label class="form-label fw-semibold mb-1">{{ $title ?? '' }}</label>
+        @endif
+            <div @class(["d-flex", "flex-row gap-2 align-items-center" => !$inline, "flex-column align-items-start gap-1" => $inline])>
+            <div>
+                <input
+                    {{ $defaultAttributes['inputStartAttributes'] }}
+                    @if ($inline) style="{{ data_get($column, 'headerStyle') }}" @endif
+                    type="text"
+                    class="{{ $filterClasses }}"
+                    placeholder="{{ $placeholder['min'] ?? __('Min') }}"
+                >
+            </div>
+            <div class="mt-1">
+                <input
+                    {{ $defaultAttributes['inputEndAttributes'] }}
+                    @if ($inline) style="{{ data_get($column, 'headerStyle') }}" @endif
+                    type="text"
+                    class="{{ $filterClasses }}"
+                    placeholder="{{ $placeholder['max'] ?? __('Max') }}"
+                >
+            </div>
         </div>
     </div>
 @endif

@@ -19,8 +19,8 @@ use PowerComponents\LivewirePowerGrid\Cache;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use App\Helpers\rtc_market\indicators\Indicator_B2;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -44,11 +44,11 @@ final class ReportingTable extends PowerGridComponent
 
 
         return [
-            Exportable::make('export')
+            PowerGrid::exportable()
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput()->showToggleColumns(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput()->showToggleColumns(),
+            PowerGrid::footer()
 
                 ->showRecordCount(),
         ];
@@ -66,11 +66,11 @@ final class ReportingTable extends PowerGridComponent
         $this->collection = $data;
         $this->refresh();
         $this->setUp = [
-            Exportable::make('export')
+            PowerGrid::exportable()
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput()->showToggleColumns(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput()->showToggleColumns(),
+            PowerGrid::footer()
 
                 ->showRecordCount(),
         ];

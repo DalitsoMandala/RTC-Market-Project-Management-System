@@ -26,8 +26,8 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use Illuminate\Support\Facades\Cache as DbCache;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use App\Exports\rtcmarket\HouseholdExport\ExportData;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
@@ -53,10 +53,10 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         return [
 
 
-            Header::make()->includeViewOnTop('components.export-data')
+            PowerGrid::header()->includeViewOnTop('components.export-data')
 
                 ->showSearchInput(),
-            Footer::make()->showPerPage(10)->showRecordCount(),
+            PowerGrid::footer()->showPerPage(10)->showRecordCount(),
         ];
     }
 

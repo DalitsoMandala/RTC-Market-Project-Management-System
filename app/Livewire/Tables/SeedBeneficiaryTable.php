@@ -15,12 +15,12 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -50,8 +50,8 @@ final class SeedBeneficiaryTable extends PowerGridComponent
         }
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
-            Footer::make()
+            PowerGrid::header()->showSearchInput()->includeViewOnTop('components.export-data'),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->pageName("{$this->crop}_page")
                 ->showRecordCount(),
@@ -246,7 +246,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public function actions($row): array
     {
         $user = User::find(auth()->user()->id);
-        $project = Project::where('name', 'RTC Market')->first();
+        $project = \App\Services\ProjectService::app_project();
         $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/' . $this->table_name . '/edit/' . $row->id . '/' . $row->uuid;
 
 
@@ -279,10 +279,10 @@ final class SeedBeneficiaryTable extends PowerGridComponent
         return [
             Button::add('edit')
                 ->can($canEdit)
-                ->render(function () use ($link) {
-                    // Using a simple return is faster than compiling a Blade view for a single button
-                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
-                })
+                          ->slot('<i class="bx bx-pen"></i>')
+                ->class('btn btn-warning btn-sm')
+                ->route(auth()->user()->roles()->first()->name . '-seed-distribution-register-edit', ['project' =>\Illuminate\Support\Str::slug($project->first()->pluck('name')), 'id' => $row->id, 'uuid' => $row->uuid]),
+
         ];
     }
     public function filters(): array

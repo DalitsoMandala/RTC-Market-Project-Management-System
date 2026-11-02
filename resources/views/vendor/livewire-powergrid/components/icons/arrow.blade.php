@@ -1,3 +1,13 @@
-<button class="rounded btn btn-sm btn-soft-warning btn-icon">
-    <i {{ $attributes }} class=" bx bx-chevron-right" style="font-size: 17px; cursor: pointer; "></i>
-</button>
+<svg
+    {{ $attributes }}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    stroke-width="2"
+>
+    <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M9 5l7 7-7 7"
+    />
+</svg>

@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\targets;
+namespace App\Livewire\Targets;
 
 use App\Models\FinancialYear;
 use App\Models\Indicator;
@@ -14,17 +14,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class TargetTable extends PowerGridComponent
 {
+    public string $tableName = 'targetsTable';
+
     use WithExport;
     //
 
@@ -33,11 +35,11 @@ final class TargetTable extends PowerGridComponent
         // $this->showCheckBox();
 
         return [
-            Exportable::make('targets')
+            PowerGrid::exportable('targets')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make(),
-            Footer::make()
+            PowerGrid::header(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->showRecordCount(),
         ];

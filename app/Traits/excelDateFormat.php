@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Throwable;
 
-trait ExcelDateFormat
+trait excelDateFormat
 {
     /**
      * Formats accepted when parsing string dates, tried in order.

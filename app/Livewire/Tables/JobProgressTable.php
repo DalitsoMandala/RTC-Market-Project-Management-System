@@ -13,15 +13,16 @@ use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 
 final class JobProgressTable extends PowerGridComponent
 {
+    public string $tableName = 'JobProgressTable';
     use WithExport;
 
     public $userId;
@@ -54,8 +55,8 @@ final class JobProgressTable extends PowerGridComponent
         }
 
         return [
-            Header::make(),
-            Footer::make()
+            PowerGrid::header(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->pageName('pending-submissions')
                 ->showRecordCount(),

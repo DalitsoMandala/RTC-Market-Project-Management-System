@@ -5,7 +5,7 @@
             aria-expanded="false">
 
             @if ($unreadNotifications->count() > 0)
-                <i class='bx bx-bell fs-6' style="color: #495057"></i>
+                <i class='bx bx-bell fs-3' style="color: #495057"></i>
                 <span class="noti-dot bg-danger rounded-pill">{{ $unreadNotifications->count() }}</span>
             @else
                 <i class='bx bx-bell fs-3' style="color: #495057"></i>

@@ -11,8 +11,8 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
@@ -22,16 +22,18 @@ use Illuminate\Pagination\Paginator;
 
 final class UserTable extends PowerGridComponent
 {
+    public string $tableName = 'usersTable';
+
     use WithExport;
 
     public function setUp(): array
     {
         return [
-            Exportable::make('Users_Export')
+            PowerGrid::exportable('Users_Export')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];

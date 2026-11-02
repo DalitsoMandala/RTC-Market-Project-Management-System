@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
 use App\Traits\ExportTrait;
@@ -16,8 +16,8 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -32,11 +32,11 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
         //  $this->showCheckBox();
 
         return [
-            // Exportable::make('export')
+            // PowerGrid::exportable()
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->includeViewOnTop('components.export-data')->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->pageName('processors-followup')
                 ->showRecordCount(),
@@ -96,7 +96,7 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => $model->processors->pp_id)
             ->add('rpm_processor_id')
-        
+
 
             ->add('date_of_follow_up')
             ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
@@ -156,7 +156,7 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
         return [
             'processors' => [
                 'pp_id',
-              
+
             ],
             'user' => [
                 'name',
@@ -176,7 +176,7 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
     }
 
 
-   
+
 
     public function columns(): array
     {

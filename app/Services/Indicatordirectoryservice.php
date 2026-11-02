@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\File;
  * indicators, this needs to key off a type/category column instead — flag it
  * and I'll adjust.
  */
-class IndicatorDirectoryService
+class Indicatordirectoryservice
 {
     /**
      * Ensure an IndicatorClasses row + on-disk directory/file exist for this indicator.

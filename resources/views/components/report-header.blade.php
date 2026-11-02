@@ -1,4 +1,4 @@
-<div class="row align-items-center">
+<div class="row align-items-center p-3">
     <div class=" col-12 col-sm-6">
 
         <h3 class="card-title fs-4">{{ $this->nameOfTable ?? '' }}</h3>

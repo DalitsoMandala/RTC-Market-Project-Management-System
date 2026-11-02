@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\tables\rtcmarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\AggregatedReport;
 use App\Models\FinancialYear;
@@ -20,7 +20,7 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -47,8 +47,8 @@ final class aggregatedReportTable extends PowerGridComponent
     public function setUp(): array
     {
         return [
-            Header::make(),
-            Footer::make()
+            PowerGrid::header(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->showRecordCount(),
         ];

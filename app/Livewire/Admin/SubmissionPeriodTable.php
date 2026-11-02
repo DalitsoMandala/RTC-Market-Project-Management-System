@@ -17,7 +17,7 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -32,11 +32,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
         //  $this->showCheckBox();
 
         return [
-            // Exportable::make('export')
+            // PowerGrid::exportable()
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make(),
-            Footer::make()
+            PowerGrid::header(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->showRecordCount(),
         ];

@@ -21,13 +21,14 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class SubmissionPeriodTable extends PowerGridComponent
 {
+    public string $tableName = 'SubmissionPeriodTable';
     use WithExport;
     public $currentRoutePrefix;
     public string $sortField  = 'date_established';
@@ -40,12 +41,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         return [
 
-            Header::make(),
-            Footer::make()
+            PowerGrid::header(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->showRecordCount(),
 
-            Detail::make()
+            PowerGrid::detail()
                 ->view('components.submission-period-detail')->collapseOthers(),
         ];
     }

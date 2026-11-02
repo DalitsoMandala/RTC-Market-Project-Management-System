@@ -14,13 +14,15 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class SubmissionTargetTable extends PowerGridComponent
 {
+    public string $tableName = 'submissionTargetsTable';
+
     use WithExport;
 
     private const PERCENT_TARGET = 'Total (% Percentage)';
@@ -33,8 +35,8 @@ final class SubmissionTargetTable extends PowerGridComponent
     public function setUp(): array
     {
         return [
-            Header::make(),
-            Footer::make()->showPerPage()->showRecordCount(),
+            PowerGrid::header(),
+            PowerGrid::footer()->showPerPage()->showRecordCount(),
         ];
     }
 

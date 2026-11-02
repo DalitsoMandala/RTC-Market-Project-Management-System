@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\AttendanceRegister;
 use App\Models\Project;
@@ -19,19 +19,21 @@ use Illuminate\Support\LazyCollection;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\Lazy;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use Str;
 
 final class AttendanceRegisterTable extends PowerGridComponent
 {
+    public string $tableName = 'attendanceRegisterTable';
     use WithExport;
     use UITrait;
     use ExportTrait;
@@ -45,8 +47,8 @@ final class AttendanceRegisterTable extends PowerGridComponent
 
         return [
 
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->includeViewOnTop('components.export-data')->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->showRecordCount(),
         ];
@@ -264,7 +266,7 @@ Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-st
 public function actions($row): array
     {
         $user = User::find(auth()->user()->id);
-        $project = Project::where('name', 'RTC Market')->first();
+        $project = \App\Services\ProjectService::app_project();
         $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/'.$this->table_name.'/edit/' . $row->id . '/' . $row->uuid;
 
 
@@ -297,10 +299,10 @@ public function actions($row): array
         return [
             Button::add('edit')
                 ->can($canEdit)
-                ->render(function () use ($link) {
-                    // Using a simple return is faster than compiling a Blade view for a single button
-                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
-                })
+                    ->slot('<i class="bx bx-pen"></i>')
+                ->class('btn btn-warning btn-sm')
+                ->route(auth()->user()->roles()->first()->name . '-attendance-register-edit', ['project' =>\Illuminate\Support\Str::slug($project->first()->pluck('name')), 'id' => $row->id, 'uuid' => $row->uuid]),
+
         ];
     }
 

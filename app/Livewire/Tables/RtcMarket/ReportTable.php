@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\rtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Crop;
 use App\Models\FinancialYear;
@@ -22,13 +22,14 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ReportTable extends PowerGridComponent
 {
+    public string $tableName = 'reportTable';
     use WithExport;
     use ExportTrait;
 
@@ -39,9 +40,9 @@ final class ReportTable extends PowerGridComponent
     public function setUp(): array
     {
         return [
-            Header::make()
+            PowerGrid::header()
                 ->includeViewOnTop('components.report-header'),
-            Footer::make()
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];

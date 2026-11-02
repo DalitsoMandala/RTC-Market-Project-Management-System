@@ -1,5 +1,4 @@
 @props([
-    'theme' => '',
     'inline' => null,
     'date' => null,
     'column' => null,
@@ -33,23 +32,28 @@
     wire:ignore.self
     x-data="pgFlatpickr(@js($params))"
 >
-    <div
-        class="{{ data_get($theme, 'baseClass') }}"
-        style="{{ data_get($theme, 'baseStyle') }}"
-    >
-        <form autocomplete="off">
-            <input
-                id="input_{{ $field }}"
-                x-ref="rangeInput"
-                wire:model="filters.{{ $type }}.{{ $field }}.formatted"
-                autocomplete="off"
-                data-field="{{ $field }}"
-                style="{{ data_get($theme, 'inputStyle') }} {{ data_get($column, 'headerStyle') }}"
-                class="power_grid {{ data_get($theme, 'inputClass') }} {{ data_get($column, 'headerClass') }}"
-                type="text"
-                readonly
-                placeholder="{{ trans('livewire-powergrid::datatable.placeholders.select') }}"
-            />
-        </form>
+    <div class="mb-2">
+        @if (!$inline)
+            <label class="form-label fw-semibold mb-1">{{ $title ?? '' }}</label>
+        @endif
+        <div class="d-flex flex-row gap-2 align-items-center">
+            <div
+                class="{{ theme_style($theme, 'filterDatePicker.base') }}"
+            >
+                <form autocomplete="off">
+                    <input
+                        id="input_{{ $field }}"
+                        x-ref="rangeInput"
+                        wire:model="filters.{{ $type }}.{{ $field }}.formatted"
+                        autocomplete="off"
+                        data-field="{{ $field }}"
+                        class="{{ theme_style($theme, 'filterDatePicker.input') }} {{ data_get($column, 'headerClass') }}"
+                        type="text"
+                        readonly
+                        placeholder="{{ trans('livewire-powergrid::datatable.placeholders.select') }}"
+                    />
+                </form>
+            </div>
+        </div>
     </div>
 </div>

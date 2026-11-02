@@ -18,8 +18,8 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Detail;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -27,6 +27,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class GrossMarginTable extends PowerGridComponent
 {
+    public string $tableName = 'GrossMarginTable';
     use WithExport;
 
     use UITrait;
@@ -54,11 +55,11 @@ final class GrossMarginTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
-            Footer::make()
+            PowerGrid::header()->showSearchInput()->includeViewOnTop('components.export-data'),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
-            Detail::make()
+            PowerGrid::detail()
                 ->view('components.gross-detail-component'),
         ];
     }
@@ -239,7 +240,8 @@ final class GrossMarginTable extends PowerGridComponent
     public function summarizeFormat(): array
     {
         return [
-            'gross_margin.{sum,avg,min,max}' => fn($value) =>  Number::currency($value, in: 'MWK'),
+
+         //   'gross_margin.{sum,avg,min,max}' => fn ($value) => Number::currency($value, in: 'MWK'),
         ];
     }
     public function filters(): array

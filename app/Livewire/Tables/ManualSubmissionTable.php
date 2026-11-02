@@ -23,15 +23,16 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ManualSubmissionTable extends PowerGridComponent
 {
+    public string $tableName = 'ManualSubmissionTable';
     use LivewireAlert;
-    use DownloadImportTrait;
+
     use WithExport;
 
     public $filter;
@@ -60,11 +61,11 @@ final class ManualSubmissionTable extends PowerGridComponent
         $this->batch = $parameters['manual'] ?? null;
 
         return [
-            Header::make()
+            PowerGrid::header()
                 ->showSearchInput()
                 ->showToggleColumns(),
 
-            Footer::make()
+            PowerGrid::footer()
                 ->showPerPage()
                 ->pageName('manualSubmissionPage')
                 ->showRecordCount(),

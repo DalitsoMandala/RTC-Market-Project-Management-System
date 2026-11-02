@@ -1,23 +1,31 @@
-<div class="col-12 mx-2" style="text-align: right;">
-    <label class="col-12 col-sm-8 ">
+<div
+    class="col-12"
+    style="text-align: right;"
+>
+    <label class="col-12 col-sm-8">
         @if (data_get($setUp, 'header.searchInput'))
-            <div class="input-group w-100" style="position: relative;">
+            <div class="input-group w-100">
                 <span class="input-group-text">
-                    <svg width="16" height="16" fill="currentColor"
-                        class="{{ data_get($theme, 'searchBox.iconSearchClass') }}"
-                        style="{{ data_get($theme, 'searchBox.iconSearchStyle') }}" viewBox="0 0 16 16">
+                    <svg
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="{{ theme_style($theme, 'searchBox.iconSearch') }}"
+                        viewBox="0 0 16 16"
+                    >
                         <path
-                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z">
-                        </path>
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+                        ></path>
                     </svg>
                 </span>
+                <input
+                    wire:model.live.debounce.600ms="search"
+                    type="text"
+                    class="{{ theme_style($theme, 'searchBox.input') }}"
+                    placeholder="{{ trans('livewire-powergrid::datatable.placeholders.search') }}"
+                >
 
-                <input wire:model.live.debounce.1000ms="search" type="text"
-                    class="{{ data_get($theme, 'searchBox.inputClass') }}"
-                    style="{{ data_get($theme, 'searchBox.inputStyle') }}"
-                    placeholder="{{ trans('livewire-powergrid::datatable.placeholders.search') }}">
-
-                @if (filled($search))
+                      @if (filled($search))
                     <button wire:click="$set('search', '')" type="button"
                         class="px-1 bg-transparent btn custom-tooltip" title="Clear Search"
                         style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 100; border: none; padding: 0;">

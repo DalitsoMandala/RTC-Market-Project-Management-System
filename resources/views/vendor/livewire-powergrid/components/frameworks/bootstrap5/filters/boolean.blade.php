@@ -1,5 +1,4 @@
 @props([
-    'theme' => '',
     'column' => null,
     'inline' => null,
     'filter' => null,
@@ -14,7 +13,7 @@
 
     $defaultAttributes = $fieldClassName::getWireAttributes($field, $title);
 
-    $selectClasses = Arr::toCssClasses([data_get($theme, 'selectClass'), 'power_grid']);
+    $selectClasses = Arr::toCssClasses([theme_style($theme, 'filterBoolean.select')]);
 
     $params = array_merge([...data_get($filter, 'attributes'), ...$defaultAttributes], $filter);
 @endphp
@@ -27,10 +26,10 @@
         :attributes="new \Illuminate\View\ComponentAttributeBag($params)"
     />
 @else
-    <div
-        class="{{ data_get($theme, 'baseClass') }}"
-        style="{{ data_get($theme, 'baseStyle') }}"
-    >
+    <div class="mb-2">
+        @if (!$inline)
+            <label class="form-label fw-semibold mb-1">{{ $title ?? '' }}</label>
+        @endif
         <select
             style="{{ data_get($column, 'headerStyle') }}"
             class="{{ $selectClasses }}"

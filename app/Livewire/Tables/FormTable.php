@@ -14,13 +14,15 @@ use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class FormTable extends PowerGridComponent
 {
+    public string $tableName = 'formsTable';
+
     use WithExport;
     public $organisation;
     public $num = 1;
@@ -29,12 +31,12 @@ final class FormTable extends PowerGridComponent
     {
 
         return [
-            // Exportable::make('export')
+            // PowerGrid::exportable()
             //     ->striped()
 
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];

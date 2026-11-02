@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
 use App\Traits\ExportTrait;
@@ -15,14 +15,15 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use App\Models\RpmFarmerMarketInformationSystem;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RpmFarmerMIS extends PowerGridComponent
 {
+    public string $tableName = 'rpmFarmerMIS';
     use WithExport;
     use ExportTrait;
         public $rowId;
@@ -84,8 +85,8 @@ final class RpmFarmerMIS extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->showRecordCount(),
         ];
