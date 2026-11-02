@@ -1,52 +1,45 @@
-@use('PowerComponents\LivewirePowerGrid\Components\Rules\RuleManager')
-@inject('actionRulesClass', 'PowerComponents\LivewirePowerGrid\Components\Rules\RulesController')
-
 <tbody>
     @foreach ($data as $row)
         @php
             $rowId = data_get($row, $this->realPrimaryKey);
-
-            $class = data_get($theme, 'table.trBodyClass');
-
-            $rulesValues = $actionRulesClass->recoverFromAction($row, RuleManager::TYPE_ROWS);
-
-            $applyRulesLoop = true;
-
-            $trAttributesBag = new \Illuminate\View\ComponentAttributeBag();
-            $trAttributesBag = $trAttributesBag->merge(['class' => $class]);
-
-            if (method_exists($this, 'actionRules')) {
-                $applyRulesLoop = $actionRulesClass->loop($this->actionRules($row), $loop);
-            }
-
-            if (filled($rulesValues['setAttributes']) && $applyRulesLoop) {
-                foreach ($rulesValues['setAttributes'] as $rulesAttributes) {
-                    $trAttributesBag = $trAttributesBag->merge([
-                        $rulesAttributes['attribute'] => $rulesAttributes['value'],
-                    ]);
-                }
-            }
+            $class = theme_style($theme, 'table.body.tr');
         @endphp
 
         @if (isset($setUp['detail']))
-            <tr {{ $trAttributesBag }}>
+            <tr class="{{ $class }}">
                 @include('livewire-powergrid::components.row', [
-                    'rowIndex'   => $loop->index + 1,
-                    'childIndex' => $childIndex
+                    'rowIndex' => $loop->index + 1,
+                    'childIndex' => $childIndex,
+                    'parentId' => $parentId
                 ])
             </tr>
-            @if (data_get($setUp, 'detail.state.' . $rowId))
-                <tr
-                    style="{{ data_get($theme, 'table.trBodyStyle') }}"
-                    {{ $trAttributesBag }}
-                >
-                    @include('livewire-powergrid::components.table.detail')
-                </tr>
-            @endif
+
+            @php
+                $hasDetailView = (bool) data_get(
+                    collect($row->__powergrid_rules)->where('apply', true)->last(),
+                    'detailView',
+                );
+
+                if ($hasDetailView) {
+                    $detailView = data_get($row->__powergrid_rules, '0.detailView');
+                    $rulesValues = data_get($row->__powergrid_rules, '0.options', []);
+                } else {
+                    $detailView = data_get($setUp, 'detail.view');
+                    $rulesValues = data_get($setUp, 'detail.options', []);
+                }
+            @endphp
+            <livewire:powergrid-detail
+                key="powergrid-lazy-child-detail-{{ $rowId }}"
+                :view="$detailView"
+                :options="$rulesValues"
+                :row-id="$rowId"
+                tr-class="{{ $class }}"
+                :row="$row->toArray()"
+                :collapse-others="data_get($setUp, 'detail.collapseOthers', false)"
+             />
         @else
             <tr
-                style="{{ data_get($theme, 'table.trBodyStyle') }}"
-                {{ $trAttributesBag }}
+                class="{{ $class }}"
             >
                 @include('livewire-powergrid::components.row', [
                     'rowIndex' => $loop->index + 1,

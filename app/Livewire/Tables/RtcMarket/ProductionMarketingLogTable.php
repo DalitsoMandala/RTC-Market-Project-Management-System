@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\ProductionMarketingLog;
 use App\Models\Project;
@@ -16,13 +16,14 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ProductionMarketingLogTable extends PowerGridComponent
 {
+    public string $tableName = 'productionMarketingLogTable';
     use WithExport;
     use ExportTrait;
     use UITrait;
@@ -37,8 +38,8 @@ final class ProductionMarketingLogTable extends PowerGridComponent
         }
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
-            Footer::make()
+            PowerGrid::header()->showSearchInput()->includeViewOnTop('components.export-data'),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->pageName('production_marketing')
                 ->showRecordCount(),
@@ -62,7 +63,7 @@ final class ProductionMarketingLogTable extends PowerGridComponent
     public function actions($row): array
     {
         $user    = User::find(auth()->user()->id);
-        $project = Project::where('name', 'RTC Market')->first();
+        $project = \App\Services\ProjectService::app_project();
         $link    = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/production-and-marketing-log-form/edit/' . $row->id . '/' . $row->uuid;
 
         switch ($user->roles()->first()->name) {
@@ -95,10 +96,10 @@ final class ProductionMarketingLogTable extends PowerGridComponent
         return [
             Button::add('edit')
                 ->can($canEdit)
-                ->render(function () use ($link) {
-                    // Using a simple return is faster than compiling a Blade view for a single button
-                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
-                }),
+                   ->slot('<i class="bx bx-pen"></i>')
+                ->class('btn btn-warning btn-sm')
+                ->route(auth()->user()->roles()->first()->name . '-production-and-marketing-log-form-edit', [\Illuminate\Support\Str::slug($project->first()->pluck('name')), 'id' => $row->id, 'uuid' => $row->uuid]),
+
         ];
     }
 

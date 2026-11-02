@@ -1,9 +1,10 @@
 <?php
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Project;
 use App\Models\Recruitment;
 use App\Models\User;
+use App\Services\ProjectService;
 use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
 use App\Traits\UITrait;
@@ -17,13 +18,15 @@ use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Detail;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class RecruitmentsTable extends PowerGridComponent
 {
+    public string $tableName = 'recruitmentsTable';
+
     use WithExport;
     use ExportTrait;
     use UITrait;
@@ -36,16 +39,16 @@ final class RecruitmentsTable extends PowerGridComponent
             $this->search = $this->getBatch();
         }
         return [
-            // Exportable::make('export')
+            // PowerGrid::exportable()
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data')
+            PowerGrid::header()->includeViewOnTop('components.export-data')
                 ->showSearchInput(),
-            Footer::make()
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
 
-            Detail::make()
+            PowerGrid::detail()
                 ->view('components.powergrid-components.recruitments-detail')->collapseOthers(),
         ];
     }
@@ -152,7 +155,7 @@ final class RecruitmentsTable extends PowerGridComponent
     public function actions($row): array
     {
         $user    = User::find(auth()->user()->id);
-        $project = Project::where('name', 'RTC Market')->first();
+        $project = ProjectService::app_project();
         $link    = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-actor-recruitment-form/edit/' . $row->id . '/' . $row->uuid;
 
         switch ($user->roles()->first()->name) {
@@ -185,16 +188,15 @@ final class RecruitmentsTable extends PowerGridComponent
         return [
             Button::add('edit')
                 ->can($canEdit)
-                ->render(function () use ($link) {
-                    // Using a simple return is faster than compiling a Blade view for a single button
-                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
-                }),
-
-                      Button::add('detail')
-                ->slot('<i class="bx bx-show"></i>')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->class('btn btn-warning btn-sm')
-                ->tooltip('View Details')
-                ->toggleDetail($row->id),
+                ->route(auth()->user()->roles()->first()->name . '-rtc-actor-recruitment-form-edit', [\Illuminate\Support\Str::slug($project->first()->pluck('name')), 'id' => $row->id, 'uuid' => $row->uuid]),
+
+                Button::add('detail')
+                    ->slot('<i class="bx bx-show"></i>')
+                    ->class('btn btn-warning btn-sm')
+                    ->tooltip('View Details')
+                    ->toggleDetail($row->id),
 
         ];
     }
@@ -350,11 +352,6 @@ final class RecruitmentsTable extends PowerGridComponent
         return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert(' . $rowId . ')');
-    }
 
     // public function actions($row): array
     // {

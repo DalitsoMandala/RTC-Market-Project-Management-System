@@ -21,7 +21,7 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -29,7 +29,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class AggregateSubmissionTable extends PowerGridComponent
 {
     use WithExport;
-    use DownloadImportTrait;
+
     use LivewireAlert;
 
     public $filter = [];
@@ -57,14 +57,14 @@ final class AggregateSubmissionTable extends PowerGridComponent
     {
         $this->batch = Route::current()?->parameter('batch');
 
-        $this->setLocation('exports');
+
 
         return [
-            Header::make()
+            PowerGrid::header()
                 ->showSearchInput()
                 ->showToggleColumns(),
 
-            Footer::make()
+            PowerGrid::footer()
                 ->showPerPage()
                 ->pageName('AggregatePage')
                 ->showRecordCount(),
@@ -634,7 +634,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Review Submission')
-                ->can(allowed: $canManage)
+                ->can( $canManage)
                 ->dispatch('showAggregate', [
                     'id' => $row->id,
                     'name' => 'view-aggregate-modal',
@@ -655,7 +655,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-theme-red btn-sm my-1 custom-tooltip')
                 ->tooltip('Delete Data')
-                ->can(allowed: $canManage)
+                ->can( $canManage)
                 ->dispatch('deleteAggregate', [
                     'id' => $row->id,
                     'name' => 'delete-aggregate-modal',

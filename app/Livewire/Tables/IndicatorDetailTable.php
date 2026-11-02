@@ -7,14 +7,15 @@ use Illuminate\Support\Collection;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class IndicatorDetailTable extends PowerGridComponent
 {
+    public string $tableName = 'IndicatorDetailTable';
     use WithExport;
     public $populatedData = array();
     public $name;
@@ -52,11 +53,11 @@ final class IndicatorDetailTable extends PowerGridComponent
 
 
         return [
-            Exportable::make($this->name)
+           PowerGrid::exportable($this->name)
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage(20)
                 ->showRecordCount(),
         ];

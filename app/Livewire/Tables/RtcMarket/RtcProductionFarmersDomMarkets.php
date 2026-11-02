@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
 use App\Traits\ExportTrait;
@@ -16,8 +16,8 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -25,6 +25,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 {
+    public string $tableName = 'rtcProductionFarmersDomMarkets';
     use WithExport;
     use ExportTrait;
     public bool $deferLoading = false;
@@ -34,12 +35,12 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 
 
         return [
-            // Exportable::make('export')
+            // PowerGrid::exportable()
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()
+            PowerGrid::header()
                 ->showSearchInput(),
-            Footer::make()
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->pageName('farmers-domestic-markets')
                 ->showRecordCount(),

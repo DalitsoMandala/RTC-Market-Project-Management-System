@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
 use Livewire\Attributes\On;
@@ -15,8 +15,8 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -24,6 +24,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcProductionProcessorInterMarkets extends PowerGridComponent
 {
+    public string $tableName = 'rtcProductionProcessorInterMarkets';
     use WithExport;
     use \App\Traits\ExportTrait;
     public bool $deferLoading = false;
@@ -33,11 +34,11 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
 
 
         return [
-            // Exportable::make('export')
+            // PowerGrid::exportable()
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->pageName('international-markets')
                 ->showRecordCount(),

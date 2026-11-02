@@ -115,15 +115,22 @@ trait DownloadImportTrait
     /**
      * PowerGrid bulk download button.
      */
-    public function header(): array
-    {
-        return [
-            Button::add('bulk-download')
-                ->bladeComponent('bulk-button', [
-                    'tableName' => $this->tableName,
-                ]),
-        ];
-    }
+   public function header(): array
+{
+    return [
+        Button::add('bulk-download')
+            ->slot("
+                <span>
+                    <i class='bx bx-download'></i>
+                    Download files (
+                    <span x-text=\"window.pgBulkActions.count('{$this->tableName}')\"></span>
+                    )
+                </span>
+            ")
+            ->class('btn btn-light btn-md bulk-download-button')
+            ->dispatch('bulkDownload.' . $this->tableName, []),
+    ];
+}
 
     /**
      * Download multiple submissions as a ZIP archive.

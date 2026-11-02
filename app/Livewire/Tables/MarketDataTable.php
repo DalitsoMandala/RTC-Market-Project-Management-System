@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -52,9 +52,9 @@ final class MarketDataTable extends PowerGridComponent
         }
         return [
 
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
+            PowerGrid::header()->includeViewOnTop('components.export-data')->showSearchInput(),
 
-            Footer::make()
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];

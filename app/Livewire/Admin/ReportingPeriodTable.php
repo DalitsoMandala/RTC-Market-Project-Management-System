@@ -13,13 +13,14 @@ use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ReportingPeriodTable extends PowerGridComponent
 {
+    public string $tableName = 'reportingPeriodsTable';
     use WithExport;
 
     public function setUp(): array
@@ -28,12 +29,12 @@ final class ReportingPeriodTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
 
-                 Detail::make()
+                 PowerGrid::detail()
                 ->view('components.powergrid-components.reporting-period-details')
         ];
     }

@@ -15,12 +15,12 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -51,8 +51,8 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
         $crop = str_replace(' ', '-', strtolower($this->crop));
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
-            Footer::make()
+            PowerGrid::header()->showSearchInput()->includeViewOnTop('components.export-data'),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->pageName("{$crop}_page")
                 ->showRecordCount(),
@@ -243,8 +243,8 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
     }
     public function actions($row): array
     {
-        $user = User::find(auth()->user()->id);
-        $project = Project::where('name', 'RTC Market')->first();
+       $user = User::find(auth()->user()->id);
+        $project = \App\Services\ProjectService::app_project();
         $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/' . $this->table_name . '/edit/' . $row->id . '/' . $row->uuid;
 
 
@@ -264,15 +264,20 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
                 $link = "/monitor" . $link;
                 break;
         }
+     // Define the user variable once to avoid repeated calls
+        $user = auth()->user();
 
+        // Use dedicated role checks
+        $isAdmin = $user->hasAnyRole(['admin', 'manager']);
+        $isStaff = $user->hasAnyRole('staff');
+     $canEdit = $isAdmin || ($isStaff && $user->id === $row->user_id);
         return [
             Button::add('edit')
-                ->render(function () use ($link) {
-                    // Generate the URL in PHP first
-                    return Blade::render(<<<HTML
-                <a href="{{ \$link }}" class="btn btn-warning btn-sm " data-bs-title="Edit Record" ><i class="bx bx-pen"></i></a>
-            HTML, ['link' => $link]);
-                })
+                ->can($canEdit)
+                          ->slot('<i class="bx bx-pen"></i>')
+                ->class('btn btn-warning btn-sm')
+                ->route(auth()->user()->roles()->first()->name . '-seed-distribution-register-edit', ['project' =>\Illuminate\Support\Str::slug($project->first()->pluck('name')), 'id' => $row->id, 'uuid' => $row->uuid]),
+
         ];
     }
     public function filters(): array

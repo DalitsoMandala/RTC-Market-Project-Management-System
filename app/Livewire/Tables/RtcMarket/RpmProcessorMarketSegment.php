@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RpmProcessorMarketSegment extends PowerGridComponent
 {
+    public string $tableName = 'rpmProcessorMarketSegment';
     public function datasource(): Builder
     {
         return RtcProductionProcessor::query()->whereNotNull('market_segment');
@@ -26,8 +27,8 @@ final class RpmProcessorMarketSegment extends PowerGridComponent
 
         return [
 
-            Header::make(),
-            Footer::make()
+            PowerGrid::header(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
@@ -79,7 +80,7 @@ final class RpmProcessorMarketSegment extends PowerGridComponent
                 ->sortable(),
 
 
-         
+
             Column::make('Market Segment/Fresh', 'market_segment_fresh'),
 
             Column::make('Market Segment/Processed', 'market_segment_processed'),

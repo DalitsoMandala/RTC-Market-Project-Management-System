@@ -12,7 +12,7 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -22,6 +22,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class FinancialYearTable extends PowerGridComponent
 {
+    public string $tableName = 'financialYearsTable';
     use WithExport;
     use UITrait;
     public function setUp(): array
@@ -29,8 +30,8 @@ final class FinancialYearTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];

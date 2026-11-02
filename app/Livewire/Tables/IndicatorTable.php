@@ -16,13 +16,14 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class IndicatorTable extends PowerGridComponent
 {
+    public string $tableName = 'indicatorsTable';
     use WithExport;
     public $userId;
     public $count = 1;
@@ -30,8 +31,8 @@ final class IndicatorTable extends PowerGridComponent
     public function setUp(): array
     {
         return [
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
@@ -174,7 +175,7 @@ final class IndicatorTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::select('name_link', 'id')
+            Filter::select('name_link', 'indicators.id')
                 ->dataSource(fn() => Indicator::select(['indicator_no', 'indicator_name', 'id'])->distinct()->get()->map(function ($indicator) {
                     return [
                         'id'    => $indicator->id,

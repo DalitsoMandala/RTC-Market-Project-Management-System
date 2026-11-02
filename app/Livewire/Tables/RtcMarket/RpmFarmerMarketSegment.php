@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables\RtcMarket;
+namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
 use App\Traits\ExportTrait;
@@ -13,14 +13,15 @@ use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RpmFarmerMarketSegment extends PowerGridComponent
 {
+    public string $tableName = 'rpmFarmerMarketSegment';
     use WithExport;
     use ExportTrait;
     public bool $withSortStringNumber = true;
@@ -51,8 +52,8 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
 
         return [
 
-            Header::make()->includeViewOnTop('components.export-data'),
-            Footer::make()
+            PowerGrid::header()->includeViewOnTop('components.export-data'),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
@@ -113,7 +114,7 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
                 ->searchable()
                 ->sortable(),
 
-  
+
 
             Column::make('Market Segment/Fresh', 'market_segment_fresh'),
 

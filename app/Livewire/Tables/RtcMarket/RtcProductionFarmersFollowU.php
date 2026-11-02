@@ -16,8 +16,8 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -33,11 +33,11 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
         // $this->showCheckBox();
 
         return [
-            // Exportable::make('export')
+            // PowerGrid::exportable()
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->includeViewOnTop('components.export-data')->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage(10)
                 ->pageName('farmers-follow-up')
                 ->showRecordCount(),
@@ -97,7 +97,7 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => $model->farmers->pf_id)
             ->add('rpm_farmer_id')
-        
+
 
             ->add('date_of_follow_up')
             ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))
@@ -225,7 +225,7 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
         return [
             'farmers' => [
                 'pf_id',
-          
+
             ],
             'user' => [
                 'name',

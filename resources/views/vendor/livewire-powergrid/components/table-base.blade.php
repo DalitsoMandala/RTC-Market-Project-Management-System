@@ -1,49 +1,45 @@
 @props([
-    'theme' => null,
     'readyToLoad' => false,
     'items' => null,
     'lazy' => false,
     'tableName' => null,
+    'theme' => null,
 ])
-
-{{-- <style>
-    .table-secondary {
-
-        --bs-table-bg: rgb(241 241 241/1) !important;
-        --bs-table-border-color: rgb(241 241 241/1) !important;
-    }
-</style> --}}
-@php
-    $baseTableClass = str_replace('table-bordered', '', $theme['table']['tableClass']);
-    $baseTableClass = str_replace('table-striped', '', $baseTableClass);
-    $headerTableClass = $theme['table']['theadClass'] . ' table-secondary grayColor';
-
-@endphp
-
 <div @isset($this->setUp['responsive']) x-data="pgResponsive" @endisset>
-    <table id="table_base_{{ $tableName }}" class="table power-grid-table {{ $baseTableClass }} mb-0"
-        style="{{ data_get($theme, 'tableStyle') }} font-size: 0.75rem;">
-        <thead class="{{ $headerTableClass }}" style="{{ data_get($theme, 'table.theadStyle') }} ">
-            {{ $header }}
-        </thead>
-        @if ($readyToLoad)
-            <tbody class="{{ data_get($theme, 'table.tbodyClass') }}" style="{{ data_get($theme, 'table.tbodyStyle') }} ">
-                {{ $body }}
-            </tbody>
-        @else
-            <tbody class="{{ data_get($theme, 'table.tbodyClass') }}"
-                style="{{ data_get($theme, 'table.tbodyStyle') }} ">
-                {{ $loading }}
-            </tbody>
-        @endif
-    </table>
+    <div x-data="{ expandedId: null }">
+        <table
+            id="table_base_{{ $tableName }}"
+            class="table power-grid-table {{ theme_style($theme, 'table.layout.table') }}"
+        >
+            <thead
+                class="{{ theme_style($theme, 'table.header.thead') }}"
+            >
+                {{ $header }}
+            </thead>
+            @if ($readyToLoad)
+                <tbody
+                    class="{{ theme_style($theme, 'table.body.tbody') }}"
+                >
+                    {{ $body }}
+                </tbody>
+            @else
+                <tbody
+                    class="{{ theme_style($theme, 'table.body.tbody') }}"
+                >
+                    {{ $loading }}
+                </tbody>
+            @endif
+        </table>
+    </div>
 
     {{-- infinite pagination handler --}}
     @if ($this->canLoadMore && $lazy)
-        <div class="items-center justify-center" wire:loading.class="flex" wire:target="loadMore">
-            @include(powerGridThemeRoot() . '.header.loading')
+        <div class="justify-center items-center" wire:loading.class="flex" wire:target="loadMore">
+            @include(data_get($theme, 'root') . '.header.loading')
         </div>
 
         <div x-data="pgLoadMore"></div>
     @endif
+
+    <x-livewire-powergrid::support-livewire-v4 />
 </div>

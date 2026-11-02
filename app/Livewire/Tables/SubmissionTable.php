@@ -24,13 +24,14 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class SubmissionTable extends PowerGridComponent
 {
+    public string $tableName = 'SubmissionsTable';
     use LivewireAlert;
     use DownloadImportTrait;
     use WithExport;
@@ -49,7 +50,7 @@ final class SubmissionTable extends PowerGridComponent
 
     public string $sortDirection = 'desc';
 
-    public string $tableName = 'SubmissionsTable';
+
 
     public $routePrefix;
 
@@ -63,11 +64,11 @@ final class SubmissionTable extends PowerGridComponent
         $this->batch = Route::current()?->parameter('batch');
 
         return [
-            Header::make()
+            PowerGrid::header()
                 ->showSearchInput()
                 ->showToggleColumns(),
 
-            Footer::make()
+            PowerGrid::footer()
                 ->showPerPage()
                 ->pageName('submissionPage')
                 ->showRecordCount(),
@@ -499,7 +500,7 @@ final class SubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-analyse"></i>')
                 ->id()
                 ->class('btn btn-warning my-1 custom-tooltip btn-sm')
-                ->can(allowed: $canManage)
+                ->can( $canManage)
                 ->tooltip('Review Submission')
                 ->dispatch('showModal', [
                     'id' => $row->id,
@@ -510,7 +511,7 @@ final class SubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
                 ->class('btn btn-theme-red my-1 custom-tooltip btn-sm')
-                ->can(allowed: $canManage)
+                ->can( $canManage)
                 ->tooltip('Delete Data')
                 ->dispatch('deleteBatch', [
                     'id' => $row->id,

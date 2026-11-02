@@ -12,14 +12,14 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Components\SetUp\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class DatabaseBackupTable extends PowerGridComponent
 {
-
+public string $tableName = 'DatabaseBackupTable';
     use LivewireAlert;
     public $isRunning = false;
     public string $sortField = 'created_at';
@@ -51,8 +51,8 @@ final class DatabaseBackupTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
-            Footer::make()
+            PowerGrid::header()->showSearchInput(),
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
@@ -142,7 +142,7 @@ final class DatabaseBackupTable extends PowerGridComponent
                 ->id()
                 ->tooltip('Download Backup')
                 ->class('btn btn-warning goUp btn-sm custom-tooltip')
-                ->dispatch('downloadBackup', ['file' => $row['path']]),
+                ->dispatch('downloadBackup', ['file' => $row->path]),
 
 
 
