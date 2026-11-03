@@ -23,6 +23,7 @@ use Ramsey\Uuid\Uuid;
 use PowerComponents\LivewirePowerGrid\Footer;
 final class SubmissionPeriodFormTable extends PowerGridComponent
 {
+    public string $tableName = 'SubmissionPeriodFormTable';
     use WithExport;
 
     public array $indicatorIds = [];

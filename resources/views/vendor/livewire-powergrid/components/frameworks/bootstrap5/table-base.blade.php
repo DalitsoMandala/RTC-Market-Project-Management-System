@@ -3,7 +3,7 @@
         return data_forget($column, 'rawQueries');
     });
 @endphp
-<div @if ($deferLoading) wire:init="fetchDatasource" @endif>
+<div @if ($deferLoading) wire:init="fetchDatasource" @endif >
     <div class="col-md-12">
         @include(theme_style($theme, 'layout.header'), [
             'enabledFilters' => $enabledFilters,
@@ -23,7 +23,7 @@
     @endif
 
     <div
-        class="{{ theme_style($theme, 'table.layout.div') }}"
+        class="{{ theme_style($theme, 'table.layout.div') }}" wire:loading.class="pe-none opacity-25"
     >
         @include($table)
     </div>
