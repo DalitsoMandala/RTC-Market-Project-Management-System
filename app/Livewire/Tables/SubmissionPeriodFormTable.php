@@ -14,13 +14,12 @@ use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
-;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Ramsey\Uuid\Uuid;
-use PowerComponents\LivewirePowerGrid\Footer;
+
 final class SubmissionPeriodFormTable extends PowerGridComponent
 {
     public string $tableName = 'SubmissionPeriodFormTable';
