@@ -44,7 +44,7 @@ class Dashboard extends Component
             'form',
             'form.indicators'
         ])
-            ->whereIn('indicator_id', $myIndicators)
+ ->where('is_restricted', false)
             ->where('is_open', true)
             ->count();
     }

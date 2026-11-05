@@ -34,75 +34,55 @@ final class IndicatorSourcesTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Builder
-    {
-        $user = User::find(auth()->user()->id);
+  public function datasource(): Builder
+{
+    $user = User::find(auth()->id());
 
-        if ($user->hasAnyRole(['admin'])) {
-            return Indicator::query()->with([
-                'project',
-                'disaggregations',
-                'responsiblePeopleforIndicators.organisation',
-                'forms',
-                'class',
-            ])->leftJoin('indicator_classes', 'indicator_classes.indicator_id', '=', 'indicators.id')
-                ->where('indicators.is_active', 1)
-                ->select([
-                    'indicators.*',
-                    'indicator_classes.class as file_location',
-                    DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
-                ])
-                // 1st: Active items (1) first, Inactive items (0) at the end
-                ->orderBy('indicators.is_active', 'desc')
-                // 2nd: Letters first, then numbers
-                ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-                // 3rd: Indicator number sorting
-                ->orderBy('indicators.indicator_no', 'asc');
-        } else if ($user->hasAnyRole(['manager', 'monitor', 'project-manager', 'staff'])) {
-            return Indicator::query()->with([
-                'project',
-                'disaggregations',
-                'responsiblePeopleforIndicators.organisation',
-                'forms',
-                'class',
-            ])->leftJoin('indicator_classes', 'indicator_classes.indicator_id', '=', 'indicators.id')
-                ->where('indicators.is_active', 1)
-                ->select([
-                    'indicators.*',
-                    'indicator_classes.class as file_location',
-                    DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
-                ])
-
-                // 1st: Active items (1) first, Inactive items (0) at the end
-                ->orderBy('indicators.is_active', 'desc')
-                // 2nd: Letters first, then numbers
-                ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-                // 3rd: Indicator number sorting
-                ->orderBy('indicators.indicator_no', 'asc');
-        } else {
-            $organisation_id = $user->organisation->id;
-
-            $data = Indicator::query()->with([
-                'project',
-                'responsiblePeopleforIndicators',
-                'disaggregations',
-                'forms',
-            ])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
-                $query->where('organisation_id', $organisation_id);
-            })->where('indicators.is_active', 1);
-
-            return $data->select([
-                'indicators.*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
-            ])
-                // 1st: Active items (1) first, Inactive items (0) at the end
-                ->orderBy('indicators.is_active', 'desc')
-                // 2nd: Letters first, then numbers
-                ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-                // 3rd: Indicator number sorting
-                ->orderBy('indicators.indicator_no', 'asc');
-        }
+    // Combined query for Admin, Manager, Monitor, Project-Manager, and Staff roles
+    if ($user->hasAnyRole(['admin', 'manager', 'monitor', 'project-manager', 'staff'])) {
+        return Indicator::query()->with([
+            'project',
+            'disaggregations',
+            'responsiblePeopleforIndicators.organisation',
+            'forms',
+        ])
+        ->where('indicators.is_active', 1)
+        ->select([
+            'indicators.*',
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
+        ])
+        // 1st: Active items (1) first, Inactive items (0) at the end
+        ->orderBy('indicators.is_active', 'desc')
+        // 2nd: Letters first, then numbers
+        ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
+        // 3rd: Indicator number sorting
+        ->orderBy('indicators.indicator_no', 'asc');
     }
+
+    // Query for organization-restricted users
+    $organisation_id = $user->organisation->id;
+
+    return Indicator::query()->with([
+        'project',
+        'responsiblePeopleforIndicators',
+        'disaggregations',
+        'forms',
+    ])
+    ->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
+        $query->where('organisation_id', $organisation_id);
+    })
+    ->where('indicators.is_active', 1)
+    ->select([
+        'indicators.*',
+        DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
+    ])
+    // 1st: Active items (1) first, Inactive items (0) at the end
+    ->orderBy('indicators.is_active', 'desc')
+    // 2nd: Letters first, then numbers
+    ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
+    // 3rd: Indicator number sorting
+    ->orderBy('indicators.indicator_no', 'asc');
+}
 
     public function fields(): PowerGridFields
     {

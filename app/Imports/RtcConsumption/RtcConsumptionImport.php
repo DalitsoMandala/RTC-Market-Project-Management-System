@@ -52,7 +52,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'organisation_id'           => $this->data['organisation_id'],
             'submission_period_new_id'  => $this->data['submission_period_new_id'],
             'financial_year_id'         => $this->data['financial_year_id'],
-            'reporting_period_month_id' => $this->data['period_month_id'],
+            'reporting_period_month_id' => $this->data['reporting_period_month_id'],
             'status'                    => 'approved',
         ]);
         // Update JobProgress tracking

@@ -147,12 +147,7 @@ trait UploadDataTrait
      */
     protected function getOpenSubmissionPeriod()
     {
-        return SubmissionPeriod::where('form_id', $this->selectedForm)
-        // ->where('indicator_id', $this->selectedIndicator)
-            ->where('financial_year_id', $this->selectedFinancialYear)
-            ->where('reporting_period_month_id', $this->selectedMonth)
-            ->where('is_open', true)
-            ->first();
+        return SubmissionPeriod::find($this->submissionPeriodId);
     }
 
     /**

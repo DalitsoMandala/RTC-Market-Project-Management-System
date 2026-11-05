@@ -33,11 +33,24 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public $currentRoutePrefix;
     public string $sortField  = 'date_established';
     public string $primaryKey = 'rn';
-
+    public array $rowData = [];
     public function setUp(): array
     {
 
         // $this->timeout();
+        $this->rowData = Indicator::query()->with([
+            'project',
+            'disaggregations',
+            'responsiblePeopleforIndicators.organisation',
+            'forms',
+            'class',
+        ])->where('is_active', true)
+            ->whereHas('responsiblePeopleforIndicators', function ($query) {
+                $query->where('organisation_id', auth()->user()->organisation->id);
+            })
+            ->get()->map(function ($indicator) {
+                return $indicator->forms->where('is_active', true)->pluck('id')->unique()->values()->all();
+            })->flatten()->unique()->values()->all();
 
         return [
 
@@ -47,14 +60,17 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->showRecordCount(),
 
             PowerGrid::detail()
-                ->view('components.submission-period-detail')->collapseOthers(),
+                ->view('components.submission-period-detail')->collapseOthers()->params(['rowData' => $this->rowData]),
         ];
     }
+
+
 
     public function datasource(): Builder
     {
         $user = Auth::user();
-        $sub = SubmissionPeriod::query()
+
+        $query = SubmissionPeriod::query()
             ->select([
                 'id',
                 'date_established',
@@ -67,14 +83,18 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 'bypass_notification',
             ])
             ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn')
-             ->orderByDesc('is_open')
-            ->orderByDesc('financial_year_id')
-           ;
+            ->orderByDesc('is_open')
+            ->orderByDesc('financial_year_id');
 
-        if ($user->hasAnyRole(['external'])) {
-            return $sub->where('is_open', true)->where('is_expired', false)->where('is_restricted', false);
+        // Restrict query for external users
+        if ($user && $user->hasAnyRole(['external'])) {
+            $query
+
+                ->where('is_restricted', false);
         }
-        return $sub;
+
+
+        return $query;
     }
 
     public function fields(): PowerGridFields
@@ -151,7 +171,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
             })
 
-                ->add('is_restricted', function ($model) {
+            ->add('is_restricted', function ($model) {
 
                 $open    = $model->is_restricted === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary';
                 $is_open = $model->is_restricted === 1 ? 'Yes' : 'No';
@@ -184,42 +204,42 @@ final class SubmissionPeriodTable extends PowerGridComponent
     }
 
     public function columns(): array
-{
-    $columns = [
-        Column::action(''),
-        Column::make('#', 'rn')->sortable(),
+    {
+        $columns = [
+            Column::action(''),
+            Column::make('#', 'rn')->sortable(),
 
-        Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
-            ->sortable(),
+            Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
+                ->sortable(),
 
-        Column::make('End of Submissions', 'date_ending_formatted', 'date_ending')
-            ->sortable(),
+            Column::make('End of Submissions', 'date_ending_formatted', 'date_ending')
+                ->sortable(),
 
-        Column::make('Months', 'month_range'),
+            Column::make('Months', 'month_range'),
 
-        Column::make('Financial Year', 'financial_year')
-            ->searchable(),
+            Column::make('Financial Year', 'financial_year')
+                ->searchable(),
 
-        Column::make('Status', 'is_open_toggle', 'is_open')
-            ->sortable()
-            ->searchable(),
+            Column::make('Status', 'is_open_toggle', 'is_open')
+                ->sortable()
+                ->searchable(),
 
-        Column::make('Expired', 'is_expired_toggle', 'is_expired')
-            ->sortable()
-            ->searchable(),
-    ];
+            Column::make('Expired', 'is_expired_toggle', 'is_expired')
+                ->sortable()
+                ->searchable(),
+        ];
 
-    $user = Auth::user();
+        $user = Auth::user();
 
-    // If user is NOT external, push the Restricted column directly to the flat array
-    if (!$user->hasAnyRole(['external'])) {
-        $columns[] = Column::make('Restricted', 'is_restricted', 'is_restricted')
-            ->sortable()
-            ->searchable();
+        // If user is NOT external, push the Restricted column directly to the flat array
+        if (!$user->hasAnyRole(['external'])) {
+            $columns[] = Column::make('Restricted', 'is_restricted', 'is_restricted')
+                ->sortable()
+                ->searchable();
+        }
+
+        return $columns;
     }
-
-    return $columns;
-}
 
     public function filters(): array
     {

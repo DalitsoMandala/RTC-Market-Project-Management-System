@@ -5,11 +5,7 @@
 
 
     <div class="container-fluid" >
-
-        @include('layouts.dashboard-layout')
-
-
-        @if ($openSubmissions > 0)
+  @if ($openSubmissions > 0)
             <div class="row">
                 <div class="col">
 
@@ -25,6 +21,10 @@
                 </div>
             </div>
         @endif
+        @include('layouts.dashboard-layout')
+
+
+
 
             <livewire:dashboard-charts />
 

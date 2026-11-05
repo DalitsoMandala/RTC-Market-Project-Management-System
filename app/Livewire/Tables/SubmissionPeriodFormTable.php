@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
+use App\Models\Indicator;
 use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
@@ -13,8 +14,9 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -29,7 +31,8 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
     public array $formIds = [];
 
-    public ?int $submissionPeriodRow = null;
+    public $submissionPeriodRow;
+    public $rowData;
 
     public $currentRoutePrefix;
 
@@ -40,6 +43,8 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
      */
     public function setUp(): array
     {
+
+        $this->currentRoutePrefix = auth()->user()->roles->first()->name;
         $this->organisation_id = auth()
             ->user()
             ->organisation
@@ -47,7 +52,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
         return [
 
-               PowerGrid::footer()
+            PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
@@ -58,34 +63,23 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
      */
     public function datasource(): Builder
     {
-        $organisationId = $this->organisation_id
-            ?? auth()->user()->organisation->id;
 
-        $myIndicators = ResponsiblePerson::query()
-            ->where('organisation_id', $organisationId)
-            ->pluck('indicator_id')
-            ->unique()
-            ->values()
-            ->all();
 
-        return Form::query()
-            ->with([
-                'indicators' => function ($query) {
-                    $query->where('indicators.is_active', true);
-                },
-            ])
-            ->where('forms.is_active', true)
-            ->whereHas('indicators', function (Builder $query) use ($myIndicators) {
-                $query
-                    ->whereIn('indicators.id', $myIndicators)
-                    ->where('indicators.is_active', true);
-            })
+
+
+        $forms = Form::query()
+            ->whereIn('id', $this->rowData)
             ->select([
                 'forms.*',
                 DB::raw(
                     'ROW_NUMBER() OVER (ORDER BY forms.id) AS rn'
                 ),
             ]);
+
+
+
+
+        return $forms;
     }
 
     /**
@@ -93,7 +87,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
      */
     private function getCurrentSubmissionPeriodId(): ?int
     {
-        return $this->submissionPeriodRow;
+        return $this->submissionPeriodRow->id ?? null;
     }
 
     /**
@@ -231,7 +225,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
         if ($user->hasAnyRole('external')) {
             return [
-                    Column::action(''),
+                Column::action(''),
                 Column::make('#', 'rn'),
 
                 Column::make('Name', 'name'),
@@ -446,14 +440,14 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     {
         return [
 
-     Rule::button('add-data')
+            Rule::button('add-data')
                 ->when(
-                    fn ($row) => $row->name !== 'REPORT FORM'
+                    fn($row) => $row->name !== 'REPORT FORM'
                 )
                 ->hide(),
             Rule::button('upload')
                 ->when(
-                    fn ($row) => $row->name === 'REPORT FORM'
+                    fn($row) => $row->name === 'REPORT FORM'
                 )
                 ->hide(),
         ];

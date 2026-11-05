@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Imports\ImportFarmer;
 
+use App\Imports\AbstractMultiSheetImport;
 use App\Imports\ImportFarmer\RpmfAggregationCentersImport;
 use App\Imports\ImportFarmer\RpmfAreaCultivationImport;
 use App\Imports\ImportFarmer\RpmFarmerConcAgreementsImport;
@@ -10,33 +12,11 @@ use App\Imports\ImportFarmer\RpmfBasicSeedImport;
 use App\Imports\ImportFarmer\RpmfCertifiedSeedImport;
 use App\Imports\ImportFarmer\RpmfMisImport;
 use App\Imports\ImportFarmer\RtcProductionFarmersImport;
-use App\Models\JobProgress;
 use App\Models\RtcProductionFarmer;
-use App\Models\Submission;
-use App\Models\User;
-use App\Notifications\ImportFailureNotification;
-use App\Notifications\ImportSuccessNotification;
-use App\Traits\ChecksBlankSheets;
-use App\Traits\FormEssentials;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\RegistersEventListeners;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\ImportFailed;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue, WithBatchInserts
+class RtcProductionFarmersMultiSheetImport extends AbstractMultiSheetImport
 {
-    use Importable, RegistersEventListeners;
-    use FormEssentials, ChecksBlankSheets;
-    protected $expectedSheetNames = [
+    protected array $expectedSheetNames = [
         'Production Farmers',
         'Contractual Agreements',
         'Domestic Markets',
@@ -48,34 +28,47 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
         'Area Cultivation',
         'Seed Services Unit',
     ];
-    protected $expectedHeaders = [];
 
-    protected $cacheKey;
-    protected $filePath;
-    protected $submissionDetails = [];
-    protected $totalRows         = 0;
-
-    public function __construct($cacheKey, $filePath, $submissionDetails)
+    protected function getTableName(): string
     {
-        $this->cacheKey          = $cacheKey;
-        $this->filePath          = $filePath;
-        $this->submissionDetails = $submissionDetails;
-        foreach ($this->expectedSheetNames as $sheetName) {
-            $this->expectedHeaders[$sheetName] = array_keys($this->forms['Rtc Production Farmers Form'][$sheetName]);
-        }
+        return 'rtc_production_farmers';
     }
 
-    private function getSheetHeaders(Worksheet $sheet): array
+    protected function getFormName(): string
     {
-        $highestColumn = $sheet->getHighestColumn();
-        $headerCells   = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
-        return $headerCells[0] ?? [];
+        return 'Rtc Production Farmers Form';
     }
 
-    private function validateHeaders(array $actualHeaders, array $expectedHeaders): bool
+    protected function getModelClass(): string
     {
-        return array_values(array_map('trim', $actualHeaders)) === array_values(array_map('trim', $expectedHeaders));
+        return RtcProductionFarmer::class;
     }
+
+    protected function getSubmissionPeriodColumnName(): string
+    {
+        return 'reporting_period_month_id';
+    }
+
+    protected function getSheetRules(): array
+    {
+        return [
+            'required' => [
+                'Production Farmers' => 2,
+            ],
+            'optional' => [
+                'Contractual Agreements'     => 2,
+                'Domestic Markets'           => 2,
+                'International Markets'      => 2,
+                'Market Information Systems' => 2,
+                'Aggregation Centers'        => 2,
+                'Basic Seed'                 => 2,
+                'Certified Seed'             => 2,
+                'Area Cultivation'           => 2,
+                'Seed Services Unit'         => 2,
+            ],
+        ];
+    }
+
     public function sheets(): array
     {
         return [
@@ -90,203 +83,5 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
             'Area Cultivation'           => new RpmfAreaCultivationImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
             'Seed Services Unit'         => new SeedServicesUnitImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
-    }
-
-    public function registerEvents(): array
-    {
-        return [
-            BeforeImport::class => function (BeforeImport $event) {
-                $rowCounts = $event->reader->getTotalRows();
-
-                $this->assertBlankSheetRules(
-                    rowCounts: $rowCounts,
-                    required: [
-                        'Production Farmers' => 2,
-                    ],
-                    optional: [
-                        'Contractual Agreements'     => 2,
-                        'Domestic Markets'           => 2,
-                        'International Markets'      => 2,
-                        'Market Information Systems' => 2,
-                        'Aggregation Centers'        => 2,
-                        'Basic Seed'                 => 2,
-                        'Certified Seed'             => 2,
-                        'Area Cultivation'           => 2,
-                        'Seed Services Unit'         => 2,
-                    ],
-                    expectedHeaders: $this->expectedHeaders
-                );
-
-                $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
-                    return $sum + (($rowCounts[$sheetName] - 2) ?? 0); // exclude headers
-                }, 0);
-
-                // Initialize JobProgress record
-                JobProgress::updateOrCreate(
-                    ['cache_key' => $this->cacheKey],
-                    [
-                        'total_rows'     => $this->totalRows,
-                        'processed_rows' => 0,
-                        'progress'       => 0,
-                        'user_id'        => $this->submissionDetails['user_id'],
-                        'form_name'      => 'Production Farmers Import',
-                    ]
-                );
-
-                Cache::put("{$this->cacheKey}_import_progress", 0, now()->addMinutes(30));
-            },
-
-            AfterImport::class  => function (AfterImport $event) {
-                // Finalize Submission record after import completes
-
-                $user = User::find($this->submissionDetails['user_id']);
-
-                //  $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
-                if ($user->hasAnyRole('manager')) {
-                    Submission::create([
-                        'batch_no'                  => $this->submissionDetails['batch_no'],
-                        'form_id'                   => $this->submissionDetails['form_id'],
-                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
-                        'user_id'                   => $this->submissionDetails['user_id'],
-                        'status'                    => 'approved',
-                        'batch_type'                => 'batch',
-                        'is_complete'               => 1,
-                        'table_name'                => 'rtc_production_farmers',
-                        'file_link'                 => $this->submissionDetails['file_link'],
-                        'description'               => $this->submissionDetails['description'],
-                    ]);
-
-                    $user->notify(
-                        new ImportSuccessNotification(
-                            $this->cacheKey,
-                            route('cip-submissions', [
-                                'batch' => $this->cacheKey,
-                            ], true) . '#batch-submission'
-
-                        )
-                    );
-                } else if ($user->hasAnyRole('admin')) {
-                    Submission::create([
-                        'batch_no'                  => $this->submissionDetails['batch_no'],
-                        'form_id'                   => $this->submissionDetails['form_id'],
-                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
-                        'user_id'                   => $this->submissionDetails['user_id'],
-                        'status'                    => 'approved',
-                        'batch_type'                => 'batch',
-                        'is_complete'               => 1,
-                        'table_name'                => 'rtc_production_farmers',
-                        'file_link'                 => $this->submissionDetails['file_link'],
-                        'description'               => $this->submissionDetails['description'],
-                    ]);
-
-                    $user->notify(
-                        new ImportSuccessNotification(
-                            $this->cacheKey,
-                            route('admin-submissions', [
-                                'batch' => $this->cacheKey,
-                            ], true) . '#batch-submission'
-
-                        )
-                    );
-                } else if ($user->hasAnyRole('staff')) {
-                    Submission::create([
-                        'batch_no'                  => $this->cacheKey,
-                        'form_id'                   => $this->submissionDetails['form_id'],
-                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
-                        'user_id'                   => $this->submissionDetails['user_id'],
-                        'status'                    => 'pending',
-                        'batch_type'                => 'batch',
-                        'is_complete'               => 1,
-                        'table_name'                => 'rtc_production_farmers',
-                        'file_link'                 => $this->submissionDetails['file_link'],
-                        'description'               => $this->submissionDetails['description'],
-                    ]);
-
-                    $user->notify(new ImportSuccessNotification(
-                        $this->cacheKey,
-                        route('cip-staff-submissions', [
-                            'batch' => $this->cacheKey,
-                        ], true) . '#batch-submission'
-
-                    ));
-                } else {
-                    Submission::create([
-                        'batch_no'                  => $this->submissionDetails['batch_no'],
-                        'form_id'                   => $this->submissionDetails['form_id'],
-                        'reporting_period_month_id' => $this->submissionDetails['submission_period_new_id'],
-                        'user_id'                   => $this->submissionDetails['user_id'],
-                        'status'                    => 'pending',
-                        'batch_type'                => 'batch',
-                        'is_complete'               => 1,
-                        'table_name'                => 'rtc_production_farmers',
-                        'file_link'                 => $this->submissionDetails['file_link'],
-                        'description'               => $this->submissionDetails['description'],
-                    ]);
-
-                    $user->notify(new ImportSuccessNotification(
-                        $this->cacheKey,
-                        route('external-submissions', [
-                            'batch' => $this->cacheKey,
-                        ], true) . '#batch-submission'
-
-                    ));
-                }
-
-                JobProgress::updateOrCreate(
-                    ['cache_key' => $this->cacheKey],
-                    [
-                        'status'   => 'completed',
-                        'progress' => 100,
-                    ]
-                );
-            },
-
-            ImportFailed::class => function (ImportFailed $event) {
-
-                $exception = $event->getException();
-                if ($exception instanceof \App\Exceptions\UserErrorException) {
-                    $errorMessage = $exception->getMessage();
-                } else {
-                    $errorMessage = "Something went wrong. Please try again.";
-                }
-
-                $user = User::find($this->submissionDetails['user_id']);
-                $user->notify(new ImportFailureNotification(
-                    $errorMessage,
-                    $this->submissionDetails['route'],
-                    $this->cacheKey,
-
-                ));
-                JobProgress::updateOrCreate(
-                    ['cache_key' => $this->cacheKey],
-                    [
-                        'status' => 'failed',
-                        'error'  => $errorMessage,
-                    ]
-                );
-
-                Log::error($exception->getMessage());
-
-                RtcProductionFarmer::where('uuid', $this->cacheKey)->delete();
-                Submission::where('batch_no', $this->cacheKey)->delete();
-
-                // throw new ExcelValidationException($exception->getMessage());
-            },
-        ];
-    }
-
-    public function chunkSize(): int
-    {
-        return 1000; // Process 1000 rows per chunk
-    }
-
-    public function batchSize(): int
-    {
-        return 1000;
-    }
-
-    public function startRow(): int
-    {
-        return 3;
     }
 }
