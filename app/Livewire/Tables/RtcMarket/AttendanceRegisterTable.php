@@ -54,27 +54,34 @@ final class AttendanceRegisterTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Builder
-    {
+   public function datasource(): Builder
+{
+    if ($this->getBatch()) {
+        $this->search = $this->getBatch();
+    }
 
-        if ($this->getBatch()) {
-            $this->search = $this->getBatch();
-        }
-        $user = User::find(auth()->user()->id);
-        $organisation_id = $user->organisation->id;
-        $query = AttendanceRegister::query()->with([
+    $user = auth()->user();
+    $organisation_id = $user->organisation_id;
+
+    $query = AttendanceRegister::query()
+        ->with([
             'user' => fn($q) => $q->withTrashed(),
             'user.organisation',
-        ])->select([
+        ])
+        ->join('users', 'attendance_registers.user_id', '=', 'users.id')
+        ->join('organisations', 'users.organisation_id', '=', 'organisations.id')
+        ->select([
             'attendance_registers.*',
-            DB::raw(' ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::raw('ROW_NUMBER() OVER (ORDER BY attendance_registers.id) AS rn')
         ]);
-        if ($user->hasAnyRole('external')) {
-            $query->where('organisation_id', $organisation_id);
-        }
 
-        return $query;
+    if ($user->hasAnyRole('external')) {
+        // Explicitly target the users table to avoid ambiguity
+        $query->where('users.organisation_id', $organisation_id);
     }
+
+    return $query;
+}
 
 
     public $namedExport = 'att';
@@ -144,7 +151,7 @@ Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-st
 
             Column::make('Attendee ID', 'att_id')->searchable()->bodyAttribute('table-sticky-col')
                 ->headerAttribute('table-sticky-col'),
-
+   Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable()->bodyAttribute('table-sticky-col')
@@ -209,7 +216,7 @@ Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-st
                 ->searchable(),
 
 
-            Column::make('Submitted By', 'submitted_by')
+            Column::make('Submitted By', 'submitted_by','users.name')
                 ->sortable()
                 ->searchable(),
 

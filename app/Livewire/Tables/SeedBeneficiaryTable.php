@@ -44,8 +44,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public function setUp(): array
     {
 
-        if ($this->getBatch() && $this->getCropType() && $this->getCropType() == 'Potato') {
-
+         if ($this->getBatch()) {
             $this->search = $this->getBatch();
         }
         return [
@@ -83,7 +82,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
         $query = SeedBeneficiary::query()->with([
             'user' => fn($q) => $q->withTrashed(),
             'user.organisation',
-        ])->where('crop', 'Potato')->leftJoin('users', function ($user) {
+        ])->where('crop', 'Potato')->join('users', function ($user) {
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
         })->select([
             'seed_beneficiaries.*',
@@ -185,7 +184,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
 
-
+   Column::make('UUID', 'uuid')->searchable()->hidden(),
 
             Column::make('Group Name', 'group_name')
                 ->sortable()
@@ -238,7 +237,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
 
-            Column::make('Submitted by', 'user', 'user_name')->sortable()->searchable(),
+            Column::make('Submitted by', 'user', 'users.name')->sortable()->searchable(),
 
 
         ];

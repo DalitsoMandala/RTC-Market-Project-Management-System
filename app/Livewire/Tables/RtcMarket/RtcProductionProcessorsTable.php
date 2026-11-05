@@ -66,7 +66,9 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
             'user',
             'user.organisation'
-        ])->select([
+        ])        ->join('users', 'rtc_production_processors.user_id', '=', 'users.id')
+        ->join('organisations', 'users.organisation_id', '=', 'organisations.id')
+        ->select([
             'rtc_production_processors.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -218,7 +220,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->headerAttribute('table-sticky-col'),
 
             Column::make('UUID', 'uuid')->searchable()->hidden(),
-            Column::make('Date of follow up', 'date_of_followup_formatted')
+            Column::make('Date of follow up', 'date_of_followup_formatted','date_of_followup')
                 ->sortable()->searchable(),
             Column::make('Enterprise', 'enterprise',)->searchable()->sortable(),
             Column::make('District', 'district',)->sortable()->searchable(),
@@ -261,8 +263,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             Column::make('Total Volume of Aggregation Center Sales', 'total_vol_aggregation_center_sales')
                 ->sortable(),
 
-            Column::make('Submitted by', 'submitted_by')
-
+            Column::make('Submitted by', 'submitted_by','users.name')
                 ->searchable(),
 
 

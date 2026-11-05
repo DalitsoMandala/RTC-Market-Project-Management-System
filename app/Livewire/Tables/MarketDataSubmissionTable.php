@@ -186,6 +186,7 @@ final class MarketDataSubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+                Column::action(''),
             Column::make(
                 'Batch no',
                 'batch_no_formatted',
@@ -218,7 +219,7 @@ final class MarketDataSubmissionTable extends PowerGridComponent
             )
                 ->sortable(),
 
-            Column::action('Action'),
+
         ];
     }
 

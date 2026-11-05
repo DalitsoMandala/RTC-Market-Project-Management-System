@@ -67,8 +67,11 @@ final class RecruitmentsTable extends PowerGridComponent
         $query           = Recruitment::query()->with([
             'user' => fn($q) => $q->withTrashed(),
             'user.organisation',
-        ])->select([
+        ])->join('users', 'recruitments.user_id', '=', 'users.id')
+        ->join('organisations', 'users.organisation_id', '=', 'organisations.id')
+        ->select([
             'recruitments.*',
+            'users.name as submitted_by',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
         ]);
         if ($user->hasAnyRole('external')) {
@@ -135,7 +138,7 @@ final class RecruitmentsTable extends PowerGridComponent
             ->add('uuid')
             ->add('user_id')
             ->add('submitted_by', function ($model) {
-                return $model->user?->name . '(' . $model->user?->organisation->name . ')';
+                return  '(' . $model->submitted_by . ')';
             })
             ->add('submission_period_new_id')
             ->add('organisation_id')
@@ -340,8 +343,7 @@ final class RecruitmentsTable extends PowerGridComponent
             Column::make('Uses certified seed', 'uses_certified_seed')
                 ->sortable(),
 
-            Column::make('Submitted by', 'submitted_by')
-
+            Column::make('Submitted by', 'submitted_by','users.name')
                 ->searchable(),
 
         ];

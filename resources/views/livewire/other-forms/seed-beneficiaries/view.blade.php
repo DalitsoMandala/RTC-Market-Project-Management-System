@@ -20,7 +20,7 @@
                         <livewire:tables.seed-beneficiaries-cassava-table :crop="'Cassava'" />
                     </x-table-card>
                 @endif
-                @if (auth()->user()->organisation->name === 'IITA' || auth()->user()->organisation->name === 'CIP')
+                @if (auth()->user()->organisation->name === 'IITA' )
                     <x-table-card :title="'Seed Beneficiaries Table'" :subtitle="'Seed Beneficiaries Data (Cassava)'">
                         <livewire:tables.seed-beneficiaries-cassava-table :crop="'Cassava'" />
                     </x-table-card>

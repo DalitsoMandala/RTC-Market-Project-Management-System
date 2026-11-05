@@ -437,6 +437,7 @@ final class SubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+              Column::action(''),
             Column::make('Batch no', 'batch_no_formatted', 'submissions.batch_no')
                 ->searchable(),
 
@@ -473,7 +474,7 @@ final class SubmissionTable extends PowerGridComponent
             )
                 ->sortable(),
 
-            Column::action('Action'),
+
         ];
     }
 
@@ -592,9 +593,12 @@ final class SubmissionTable extends PowerGridComponent
 
             Rule::button('view-data')
               ->when(fn ($row) =>
-                    in_array($row->status, ['denied', 'disapproved'], true)
+                    in_array($row->status, ['denied', 'disapproved','pending'], true)
                 )
                 ->disable(),
+
+
+
 
             // Highlight the selected batch.
             Rule::rows()

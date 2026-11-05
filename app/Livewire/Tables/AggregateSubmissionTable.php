@@ -556,6 +556,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+                 Column::action(''),
             Column::make('#', 'rn')
                 ->sortable()
                 ->hidden(),
@@ -603,7 +604,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             )
                 ->sortable(),
 
-            Column::action('Action'),
+
         ];
     }
 

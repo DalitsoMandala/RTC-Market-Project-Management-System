@@ -44,7 +44,7 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
     {
 
 
-        if ($this->getBatch() && $this->getCropType() && $this->getCropType() == 'Sweet potato') {
+        if ($this->getBatch()) {
 
             $this->search = $this->getBatch();
         }
@@ -184,7 +184,7 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
                 ->sortable(),
 
 
-
+   Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Group Name', 'group_name')
                 ->sortable()
                 ->searchable(),
@@ -236,7 +236,7 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
 
-            Column::make('Submitted by', 'user', 'user_name')->sortable()->searchable(),
+            Column::make('Submitted by', 'user', 'users.name')->sortable()->searchable(),
 
 
         ];
