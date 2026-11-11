@@ -15,7 +15,7 @@
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
 
-                            <li class="breadcrumb-item active">Submit Reports</li>
+
                         </ol>
                     </div>
 

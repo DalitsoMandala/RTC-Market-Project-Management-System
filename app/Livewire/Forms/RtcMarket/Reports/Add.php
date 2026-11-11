@@ -67,7 +67,8 @@ class Add extends Component
         })->whereHas('organisation', function ($query) {
             $query->where('organisations.id', auth()->user()->organisation->id);
         })->where('is_active', true)
-
+ ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
+ ->orderBy('indicators.indicator_no', 'asc')
             ->get();
 
         $getFirstIndicator = $this->reportIndicators->first();

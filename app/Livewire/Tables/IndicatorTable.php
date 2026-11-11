@@ -6,7 +6,7 @@ use App\Models\Cgiar_Project;
 use App\Models\Indicator;
 use App\Models\Organisation;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder as ModelBuilder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
@@ -23,8 +23,12 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class IndicatorTable extends PowerGridComponent
 {
-    public string $tableName = 'indicatorsTable';
+
     use WithExport;
+    public string $tableName = 'indicatorsTable';
+    public string $primaryKey = 'id';
+
+
     public $userId;
     public $count = 1;
 
@@ -37,8 +41,8 @@ final class IndicatorTable extends PowerGridComponent
                 ->showRecordCount(),
         ];
     }
-    public function datasource(): ?ModelBuilder
-    {
+  public function datasource(): ?Builder
+{
         $user = User::find($this->userId);
 
         if ($user->hasAnyRole(['admin'])) {
@@ -119,7 +123,7 @@ final class IndicatorTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id', fn($model) => $this->count++)
+            ->add('id')
             ->add('rn')
             ->add('indicator_no')
             ->add('indicator_no_bold', fn($model) => '<b>' . $model->indicator_no . '</b>')
@@ -195,9 +199,14 @@ final class IndicatorTable extends PowerGridComponent
         $this->refresh();
     }
 
-   public function columns(): array
+
+public function columns(): array
 {
-    $columns = [
+ $user = User::find(auth()->user()->id);
+ $isAdmin = $user->hasAnyRole('admin');
+   return [
+            Column::action('Actions')
+            ->hidden(isHidden: !$isAdmin, isForceHidden: !$isAdmin),
         Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
             ->sortable()
             ->searchable(),
@@ -214,23 +223,16 @@ final class IndicatorTable extends PowerGridComponent
         Column::make('File Location', 'file_location')
             ->searchable()
             ->hidden(),
+        Column::make('Active', 'is_active')
+            ->sortable()
+            ->searchable(),
 
-        Column::action('Actions')->hidden(),
     ];
 
-    $user = User::find(auth()->id());
 
-    if ($user->hasAnyRole('admin')) {
-        // Insert Actions as the first column
-        array_unshift($columns, Column::action('Actions'));
-
-        $columns[] = Column::make('Active', 'is_active')
-            ->sortable()
-            ->searchable();
-    }
-
-    return $columns;
 }
+
+
 
     #[On('toggleIndicatorStatus')]
     public function toggleIndicatorStatus($indicatorId): void
@@ -245,23 +247,18 @@ final class IndicatorTable extends PowerGridComponent
 
     public function actions($row): array
     {
+
         return [
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
-                ->id()
+
                 ->class('btn btn-sm btn-warning custom-tooltip')
                 ->tooltip('Edit Record')
                 ->dispatch('openIndicatorModal', ['indicatorId' => $row->id]),
 
-            Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
-                ->id()
-                ->tooltip('Delete Record')
-                ->class('btn btn-sm btn-danger custom-tooltip')
-                ->dispatch('openDeleteIndicatorModal', ['indicatorId' => $row->id]),
             Button::add('view')
                 ->slot('<i class="bx bx-show"></i>')
-                ->id()
+                ->class('btn btn-sm btn-warning custom-tooltip')
                 ->can(function () {
                     $user = User::find(auth()->user()->id);
                     return $user->hasAnyRole('admin');
@@ -284,21 +281,13 @@ final class IndicatorTable extends PowerGridComponent
 
     public function actionRules($row): array
     {
+        $user = User::find(auth()->user()->id);
         return [
             Rule::button('edit')
-                ->when(function ($row) {
-                    $user = User::find(auth()->user()->id);
-                    if ($user->hasAnyRole('external')) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                })
+                ->when(fn($row) => !$user->hasAnyRole('admin'))
                 ->disable(),
 
-            Rule::button('delete')
-                ->when(fn($row) => true)
-                ->disable(),
+
         ];
     }
 }
