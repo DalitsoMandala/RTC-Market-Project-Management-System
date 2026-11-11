@@ -195,35 +195,42 @@ final class IndicatorTable extends PowerGridComponent
         $this->refresh();
     }
 
-    public function columns(): array
-    {
-        $columns = [
+   public function columns(): array
+{
+    $columns = [
+        Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
+            ->sortable()
+            ->searchable(),
 
-            Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')->sortable()->searchable(),
-            Column::make('Indicator', 'name_link', 'indicator_name')
-                ->bodyAttribute(styleAttr: "white-space:wrap")
-                ->headerAttribute(styleAttr: "min-width:350px;")
+        Column::make('Indicator', 'name_link', 'indicator_name')
+            ->bodyAttribute(styleAttr: "white-space:wrap")
+            ->headerAttribute(styleAttr: "min-width:350px;")
+            ->searchable(),
 
-                ->searchable(),
+        Column::make('Disaggregations', 'disaggregations')
+            ->headerAttribute(styleAttr: "min-width:300px;")
+            ->bodyAttribute(styleAttr: "white-space:wrap"),
 
-            Column::make('Disaggregations', 'disaggregations')
-                ->headerAttribute(styleAttr: "min-width:300px;")
-                ->bodyAttribute(styleAttr: "white-space:wrap"),
-            Column::make('File Location', 'file_location')->searchable()->hidden(),
-            $columns[] = Column::action('Actions')->hidden(),
-        ];
+        Column::make('File Location', 'file_location')
+            ->searchable()
+            ->hidden(),
 
-        $user = User::find(auth()->user()->id);
+        Column::action('Actions')->hidden(),
+    ];
 
-        if ($user->hasAnyRole('admin')) {
-            $columns[] = Column::action('Actions');
-            $columns[] = Column::make('Active', 'is_active')
-                ->sortable()
-                ->searchable();
-        }
+    $user = User::find(auth()->id());
 
-        return $columns;
+    if ($user->hasAnyRole('admin')) {
+        // Insert Actions as the first column
+        array_unshift($columns, Column::action('Actions'));
+
+        $columns[] = Column::make('Active', 'is_active')
+            ->sortable()
+            ->searchable();
     }
+
+    return $columns;
+}
 
     #[On('toggleIndicatorStatus')]
     public function toggleIndicatorStatus($indicatorId): void
@@ -242,15 +249,37 @@ final class IndicatorTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-sm btn-warning')
+                ->class('btn btn-sm btn-warning custom-tooltip')
+                ->tooltip('Edit Record')
                 ->dispatch('openIndicatorModal', ['indicatorId' => $row->id]),
 
             Button::add('delete')
                 ->slot('<i class="bx bx-trash"></i>')
                 ->id()
-                ->class('btn btn-sm btn-danger')
+                ->tooltip('Delete Record')
+                ->class('btn btn-sm btn-danger custom-tooltip')
                 ->dispatch('openDeleteIndicatorModal', ['indicatorId' => $row->id]),
+            Button::add('view')
+                ->slot('<i class="bx bx-show"></i>')
+                ->id()
+                ->can(function () {
+                    $user = User::find(auth()->user()->id);
+                    return $user->hasAnyRole('admin');
+                })
+                ->class('btn btn-sm btn-warning custom-tooltip')
+                ->tooltip('View Record')
+               ->dispatch('view-sources', ['indicatorId' => $row->id,'indicatorNo' => $row->indicator_no]),
+
         ];
+    }
+
+    #[On('view-sources')]
+    public function viewSources($indicatorId, $indicatorNo)
+    {
+        // Handle the view sources action
+        // You can emit an event to open a modal or navigate to a details page
+        $route = route('admin-sources', [ 'indicator_no' => $indicatorNo]);
+        $this->redirect($route);
     }
 
     public function actionRules($row): array

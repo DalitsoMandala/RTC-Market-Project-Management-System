@@ -3,16 +3,17 @@
 namespace App\Livewire\Admin\Data;
 
 use App\Models\Form;
-use App\Models\Source;
-use Livewire\Component;
 use App\Models\Indicator;
-use Livewire\Attributes\On;
 use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
+use App\Models\Source;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
 
 class IndicatorSources extends Component
 {
@@ -31,6 +32,7 @@ class IndicatorSources extends Component
     public $selectedForms = [];
 
     public $rowId;
+    public $indicatorNo;
     public function save()
     {
         $this->validate();
@@ -104,10 +106,12 @@ class IndicatorSources extends Component
     // }
 
 
-    public function mount()
+    public function mount($indicator_no)
     {
 
         $this->indicators = Indicator::get();
+$this->indicatorNo = $indicator_no;
+
         // $this->forms = Form::whereNot('name', 'ATTENDANCE REGISTER')->whereNot('name', 'SEED DISTRIBUTION REGISTER')->whereNot('name', 'EMBASSY OF IRELAND')->get();
 
     }

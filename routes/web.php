@@ -168,7 +168,7 @@ Route::middleware([
     Route::get('/indicators', \App\Livewire\Admin\Data\Indicators::class)->name('admin-indicators');
     Route::get('/indicators/view/{id}', \App\Livewire\Admin\Data\ViewIndicators::class)->where('id', '[0-9]+')->name('admin-indicator-view');
     Route::get('/indicators/lead-partners', \App\Livewire\Admin\Data\LeadPartners::class)->name('admin-leads');
-    Route::get('/sources', \App\Livewire\Admin\Data\IndicatorSources::class)->name('admin-sources');
+    Route::get('/sources/{indicator_no?}', \App\Livewire\Admin\Data\IndicatorSources::class)->name('admin-sources');
     Route::get('/indicators-targets', \App\Livewire\Admin\Data\IndicatorTargets::class)->name('admin-indicators-targets');
     Route::get('/assigned-targets', \App\Livewire\Admin\Data\AssignedTargets::class)->name('admin-assigned-targets');
     Route::get('/forms', \App\Livewire\Admin\Operations\Forms::class)->name('admin-forms');

@@ -13,7 +13,7 @@
             <div class="col-12">
                 <x-alerts />
                 <x-table-card :title="'Indicator Sources'" :subtitle="'Manage indicator sources'" :isResponsive="false">
-                    <livewire:tables.indicator-sources-table />
+                    <livewire:tables.indicator-sources-table :indicatorNo="$indicatorNo" />
                 </x-table-card>
             </div>
         </div>

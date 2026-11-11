@@ -29,7 +29,7 @@
                         <span class="badge bg-danger-subtle text-danger my-2 ms-1 me-1 ">{{ 'Inactive: ' }}
                             <b>{{ $is_inactive }}</b></span>
                     @endhasanyrole
-                    <livewire:tables.indicatorTable :userId="auth()->user()->id" />
+                    <livewire:tables.indicatorTable :userId="auth()->user()->id"  />
                 </x-table-card>
             </div>
         </div>

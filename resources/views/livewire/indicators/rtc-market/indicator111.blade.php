@@ -7,13 +7,13 @@
 
 
         <div class="row">
-             <div class="col-12 col-md-12 ">
-<x-table-card title="Table view" subtitle="Indicator A1 data" :isResponsive="false">
+            <div class="col-12 col-md-12 ">
+                <x-table-card title="Table view" subtitle="Indicator A1 data" :isResponsive="false">
                     <div>
                         <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" />
                     </div>
                 </x-table-card>
-</div>
+            </div>
             <div class="col-12 col-md-12 ">
 
                 <div class="alert alert-warning" role="alert">
