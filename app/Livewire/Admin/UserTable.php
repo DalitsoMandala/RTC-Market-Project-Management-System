@@ -208,7 +208,7 @@ final class UserTable extends PowerGridComponent
 
             // Disable if the user is already inactive/deleted
             Rule::button('delete')
-                ->when(fn($row) => $row->is_active == 1)
+                ->when(fn($row) => $row->is_active == 0)
                 ->disable(),
 
             // --- RESTORE BUTTON RULES ---
@@ -216,6 +216,7 @@ final class UserTable extends PowerGridComponent
             Rule::button('restore')
                 ->when(fn($row) => $row->is_active == 1)
                 ->disable(),
+
         ];
     }
 }
